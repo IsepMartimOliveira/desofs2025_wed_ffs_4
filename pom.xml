@@ -59,6 +59,12 @@
 			<version>1.4.200</version>
 		</dependency>
 
+		<dependency>
+        	<groupId>org.postgresql</groupId>
+        	<artifactId>postgresql</artifactId>
+        	<version>42.3.8</version>
+    	</dependency>
+
 		<!-- security, authentication & authorization -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
