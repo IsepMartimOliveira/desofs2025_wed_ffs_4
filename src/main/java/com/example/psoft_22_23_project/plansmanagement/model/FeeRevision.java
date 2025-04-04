@@ -2,6 +2,7 @@ package com.example.psoft_22_23_project.plansmanagement.model;
 
 import lombok.Data;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.time.LocalDate;
 
@@ -12,6 +13,7 @@ public class FeeRevision {
 
     private Double annualFee;
     private Double monthlyFee;
+    @Column(name = "\"user\"")
     private String user;
     private String time;
 
