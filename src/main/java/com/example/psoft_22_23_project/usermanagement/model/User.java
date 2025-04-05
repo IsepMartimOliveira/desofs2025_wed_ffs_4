@@ -44,6 +44,7 @@ import java.util.Set;
  *
  */
 @Entity
+@Table(name = "app_user")
 @Getter
 @EntityListeners(AuditingEntityListener.class)
 public class User implements UserDetails {
