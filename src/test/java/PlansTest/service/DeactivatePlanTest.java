@@ -4,7 +4,6 @@ import com.example.psoft_22_23_project.plansmanagement.model.*;
 import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepository;
 import com.example.psoft_22_23_project.plansmanagement.services.PlansServiceImpl;
 import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepository;
-import org.h2.table.Plan;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
