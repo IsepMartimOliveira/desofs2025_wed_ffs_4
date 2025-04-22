@@ -17,7 +17,7 @@
 
 | ID   | Name              | Description                                                                 | Trust Levels |
 |------|-------------------|-----------------------------------------------------------------------------|--------------|
-| 1    | HTTPS API Gateway | All API traffic enters via HTTPS; provides secure transport for all endpoints. | (1) Anonymous User<br>(2) Authenticate User<br>(3) Subscriber<br>(4) Project Manager<br>(5) Financial Director<br>(6) Marketing Director<br>(7) Admin |
+| 1    | HTTPS  | All API traffic enters via HTTPS; provides secure transport for all endpoints. | (1) Anonymous User<br>(2) Authenticate User<br>(3) Subscriber<br>(4) Project Manager<br>(5) Financial Director<br>(6) Marketing Director<br>(7) Admin |
 | 1.1  | /auth/login       | Accepts user credentials and returns a signed JWT token.                    | (1) Anonymous User |
 | 1.2  | /auth/register    | Creates a new user account (if implemented).                                | (1) Anonymous User |
 | 1.3  | /plans            | Publicly exposes available subscription plans.                              | (1) Anonymous User<br>(3) Subscriber |
@@ -26,7 +26,6 @@
 | 1.6  | /dashboard/*      | Returns metrics like churn rate, new users, and cancellations.              | (4) Project Manager<br>(5) Financial Director |
 | 1.8  | /devices          | Allows users to manage devices (add, remove, edit, list).                   | (3) Subscriber |
 | 1.9  | /user/photo      | Allows users to upload their profile picture.                               | (3) Subscriber |
-| 1.11 | /docs/swagger-ui  | Exposes API documentation for developers (must be restricted in production).| (7) Admin *(or public for testing only)* |
 
 
 
@@ -40,7 +39,6 @@
 | 3   | Logs               | Logging information including error logs, access logs, or audit logs for monitoring and analysis. |
 | 4   | API Responses      | Sending responses from API endpoints to client applications or services. |
 | 5   | Redirects          | Redirecting users to other pages or URLs within the application or to external sites. |
-| 6   | Cookies and Sessions | Sending session data or cookies to users' browsers for authentication and session management. |
 | 7   | Notifications      | Sending notifications to users via email, SMS, or in-app messages.         |
 
 ##  Assets
@@ -89,7 +87,7 @@ An overview of the system .
 ## User Upload File
 ![Data Flow Diagram](img/upload_file_dfd.png)
 
-
+##  Use and Abuse Cases Diagram
 
 
 ### References
