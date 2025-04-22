@@ -102,3 +102,27 @@ The system architecture is based on a **REST API** connected to a **relational d
 
 
 
+### Data Flow Diagram
+
+#### DFD Level 0 
+
+#### DFD Level 1 - Subscriptions
+
+
+
+### STRIDE
+
+
+
+
+
+#### TABLE X - STRIDE Threat Model level 1  for Subscriptions
+
+| **Threat Category**     | **Security Property Violated** | **Description**  |
+|-------------------------|-------------------------------|------------------|
+| **Spoofing**            | Authentication                | An attacker impersonates a legitimate user due to weak authentication mechanisms, gaining access to subscription details or modifying plans. |
+| **Tampering**           | Integrity                     | Unauthorized manipulation of subscription data in transit or at rest, such as altering plan details, payment methods, or subscription status, due to insufficient data validation or protection. |
+| **Repudiation**         | Non-repudiation               | Users deny actions like canceling subscriptions or upgrading plans, exploiting the absence of proper audit logs and traceability. |
+| **Information Disclosure** | Confidentiality            | Exposure of sensitive data (e.g., subscription details, payment info) to unauthorized users due to improper access control or insecure data handling. |
+| **Denial of Service**   | Availability                  | Attackers flood the API with excessive requests, overloading endpoints and preventing legitimate users or admins from accessing subscription services. |
+| **Elevation of Privilege** | Authorization              | A regular user exploits system flaws to gain administrative or marketing director privileges, allowing unauthorized modification of plans, pricing, or user migrations. |
