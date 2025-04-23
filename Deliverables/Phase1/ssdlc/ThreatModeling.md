@@ -87,6 +87,18 @@ An overview of the system .
 ## User Upload File
 ![Data Flow Diagram](img/upload_file_dfd.png)
 
+
+## Threat Tree Analysis
+
+###  User Authentication
+![Threat Three Login](img/threath_tree_login.png)
+
+### User Upload File
+![Threat Three Login](img/threat_tree_upload_file.png)
+
+### User Account Creation
+![Threat Three Login](img/threat_tree_create_account.png)
+
 ##  Use and Abuse Cases Diagram
 
 
