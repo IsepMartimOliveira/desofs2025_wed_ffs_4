@@ -71,21 +71,26 @@
 
 ## Data Flow Diagram
 
-An overview of the system .
+### 
 
 ![Data Flow Diagram](img/dfd_overview.png)
 
 
-## User Login
+### User Login
 ![Data Flow Diagram](img/dfd_login.png)
 
 
-## User Account Creation
+### User Account Creation
 
 ![Data Flow Diagram](img/dfd_account_creation.png)
 
-## User Upload File
+### User Upload File
 ![Data Flow Diagram](img/dfd_upload_file.png)
+
+### Subscriptions
+
+![Data Flow Diagram](img/dfd_subscriptions.png)
+
 
 
 ## Threat Tree Analysis
@@ -98,6 +103,9 @@ An overview of the system .
 
 ### User Account Creation
 ![Threat Three Login](img/threat_tree_create_account.png)
+
+
+
 
 ##  Use and Abuse Cases Diagram
 

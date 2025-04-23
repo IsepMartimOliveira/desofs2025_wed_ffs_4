@@ -39,3 +39,14 @@ Stride is a threat modeling framework that helps identify and categorize potenti
 | **I - Information Disclosure**| Confidentiality               | Uploaded files are publicly accessible or include metadata that leaks sensitive user or system info. |
 | **D - Denial of Service**     | Availability                  | Oversized or malformed file uploads consume storage or crash services.                              |
 | **E - Elevation of Privilege**| Authorization                 | File upload exploits lead to code execution or access to restricted server paths.                    |
+
+### Subscriptions
+
+| **Threat Category**     | **Security Property Violated** | **Description**  |
+|-------------------------|-------------------------------|------------------|
+| **Spoofing**            | Authentication                | An attacker impersonates a legitimate user due to weak authentication mechanisms, gaining access to subscription details or modifying plans. |
+| **Tampering**           | Integrity                     | Unauthorized manipulation of subscription data in transit or at rest, such as altering plan details, payment methods, or subscription status, due to insufficient data validation or protection. |
+| **Repudiation**         | Non-repudiation               | Users deny actions like canceling subscriptions or upgrading plans, exploiting the absence of proper audit logs and traceability. |
+| **Information Disclosure** | Confidentiality            | Exposure of sensitive data (e.g., subscription details, payment info) to unauthorized users due to improper access control or insecure data handling. |
+| **Denial of Service**   | Availability                  | Attackers flood the API with excessive requests, overloading endpoints and preventing legitimate users or admins from accessing subscription services. |
+| **Elevation of Privilege** | Authorization              | A regular user exploits system flaws to gain administrative or marketing director privileges, allowing unauthorized modification of plans, pricing, or user migrations. |
