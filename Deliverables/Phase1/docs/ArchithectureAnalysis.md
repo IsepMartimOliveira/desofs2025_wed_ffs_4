@@ -105,3 +105,13 @@
 
 ### Level 3:
 ![Implementation View N1](./VI/VI-N3.png)
+
+## Deployment View
+
+### Curent Deployment View
+![Deployment View Current](./VD/VD_current_deployment.png)
+
+
+### Future Deployment View
+
+![Deployment View Future](./VD/VD_future_deployment.png)
