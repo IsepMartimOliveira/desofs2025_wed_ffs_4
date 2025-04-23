@@ -5,14 +5,37 @@ Stride is a threat modeling framework that helps identify and categorize potenti
 #  Analysis
 ## User
 
+### Login
+
+
+| **Threat Category**            | **Security Property Violated** | **Description**                                                                                 |
+|-------------------------------|-------------------------------|-------------------------------------------------------------------------------------------------|
+| **S - Spoofing**              | Authentication                | Attackers use stolen credentials, session tokens, or brute-force to impersonate legitimate users. |
+| **T - Tampering**             | Integrity                     | Login parameters (e.g., password hash or token) are altered in transit or via client-side manipulation. |
+| **R - Repudiation**           | Non-repudiation               | Users claim they never logged in, creating disputes without proper audit logging.               |
+| **I - Information Disclosure**| Confidentiality               | Error messages or debug logs leak whether usernames exist or reveal internal login logic.        |
+| **D - Denial of Service**     | Availability                  | Brute-force attacks or repeated login attempts lock accounts or degrade login service performance. |
+| **E - Elevation of Privilege**| Authorization                 | Attacker manipulates login flow to access higher-privileged user sessions.                      |
+
+### Account Creation
+| **Threat Category**            | **Security Property Violated** | **Description**                                                                                   |
+|-------------------------------|-------------------------------|---------------------------------------------------------------------------------------------------|
+| **S - Spoofing**              | Authentication                | Malicious users register fake identities to impersonate others or inflate user counts.            |
+| **T - Tampering**             | Integrity                     | Registration forms manipulated to inject scripts or escalate default privileges.                  |
+| **R - Repudiation**           | Non-repudiation               | Users deny agreeing to terms or dispute ownership of registered accounts.                         |
+| **I - Information Disclosure**| Confidentiality               | Backend responses reveal too much data (e.g., which emails are registered).                       |
+| **D - Denial of Service**     | Availability                  | Bots create mass accounts, consuming storage and processing capacity.                             |
+| **E - Elevation of Privilege**| Authorization                 | Attackers register accounts that bypass default role assignments through form manipulation.       |
 
 
 
-| STRIDE Category             | Threat Scenarios                                                                                             | Potential Impacts                                                      |  Countermeasures                                                                                                                                   |
-|----------------------------|-----------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **S - Spoofing**           | - Credential stuffing<br>- Fake account creation<br>- Impersonation via stolen sessions                              | Unauthorized access, identity fraud, fake user base                    | - Multi-factor authentication (MFA)<br>- Email/phone verification<br>- CAPTCHA<br>- Secure session/token handling                                        |
-| **T - Tampering**          | - Altered input parameters (form, upload paths)<br>- Modified tokens/cookies<br>- Uploading disguised malicious files | Data corruption, bypassed validations, privilege abuse                 | - Input validation (server-side)<br>- Use HTTPS<br>- Signed/secure tokens<br>- Strict upload validation and storage                                      |
-| **R - Repudiation**        | - Denying actions like logins or uploads<br>- Disputing registration or policy agreements                            | Loss of accountability and traceability                               | - Logging events with user IDs/IPs<br>- Timestamped logs<br>- Notification emails<br>- Terms and conditions tracking                                    |
-| **I - Information Disclosure** | - Detailed error messages<br>- Sensitive data in URLs, logs, or image metadata<br>- Unprotected uploaded files     | Privacy breaches, data leakage, enumeration attacks                    | - Use generic error messages<br>- Encrypt sensitive data in transit<br>- Secure storage and access controls<br>- Strip sensitive metadata (e.g., EXIF)  |
-| **D - Denial of Service**  | - Brute force attacks<br>- Mass account creation (bots)<br>- Upload abuse (oversized/malformed files)                 | Service disruption, performance degradation, resource exhaustion       | - Rate limiting<br>- CAPTCHA<br>- File size/type restrictions<br>- Exponential backoff on retries                                                       |
-| **E - Elevation of Privilege** | - Bypassing role assignments<br>- Upload-based exploits<br>- Registering with elevated permissions                | Unauthorized admin access, system compromise                          | - Enforce least privilege<br>- Validate and restrict role assignments<br>- Separate sensitive functions from public logic                               |
+### Upload File
+
+| **Threat Category**            | **Security Property Violated** | **Description**                                                                                      |
+|-------------------------------|-------------------------------|------------------------------------------------------------------------------------------------------|
+| **S - Spoofing**              | Authentication                | Uploaded files falsely claim ownership or are submitted using stolen user sessions.                  |
+| **T - Tampering**             | Integrity                     | File names, extensions, or metadata are manipulated to bypass file validation and upload malware.    |
+| **R - Repudiation**           | Non-repudiation               | Users deny uploading specific files, challenging accountability without upload logs.                 |
+| **I - Information Disclosure**| Confidentiality               | Uploaded files are publicly accessible or include metadata that leaks sensitive user or system info. |
+| **D - Denial of Service**     | Availability                  | Oversized or malformed file uploads consume storage or crash services.                              |
+| **E - Elevation of Privilege**| Authorization                 | File upload exploits lead to code execution or access to restricted server paths.                    |
