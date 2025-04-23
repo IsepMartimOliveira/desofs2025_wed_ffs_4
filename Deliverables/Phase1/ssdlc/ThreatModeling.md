@@ -91,7 +91,9 @@
 
 ![Data Flow Diagram](img/dfd_subscriptions.png)
 
+### Plans
 
+![Data Flow Diagram](img/dfd_plans.png)
 
 ## Threat Tree Analysis
 
