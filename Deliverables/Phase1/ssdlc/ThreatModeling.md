@@ -73,19 +73,19 @@
 
 An overview of the system .
 
-![Data Flow Diagram](img/overview_dfd.png)
+![Data Flow Diagram](img/dfd_overview.png)
 
 
 ## User Login
-![Data Flow Diagram](img/login_dfd.png)
+![Data Flow Diagram](img/dfd_login.png)
 
 
 ## User Account Creation
 
-![Data Flow Diagram](img/account_creation_dfd.png)
+![Data Flow Diagram](img/dfd_account_creation.png)
 
 ## User Upload File
-![Data Flow Diagram](img/upload_file_dfd.png)
+![Data Flow Diagram](img/dfd_upload_file.png)
 
 
 ## Threat Tree Analysis
