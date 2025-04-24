@@ -20,7 +20,6 @@
  */
 package com.example.psoft_22_23_project.usermanagement.services;
 
-import com.example.psoft_22_23_project.exceptions.ConflictException;
 import com.example.psoft_22_23_project.filestoragemanagement.service.FileStorageService;
 import com.example.psoft_22_23_project.usermanagement.api.*;
 import com.example.psoft_22_23_project.usermanagement.model.User;
@@ -36,12 +35,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.ValidationException;
-import java.util.List;
+import javax.imageio.ImageIO;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
 
 @Service
@@ -64,6 +63,8 @@ public class UserService implements UserDetailsService {
 	}
 
     public User upload(MultipartFile file) {
+
+
 
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		int commaIndex = username.indexOf(",");
@@ -113,4 +114,6 @@ public class UserService implements UserDetailsService {
 		return resource;
 
 	}
+	//Verifica se é uma imagem
+
 }
