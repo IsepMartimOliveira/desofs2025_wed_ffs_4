@@ -9,6 +9,7 @@
 | FEATURE_001 | User Authentication  | Allow users to login using credentials and receive a JWT token |
 | FEATURE_002 | Account Creation     | Allow new customers to register and create an account          |
 | FEATURE_003 | Profile Image Upload | Allow subscribers to upload an image to their profile          |
+| FEATURE_004 | Subscription Management | Allow users to subscribe, upgrade, downgrade, or cancel their music streaming plans |
 
 ## COUNTERMEASURES
 
@@ -27,18 +28,23 @@
 
 ## ABUSE CASES
 
-|  ID | Feature ID impacted | Abuse case's description | Countermeasure ID applicable |
-|----------------------|---------------------|----------------------------------|------------------------------|
+|  ID | Feature ID impacted | Abuse case's description                                                                                        | Countermeasure ID applicable |
+|----------------------|---------------------|-----------------------------------------------------------------------------------------------------------------|------------------------------|
 | ABUSE_CASE_001 | FEATURE_001 | Brute Force Attack: Attackers use automated tools to systematically guess passwords to gain unauthorized access | DEFENSE_002, DEFENSE_004 |
-| ABUSE_CASE_002 | FEATURE_001 | JWT Token Theft: Attackers intercept or steal JWT tokens to impersonate legitimate users | DEFENSE_001, DEFENSE_008 |
-| ABUSE_CASE_003 | FEATURE_001 | Credential Stuffing: Attackers use credentials leaked from other services to gain access to user accounts | DEFENSE_002, DEFENSE_003 |
-| ABUSE_CASE_004 | FEATURE_002 | Bot Registration: Malicious actors use automated scripts to create large numbers of fake accounts | DEFENSE_009, DEFENSE_010 |
-| ABUSE_CASE_005 | FEATURE_002 | Registration Injection: Attackers submit malicious data during registration to exploit backend vulnerabilities | DEFENSE_005 |
-| ABUSE_CASE_006 | FEATURE_002 | Email Spoofing: Attackers register accounts with email addresses they don't own | DEFENSE_010 |
-| ABUSE_CASE_007 | FEATURE_003 | Malware Upload: Users upload files containing malware disguised as profile images | DEFENSE_006 |
-| ABUSE_CASE_008 | FEATURE_003 | Oversized Image Attack: Users upload extremely large images to consume server resources | DEFENSE_006 |
-| ABUSE_CASE_009 | FEATURE_003 | XSS through SVG: Users upload SVG images with embedded JavaScript to execute cross-site scripting attacks | DEFENSE_006, DEFENSE_007 |
-| ABUSE_CASE_010 | FEATURE_003 | Path Traversal: Attackers manipulate file paths during upload to access unauthorized files | DEFENSE_006, DEFENSE_007 |
+| ABUSE_CASE_002 | FEATURE_001 | JWT Token Theft: Attackers intercept or steal JWT tokens to impersonate legitimate users                        | DEFENSE_001, DEFENSE_008 |
+| ABUSE_CASE_003 | FEATURE_001 | Credential Stuffing: Attackers use credentials leaked from other services to gain access to user accounts       | DEFENSE_002, DEFENSE_003 |
+| ABUSE_CASE_004 | FEATURE_002 | Bot Registration: Malicious actors use automated scripts to create large numbers of fake accounts               | DEFENSE_009, DEFENSE_010 |
+| ABUSE_CASE_005 | FEATURE_002 | Registration Injection: Attackers submit malicious data during registration to exploit backend vulnerabilities  | DEFENSE_005 |
+| ABUSE_CASE_006 | FEATURE_002 | Email Spoofing: Attackers register accounts with email addresses they don't own                                 | DEFENSE_010 |
+| ABUSE_CASE_007 | FEATURE_003 | Malware Upload: Users upload files containing malware disguised as profile images                               | DEFENSE_006 |
+| ABUSE_CASE_008 | FEATURE_003 | Oversized Image Attack: Users upload extremely large images to consume server resources                         | DEFENSE_006 |
+| ABUSE_CASE_009 | FEATURE_003 | XSS through SVG: Users upload SVG images with embedded JavaScript to execute cross-site scripting attacks       | DEFENSE_006, DEFENSE_007 |
+| ABUSE_CASE_010 | FEATURE_003 | Path Traversal: Attackers manipulate file paths during upload to access unauthorized files                      | DEFENSE_006, DEFENSE_007 |
+| ABUSE_CASE_011 | FEATURE_004         | Privilege Escalation: User manipulates API calls to upgrade to subscriber without payment                       | DEFENSE_005, DEFENSE_007         |
+| ABUSE_CASE_012 | FEATURE_004         | Replay Attack: Reuse of old valid subscription requests to trigger unintended renewals                          | DEFENSE_001, DEFENSE_008, DEFENSE_011 |
+| ABUSE_CASE_013 | FEATURE_004         | Billing Manipulation: Attackers alter payment data to reduce subscription costs                                 | DEFENSE_005, DEFENSE_008, DEFENSE_012 |
+| ABUSE_CASE_014 | FEATURE_004         | Subscription Abuse: Sharing paid account credentials beyond allowed usage                                       | DEFENSE_001, DEFENSE_004, DEFENSE_013 |
+| ABUSE_CASE_015 | FEATURE_004         | Denial of Service: Automated cancellation/reactivation requests to overload billing system                      | DEFENSE_002, DEFENSE_004         |
 
 ## References
 
