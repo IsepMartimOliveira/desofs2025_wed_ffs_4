@@ -31,9 +31,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
@@ -77,6 +75,8 @@ public class User implements UserDetails {
 	@Getter
 	@NotNull
 	@NotBlank
+	@Size(min = 12)
+	@Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).+$")
 	private String password;
 
 	@Getter
