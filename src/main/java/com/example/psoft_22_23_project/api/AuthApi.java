@@ -5,7 +5,6 @@ import com.example.psoft_22_23_project.configuration.JwtService;
 import com.example.psoft_22_23_project.usermanagement.api.UserViewMapper;
 import com.example.psoft_22_23_project.usermanagement.model.User;
 import com.example.psoft_22_23_project.usermanagement.services.LoginAttemptService;
-import com.example.psoft_22_23_project.usermanagement.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

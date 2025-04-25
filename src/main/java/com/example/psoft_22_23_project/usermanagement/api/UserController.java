@@ -20,7 +20,6 @@
  */
 package com.example.psoft_22_23_project.usermanagement.api;
 
-import com.example.psoft_22_23_project.devicemanagement.api.DeviceController;
 import com.example.psoft_22_23_project.usermanagement.model.User;
 import com.example.psoft_22_23_project.usermanagement.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;

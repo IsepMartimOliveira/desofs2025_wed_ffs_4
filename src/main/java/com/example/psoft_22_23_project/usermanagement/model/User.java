@@ -20,19 +20,15 @@
  */
 package com.example.psoft_22_23_project.usermanagement.model;
 
-import com.example.psoft_22_23_project.devicemanagement.model.DeviceImage;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
-import java.time.LocalDateTime;
+import java.io.Serial;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -47,15 +43,14 @@ import java.util.Set;
 @EntityListeners(AuditingEntityListener.class)
 public class User implements UserDetails {
 
+	@Serial
 	private static final long serialVersionUID = 1L;
 
-	// database primary key
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Getter
 	private Long id;
 
-	// optimistic lock concurrency control
 	@Version
 	private Long version;
 
@@ -82,7 +77,6 @@ public class User implements UserDetails {
 	@Setter
 	private String location;
 
-	// New fields
 	@Column(nullable = false)
 	@Email
 	@Getter
@@ -99,14 +93,11 @@ public class User implements UserDetails {
 	@Setter
 	private int age;
 
-	@OneToOne(fetch = FetchType.EAGER)
+	@Setter
+    @OneToOne(fetch = FetchType.EAGER)
 	private UserImage userImage;
 
-	public void setUserImage(UserImage userImage) {
-		this.userImage = userImage;
-	}
-
-	@ElementCollection
+    @ElementCollection
 	@Getter
 	private final Set<Role> authorities = new HashSet<>();
 
@@ -126,23 +117,7 @@ public class User implements UserDetails {
 		this.age = age;
 	}
 
-	public static User newUser(final String username, final String password) {
-		final var u = new User(username, password);
-		return u;
-	}
 
-	public static User newUser(final String username, final String password, final String role) {
-		final var u = new User(username, password);
-		u.addAuthority(new Role(role));
-		return u;
-	}
-
-	// New factory method for the extended constructor
-	public static User newUser(final String username, final String password, String email, int phoneNumber, int age, final String role) {
-		final var u = new User(username, password, email, phoneNumber, age);
-		u.addAuthority(new Role(role));
-		return u;
-	}
 
 	public void setPassword(final String password) {
 		this.password = Objects.requireNonNull(password);

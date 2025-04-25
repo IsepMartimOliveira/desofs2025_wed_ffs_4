@@ -39,17 +39,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.imageio.ImageIO;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
-	private final UserRepository userRepo;
-	private final UserViewMapper userViewMapper;
 	private final PasswordEncoder passwordEncoder;
 
 	private final UserRepository userRepository;
