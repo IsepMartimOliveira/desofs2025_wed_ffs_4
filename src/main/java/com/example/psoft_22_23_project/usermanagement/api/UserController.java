@@ -20,7 +20,6 @@
  */
 package com.example.psoft_22_23_project.usermanagement.api;
 
-import com.example.psoft_22_23_project.devicemanagement.api.DeviceController;
 import com.example.psoft_22_23_project.usermanagement.model.User;
 import com.example.psoft_22_23_project.usermanagement.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,10 +41,10 @@ import java.net.URISyntaxException;
 
 @Tag(name = "UserAdmin")
 @RestController
-@RequestMapping(path = "api/user/photo")
+@RequestMapping(path = "api/user")
 @RequiredArgsConstructor
 public class UserController {
-	private static final Logger logger = LoggerFactory.getLogger(DeviceController.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
 	private final UserService userService;
 
@@ -54,7 +53,7 @@ public class UserController {
 
 
 	@Operation(summary = "Upload Image")
-	@PatchMapping
+	@PatchMapping("photo")
 	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseEntity<UserView> upload(
 			@RequestParam(name = "file", required = false) final MultipartFile file)
@@ -66,7 +65,7 @@ public class UserController {
 	}
 
 	@Operation(summary = "Downloads a photo of a device")
-	@GetMapping
+	@GetMapping("photo")
 	public ResponseEntity<Resource> downloadFile(final HttpServletRequest request) {
 
 
@@ -79,7 +78,6 @@ public class UserController {
 			logger.info("Could not determine file type.");
 		}
 
-		// Fallback to the default content type if type could not be determined
 		if (contentType == null) {
 			contentType = "application/octet-stream";
 		}
@@ -87,6 +85,15 @@ public class UserController {
 		return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
 				.body(resource);
+	}
+
+	@Operation(summary = "Create a user account")
+	@PostMapping("account")
+	@ResponseStatus(HttpStatus.CREATED)
+	public ResponseEntity<UserView> createUser(@RequestBody CreateUserRequest user) {
+
+		User createdUser = userService.createUser(user);
+		return ResponseEntity.status(HttpStatus.CREATED).body(userViewMapper.toUserView(createdUser));
 	}
 
 

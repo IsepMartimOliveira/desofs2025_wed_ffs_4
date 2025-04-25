@@ -21,6 +21,7 @@
 package com.example.psoft_22_23_project.filestoragemanagement.service;
 
 import com.example.psoft_22_23_project.exceptions.NotFoundException;
+import com.example.psoft_22_23_project.filestoragemanagement.sanitize.SanitizeImage;
 import com.example.psoft_22_23_project.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -62,6 +64,20 @@ public class FileStorageService {
 	}
 
 	public String storeFile(final String prefix, final MultipartFile file) {
+		if (file == null) {
+			throw new IllegalArgumentException("File is null");
+		}
+
+		// Valida o ficheiro, MIME type, extensoes
+		try (InputStream inputStream = file.getInputStream()) {
+			if (!SanitizeImage.isValidImage(file.getOriginalFilename(), inputStream)) {
+				throw new FileStorageException("Invalid image file!");
+			}
+		} catch (IOException ex) {
+			throw new FileStorageException("Error while validating the file", ex);
+		}
+
+
 		final String fileName = Utils.transformSpaces(prefix) + "_" + determineFileName(file);
 
 		// Copy file to the target location (Replacing existing file with the same name)
@@ -83,6 +99,7 @@ public class FileStorageService {
 //			throw new FileStorageException("Sorry! Filename contains invalid path sequence " + fileName);
 //		}
 //		return fileName;
+
 
 		return UUID.randomUUID().toString() + "." + getExtension(file.getOriginalFilename()).orElse("");
 	}

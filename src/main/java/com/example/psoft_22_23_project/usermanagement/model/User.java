@@ -20,21 +20,15 @@
  */
 package com.example.psoft_22_23_project.usermanagement.model;
 
-import com.example.psoft_22_23_project.devicemanagement.model.DeviceImage;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import javax.validation.constraints.*;
+import java.io.Serial;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -49,18 +43,16 @@ import java.util.Set;
 @EntityListeners(AuditingEntityListener.class)
 public class User implements UserDetails {
 
+	@Serial
 	private static final long serialVersionUID = 1L;
 
-	// database primary key
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Getter
 	private Long id;
 
-	// optimistic lock concurrency control
 	@Version
 	private Long version;
-
 
 	@Setter
 	@Getter
@@ -77,20 +69,35 @@ public class User implements UserDetails {
 	@Getter
 	@NotNull
 	@NotBlank
+	@Size(min = 12)
+	@Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).+$")
 	private String password;
 
 	@Getter
 	@Setter
 	private String location;
 
-	@OneToOne(fetch = FetchType.EAGER)
+	@Column(nullable = false)
+	@Email
+	@Getter
+	@Setter
+	private String email;
+
+	@Column(nullable = false)
+	@Getter
+	@Setter
+	private int phoneNumber;
+
+	@Column(nullable = false)
+	@Getter
+	@Setter
+	private int age;
+
+	@Setter
+    @OneToOne(fetch = FetchType.EAGER)
 	private UserImage userImage;
 
-	public void setUserImage(UserImage userImage) {
-		this.userImage = userImage;
-	}
-
-	@ElementCollection
+    @ElementCollection
 	@Getter
 	private final Set<Role> authorities = new HashSet<>();
 
@@ -102,18 +109,15 @@ public class User implements UserDetails {
 		setPassword(password);
 	}
 
-
-	public static User newUser(final String username, final String password) {
-		final var u = new User(username, password);
-		return u;
+	public User(final String username, final String password, String email, int phoneNumber, int age) {
+		this.username = username;
+		setPassword(password);
+		this.email = email;
+		this.phoneNumber = phoneNumber;
+		this.age = age;
 	}
 
 
-	public static User newUser(final String username, final String password, final String role) {
-		final var u = new User(username, password);
-		u.addAuthority(new Role(role));
-		return u;
-	}
 
 	public void setPassword(final String password) {
 		this.password = Objects.requireNonNull(password);

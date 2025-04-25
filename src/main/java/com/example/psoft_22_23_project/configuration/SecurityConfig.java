@@ -158,8 +158,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 						.antMatchers(HttpMethod.GET,"/api/dashboard/currentRevenue").hasRole(Role.Financial_director)
 
 						//.antMatchers("/api/admin/user/**").hasRole(Role.User_Admin) // user management no
-						.antMatchers("api/user/photo/**").hasRole(Role.Subscriber)// photo for user upload and see it
-
+						.antMatchers("/api/user/photo/**").hasRole(Role.Subscriber)// photo for user upload and see it
+						.antMatchers(HttpMethod.POST,"/api/user/account").permitAll()// user account management
 						.anyRequest().authenticated()
 
 						.and().httpBasic(Customizer.withDefaults()).oauth2ResourceServer().jwt();
