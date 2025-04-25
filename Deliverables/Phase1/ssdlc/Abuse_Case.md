@@ -1,7 +1,5 @@
 # Security Analysis: Abuse Cases and Countermeasures for ACME Music Streaming Service
 
-
-
 ## FEATURES
 
 |  ID | Name                 | Description                                                    |
@@ -10,6 +8,9 @@
 | FEATURE_002 | Account Creation     | Allow new customers to register and create an account          |
 | FEATURE_003 | Profile Image Upload | Allow subscribers to upload an image to their profile          |
 | FEATURE_004 | Subscription Management | Allow users to subscribe, upgrade, downgrade, or cancel their music streaming plans |
+| FEATURE_005 | View Subscription Status | Allow authorized users (Product Manager) to view active/canceled subscription counts for a specific month/year. |
+| FEATURE_006 | View Future Revenue | Allow authorized users (Product Manager, Financial Director) to view projected revenue for upcoming months, filterable by plan. |
+| FEATURE_007 | View Current Year-to-Date Revenue | Allow authorized users (Product Manager, Financial Director) to view year-to-date revenue, filterable by plan. |
 
 ## COUNTERMEASURES
 
@@ -25,6 +26,11 @@
 | DEFENSE_008 | HTTPS Implementation        | Ensure all data transmission uses encrypted HTTPS connections |
 | DEFENSE_009 | CAPTCHA Implementation      | Use CAPTCHA on registration to prevent automated account creation |
 | DEFENSE_010 | Email Verification          | Require email verification before account activation |
+| DEFENSE_011 | Role-Based Access Control   | Enforce strict RBAC checks on all dashboard endpoints to ensure only users with appropriate roles (Product Manager, Financial Director) can access them. |
+| DEFENSE_012 | Secure Error Handling       | Implement generic error messages for dashboard operations to avoid leaking sensitive system details or data structure. |
+| DEFENSE_013 | Parameter Validation        | Rigorously validate all input parameters (`year`, `month`, `plan`, `numberMonth`, `startDate`, `endDate`), checking types, formats, ranges, and potential malicious content. |
+| DEFENSE_014 | Audit Logging               | Log all access attempts to dashboard endpoints, including user ID, timestamp, requested parameters, and outcome. |
+| DEFENSE_015 | Resource Usage Limits       | Implement limits on query complexity, date ranges, or the value of `numberMonth` to prevent resource exhaustion (DoS). |
 
 ## ABUSE CASES
 
@@ -40,11 +46,21 @@
 | ABUSE_CASE_008 | FEATURE_003 | Oversized Image Attack: Users upload extremely large images to consume server resources                         | DEFENSE_006 |
 | ABUSE_CASE_009 | FEATURE_003 | XSS through SVG: Users upload SVG images with embedded JavaScript to execute cross-site scripting attacks       | DEFENSE_006, DEFENSE_007 |
 | ABUSE_CASE_010 | FEATURE_003 | Path Traversal: Attackers manipulate file paths during upload to access unauthorized files                      | DEFENSE_006, DEFENSE_007 |
-| ABUSE_CASE_011 | FEATURE_004         | Privilege Escalation: User manipulates API calls to upgrade to subscriber without payment                       | DEFENSE_005, DEFENSE_007         |
-| ABUSE_CASE_012 | FEATURE_004         | Replay Attack: Reuse of old valid subscription requests to trigger unintended renewals                          | DEFENSE_001, DEFENSE_008, DEFENSE_011 |
-| ABUSE_CASE_013 | FEATURE_004         | Billing Manipulation: Attackers alter payment data to reduce subscription costs                                 | DEFENSE_005, DEFENSE_008, DEFENSE_012 |
-| ABUSE_CASE_014 | FEATURE_004         | Subscription Abuse: Sharing paid account credentials beyond allowed usage                                       | DEFENSE_001, DEFENSE_004, DEFENSE_013 |
-| ABUSE_CASE_015 | FEATURE_004         | Denial of Service: Automated cancellation/reactivation requests to overload billing system                      | DEFENSE_002, DEFENSE_004         |
+| ABUSE_CASE_011 | FEATURE_004 | Privilege Escalation: User manipulates API calls to upgrade to subscriber without payment                       | DEFENSE_005, DEFENSE_007 |
+| ABUSE_CASE_012 | FEATURE_004 | Replay Attack: Reuse of old valid subscription requests to trigger unintended renewals                          | DEFENSE_001, DEFENSE_008, DEFENSE_011 |
+| ABUSE_CASE_013 | FEATURE_004 | Billing Manipulation: Attackers alter payment data to reduce subscription costs                                 | DEFENSE_005, DEFENSE_008, DEFENSE_012 |
+| ABUSE_CASE_014 | FEATURE_004 | Subscription Abuse: Sharing paid account credentials beyond allowed usage                                       | DEFENSE_001, DEFENSE_004, DEFENSE_013 |
+| ABUSE_CASE_015 | FEATURE_004 | Denial of Service: Automated cancellation/reactivation requests to overload billing system                      | DEFENSE_002, DEFENSE_004 |
+| ABUSE_CASE_016 | FEATURE_005, FEATURE_006, FEATURE_007 | Unauthorized Access: A user without proper roles attempts to access dashboard endpoints.                      | DEFENSE_011 |
+| ABUSE_CASE_017 | FEATURE_005, FEATURE_006, FEATURE_007 | Session Hijacking: An attacker uses a stolen JWT token of an authorized user to access dashboard data.         | DEFENSE_001, DEFENSE_008, DEFENSE_011 |
+| ABUSE_CASE_018 | FEATURE_005, FEATURE_006, FEATURE_007 | Parameter Tampering (Injection): Attacker injects malicious strings into dashboard parameters.                | DEFENSE_005, DEFENSE_013 |
+| ABUSE_CASE_019 | FEATURE_005, FEATURE_006, FEATURE_007 | Parameter Tampering (Invalid Values): Attacker provides invalid or out-of-range values for dashboard parameters. | DEFENSE_005, DEFENSE_013 |
+| ABUSE_CASE_020 | FEATURE_006 | Parameter Tampering (Excessive Range): Attacker provides an extremely large value for `numberMonth`.            | DEFENSE_005, DEFENSE_013, DEFENSE_015 |
+| ABUSE_CASE_021 | FEATURE_005, FEATURE_006, FEATURE_007 | Information Disclosure (Error Messages): Attacker triggers errors to reveal internal system details.           | DEFENSE_012 |
+| ABUSE_CASE_022 | FEATURE_005, FEATURE_006, FEATURE_007 | Information Disclosure (Lack of Encryption): Attacker intercepts dashboard data over non-HTTPS connections.    | DEFENSE_008 |
+| ABUSE_CASE_023 | FEATURE_005, FEATURE_006, FEATURE_007 | Denial of Service (Flooding): Attacker floods dashboard endpoints with a high volume of requests.              | DEFENSE_002 |
+| ABUSE_CASE_024 | FEATURE_005, FEATURE_006, FEATURE_007 | Denial of Service (Resource Exhaustion): Attacker uses overly broad date ranges or complex queries.             | DEFENSE_015, DEFENSE_013 |
+| ABUSE_CASE_025 | FEATURE_005, FEATURE_006, FEATURE_007 | Repudiation: An authorized user denies accessing specific dashboard data due to lack of logs.                   | DEFENSE_014, DEFENSE_004 |
 
 ## References
 
@@ -56,3 +72,4 @@
 - [Should Passwords Be Cleared from Memory?](https://www.sjoerdlangkemper.nl/2016/05/22/should-passwords-be-cleared-from-memory/)
 - [File Upload Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html)
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+- [MITRE ATT&CK](https://attack.mitre.org/)
