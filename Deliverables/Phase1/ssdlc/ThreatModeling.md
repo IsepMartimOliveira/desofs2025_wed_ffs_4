@@ -115,6 +115,11 @@
 ![Threat Three Login](img/threat_tree_create_account.png)
 
 
+### Subscriptions
+
+![Threat Three Login](img/threat_tree_subscriptions.png)
+
+
 
 
 ##  Use and Abuse Cases Diagram
