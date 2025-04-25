@@ -119,8 +119,15 @@
 
 ![Threat Three Login](img/threat_tree_subscriptions.png)
 
+### Dashboard
 
+![Threat Three View Subscription Status](img/View_Subscription_Status_AT.png)
 
+![Threat Tree View Future Revenue](img/View_Future_Revenue_AT.png)
+
+#### Justification for Omission of View Current Year-to-Date Revenue Attack Tree
+
+The attack tree for the "View Current Year-to-Date Revenue" feature has been omitted because it is identical to the "View Subscription Status" attack tree. Both features share the same abuse cases and countermeasures. As a result, duplicating the attack tree would not provide additional insights or value to the threat modeling process.
 
 ##  Use and Abuse Cases Diagram
 
