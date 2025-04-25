@@ -52,6 +52,20 @@ Stride is a threat modeling framework that helps identify and categorize potenti
 
 ---
 
+### Plans
+
+| **Threat Category**       | **Security Property Violated** | **Description**                                                                                                                                                     |
+|---------------------------|-------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Spoofing**              | Authentication                | Unauthorized users impersonate Marketing Director, which allows them to create, edit, or remove plans.                                                              |
+| **Tampering**             | Integrity                     | Attackers manipulate critical data in the database or in the requests, to keep access to plans or reduce a plan cost, which is possible due to the lack of security |
+| **Repudiation**           | Non-repudiation               | Users deny being able to access or view plans knowing there are no logs available.                                                                                  |
+| **Information Disclosure**| Confidentiality               | Sensitive data may be disclosured, due to improper access control, insecure data handling or response interception.                                                 |
+| **Denial of Service**     | Availability                  | Excessive amount of requests to view plans, impacts the system availability, either by reducing response time or shutting it down completely.                       |
+| **Elevation of Privilege**| Authorization                 | Unauthorized users are able to access to Marketing Director functionalities due to faulted role validation.                                                         |
+
+
+---
+
 ### Dashboard
 
 | **Threat Category**       | **Security Property Violated** | **Description**                                                                                   |
