@@ -95,6 +95,14 @@
 
 ![Data Flow Diagram](img/dfd_plans.png)
 
+### Dashboard
+
+![Data Flow Diagram - Subscriptions Metrics](img/dfd_subscriptions_metrics.png)
+
+![Data Flow Diagram - Subscription revenue plan](img/dfd_revenue_plan.png)
+
+![Data Flow Diagram - Subscription Revenue till now](img/dfd_revenue_till_now.png)
+
 ## Threat Tree Analysis
 
 ###  User Authentication
