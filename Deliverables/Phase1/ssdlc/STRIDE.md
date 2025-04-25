@@ -1,12 +1,12 @@
 # 🛡️ STRIDE Threat Model
 
-Stride is a threat modeling framework that helps identify and categorize potential security threats in software systems. 
+Stride is a threat modeling framework that helps identify and categorize potential security threats in software systems.
 
-#  Analysis
+# Analysis
+
 ## User
 
 ### Login
-
 
 | **Threat Category** | **Security Property Violated** | **Description**                                                                                 |
 |--------------|-------------------------------|-------------------------------------------------------------------------------------------------|
@@ -18,6 +18,7 @@ Stride is a threat modeling framework that helps identify and categorize potenti
 | **Elevation of Privilege**| Authorization                 | Attacker manipulates login flow to access higher-privileged user sessions.                      |
 
 ### Account Creation
+
 | **Threat Category** | **Security Property Violated** | **Description**                                                                                   |
 |---------------|-------------------------------|---------------------------------------------------------------------------------------------------|
 | **Spoofing**  | Authentication                | Malicious users register fake identities to impersonate others or inflate user counts.            |
@@ -26,8 +27,6 @@ Stride is a threat modeling framework that helps identify and categorize potenti
 | **Information Disclosure**| Confidentiality               | Backend responses reveal too much data (e.g., which emails are registered).                       |
 | **Denial of Service** | Availability                  | Bots create mass accounts, consuming storage and processing capacity.                             |
 | **Elevation of Privilege**| Authorization                 | Attackers register accounts that bypass default role assignments through form manipulation.       |
-
-
 
 ### Upload File
 
@@ -50,3 +49,22 @@ Stride is a threat modeling framework that helps identify and categorize potenti
 | **Information Disclosure** | Confidentiality            | Exposure of sensitive data (e.g., subscription details, payment info) to unauthorized users due to improper access control or insecure data handling. |
 | **Denial of Service**   | Availability                  | Attackers flood the API with excessive requests, overloading endpoints and preventing legitimate users or admins from accessing subscription services. |
 | **Elevation of Privilege** | Authorization              | A regular user exploits system flaws to gain administrative or marketing director privileges, allowing unauthorized modification of plans, pricing, or user migrations. |
+
+---
+
+### Dashboard
+
+| **Threat Category**       | **Security Property Violated** | **Description**                                                                                   |
+|---------------------------|-------------------------------|---------------------------------------------------------------------------------------------------|
+| **Spoofing**              | Authentication                | Unauthorized users impersonate Product Manager, Financial Director, or Project Manager using stolen JWT tokens. |
+| **Tampering**             | Integrity                     | Malicious users manipulate input parameters (e.g., `plan`, `numberMonth`, `startDate`, `endDate`) to cause unexpected behavior and manipulate plans data. |
+| **Repudiation**           | Non-repudiation               | Users deny accessing revenue or subscription data due to lack of proper audit logs.               |
+| **Information Disclosure**| Confidentiality               | Unauthorized access to sensitive data (e.g., revenue, subscription details) due to improper access control, insecure error handling or response interception due to the lack of encryption. |
+| **Denial of Service**     | Availability                  | Excessive requests or malformed inputs cause resource exhaustion, impacting service availability. |
+| **Elevation of Privilege**| Authorization                 | Unauthorized users access higher-privileged (Product Manager or Financial Director) functionalities due to insufficient role validation.  |
+
+**Justification for a Single STRIDE Analysis Table:**
+
+A single STRIDE analysis table was included because the threats identified across the functionalities of the Dashboard Management component share similar patterns. These functionalities (e.g., processing revenue, querying subscriptions) involve common actors, data flows, and security concerns. By consolidating the analysis, we can efficiently address overlapping threats and apply consistent mitigation strategies.
+
+---
