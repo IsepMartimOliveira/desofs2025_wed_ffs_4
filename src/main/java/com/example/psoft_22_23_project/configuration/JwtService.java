@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.Instant;
-import java.util.UUID;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;

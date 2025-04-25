@@ -2,7 +2,6 @@ package com.example.psoft_22_23_project.api;
 
 import com.example.psoft_22_23_project.configuration.ClientIPUtil;
 import com.example.psoft_22_23_project.configuration.JwtService;
-import com.example.psoft_22_23_project.usermanagement.api.UserView;
 import com.example.psoft_22_23_project.usermanagement.api.UserViewMapper;
 import com.example.psoft_22_23_project.usermanagement.model.User;
 import com.example.psoft_22_23_project.usermanagement.services.LoginAttemptService;
@@ -33,9 +32,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * REST controller for authentication operations
- */
+
 @Tag(name = "Authentication")
 @RestController
 @RequiredArgsConstructor
@@ -45,7 +42,6 @@ public class AuthApi {
 
 	private final AuthenticationManager authenticationManager;
 	private final UserViewMapper userViewMapper;
-	private final UserService userService;
 	private final LoginAttemptService loginAttemptService;
 	private final JwtService jwtService;
 	private final ClientIPUtil clientIPUtil;

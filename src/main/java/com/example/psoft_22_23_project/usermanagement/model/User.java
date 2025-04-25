@@ -59,7 +59,6 @@ public class User implements UserDetails {
 	@Version
 	private Long version;
 
-
 	@Setter
 	@Getter
 	private boolean enabled = true;
@@ -83,6 +82,23 @@ public class User implements UserDetails {
 	@Setter
 	private String location;
 
+	// New fields
+	@Column(nullable = false)
+	@Email
+	@Getter
+	@Setter
+	private String email;
+
+	@Column(nullable = false)
+	@Getter
+	@Setter
+	private int phoneNumber;
+
+	@Column(nullable = false)
+	@Getter
+	@Setter
+	private int age;
+
 	@OneToOne(fetch = FetchType.EAGER)
 	private UserImage userImage;
 
@@ -102,15 +118,28 @@ public class User implements UserDetails {
 		setPassword(password);
 	}
 
+	public User(final String username, final String password, String email, int phoneNumber, int age) {
+		this.username = username;
+		setPassword(password);
+		this.email = email;
+		this.phoneNumber = phoneNumber;
+		this.age = age;
+	}
 
 	public static User newUser(final String username, final String password) {
 		final var u = new User(username, password);
 		return u;
 	}
 
-
 	public static User newUser(final String username, final String password, final String role) {
 		final var u = new User(username, password);
+		u.addAuthority(new Role(role));
+		return u;
+	}
+
+	// New factory method for the extended constructor
+	public static User newUser(final String username, final String password, String email, int phoneNumber, int age, final String role) {
+		final var u = new User(username, password, email, phoneNumber, age);
 		u.addAuthority(new Role(role));
 		return u;
 	}

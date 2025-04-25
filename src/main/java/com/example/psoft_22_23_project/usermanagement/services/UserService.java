@@ -22,6 +22,7 @@ package com.example.psoft_22_23_project.usermanagement.services;
 
 import com.example.psoft_22_23_project.filestoragemanagement.service.FileStorageService;
 import com.example.psoft_22_23_project.usermanagement.api.*;
+import com.example.psoft_22_23_project.usermanagement.model.Role;
 import com.example.psoft_22_23_project.usermanagement.model.User;
 import com.example.psoft_22_23_project.usermanagement.model.UserImage;
 import com.example.psoft_22_23_project.usermanagement.repositories.UserImageRepository;
@@ -114,6 +115,35 @@ public class UserService implements UserDetailsService {
 		return resource;
 
 	}
-	//Verifica se é uma imagem
+
+	public User createUser(CreateUserRequest request) {
+			if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+				throw new IllegalArgumentException("Username already exists");
+			}
+
+			User user = new User(
+					request.getUsername(),
+					passwordEncoder.encode(request.getPassword()),
+					request.getEmail(),
+					request.getPhoneNumber(),
+					request.getAge()
+			);
+
+			if (request.getLocation() != null && !request.getLocation().trim().isEmpty()) {
+				user.setLocation(request.getLocation());
+			} else if (request.getCity() != null && !request.getCity().trim().isEmpty()) {
+				String location = request.getCity();
+
+				if (request.getCountry() != null && !request.getCountry().trim().isEmpty()) {
+					location += ", " + request.getCountry();
+				}
+
+				user.setLocation(location);
+			}
+
+			user.addAuthority(new Role(Role.Subscriber));
+
+			return userRepository.save(user);
+    }
 
 }
