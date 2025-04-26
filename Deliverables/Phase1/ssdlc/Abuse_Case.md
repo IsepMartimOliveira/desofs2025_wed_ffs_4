@@ -17,23 +17,23 @@
 
 ## COUNTERMEASURES
 
-|  ID | Description                 | Countermeasure  |
-|--------------------------|-----------------------------|--------------------------|
-| DEFENSE_001 | JWT Security Implementation | Use secure JWT practices: proper signing, short expiration times, secure storage |
-| DEFENSE_002 | Rate Limiting               | Implement rate limiting on authentication attempts to prevent brute force attacks |
-| DEFENSE_003 | Secure Password Storage     | Store passwords using strong hashing algorithms (bcrypt) with appropriate salt |
-| DEFENSE_004 | Authentication Logging      | Log all authentication attempts, successes, and failures for audit purposes |
-| DEFENSE_005 | Input Validation            | Validate all user inputs to prevent injection attacks and ensure data integrity |
-| DEFENSE_006 | File Upload Validation      | Validate image files: format verification, size limits, malware scanning, metadata stripping |
-| DEFENSE_007 | Secure File Storage         | Store uploaded files in secure locations with proper access controls |
-| DEFENSE_008 | HTTPS Implementation        | Ensure all data transmission uses encrypted HTTPS connections |
-| DEFENSE_009 | CAPTCHA Implementation      | Use CAPTCHA on registration to prevent automated account creation |
-| DEFENSE_010 | Email Verification          | Require email verification before account activation |
-| DEFENSE_011 | Role-Based Access Control   | Enforce strict RBAC checks on all dashboard endpoints to ensure only users with appropriate roles (Product Manager, Financial Director) can access them. |
-| DEFENSE_012 | Secure Error Handling       | Implement generic error messages for dashboard operations to avoid leaking sensitive system details or data structure. |
-| DEFENSE_013 | Parameter Validation        | Rigorously validate all input parameters (`year`, `month`, `plan`, `numberMonth`, `startDate`, `endDate`), checking types, formats, ranges, and potential malicious content. |
-| DEFENSE_014 | Audit Logging               | Log all access attempts to dashboard endpoints, including user ID, timestamp, requested parameters, and outcome. |
-| DEFENSE_015 | Resource Usage Limits       | Implement limits on query complexity, date ranges, or the value of `numberMonth` to prevent resource exhaustion (DoS). |
+| ID           | Description                   | Countermeasure                                                                                                                                                               |
+|--------------|-------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| DEFENSE_001  | JWT Security Implementation   | Use secure JWT practices: proper signing, short expiration times, secure storage                                                                                             |
+| DEFENSE_002  | Rate Limiting                 | Implement rate limiting on authentication attempts to prevent brute force attacks                                                                                            |
+| DEFENSE_003  | Secure Password Storage       | Store passwords using strong hashing algorithms (bcrypt) with appropriate salt                                                                                               |
+| DEFENSE_004  | Authentication Logging        | Log all authentication attempts, successes, and failures for audit purposes                                                                                                  |
+| DEFENSE_005  | Input Validation              | Validate all user inputs to prevent injection attacks and ensure data integrity                                                                                              |
+| DEFENSE_006  | File Upload Validation        | Validate image files: format verification, size limits, malware scanning, metadata stripping                                                                                 |
+| DEFENSE_007  | Secure File Storage           | Store uploaded files in secure locations with proper access controls                                                                                                         |
+| DEFENSE_008  | HTTPS Implementation          | Ensure all data transmission uses encrypted HTTPS connections                                                                                                                |
+| DEFENSE_009  | CAPTCHA Implementation        | Use CAPTCHA on registration to prevent automated account creation                                                                                                            |
+| DEFENSE_010  | Email Verification            | Require email verification before account activation                                                                                                                         |
+| DEFENSE_011  | Role-Based Access Control     | Enforce strict RBAC checks on all dashboard endpoints to ensure only users with appropriate roles (Product Manager, Financial Director) can access them.                     |
+| DEFENSE_012  | Secure Error Handling         | Implement generic error messages for dashboard operations to avoid leaking sensitive system details or data structure.                                                       |
+| DEFENSE_013  | Parameter Validation          | Rigorously validate all input parameters (`year`, `month`, `plan`, `numberMonth`, `startDate`, `endDate`), checking types, formats, ranges, and potential malicious content. |
+| DEFENSE_014  | Audit Logging                 | Log all access attempts to dashboard endpoints, including user ID, timestamp, requested parameters, and outcome.                                                             |
+| DEFENSE_015  | Resource Usage Limits         | Implement limits on query complexity, date ranges, or the value of `numberMonth` to prevent resource exhaustion (DoS).                                                       |
 
 ## ABUSE CASES
 
