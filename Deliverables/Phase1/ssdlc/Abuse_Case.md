@@ -65,7 +65,7 @@
 | ABUSE_CASE_024 | FEATURE_005, FEATURE_006, FEATURE_007 | Denial of Service (Resource Exhaustion): Attacker uses overly broad date ranges or complex queries.                                      | DEFENSE_015, DEFENSE_013               |
 | ABUSE_CASE_025 | FEATURE_005, FEATURE_006, FEATURE_007 | Repudiation: An authorized user denies accessing specific dashboard data due to lack of logs.                                            | DEFENSE_014, DEFENSE_004               |
 | ABUSE_CASE_026 | FEATURE_009                           | Creation or update Injection: Attackers submit malicious data during device creation or update to exploit backend vulnerabilities        | DEFENSE_005                            |
-| ABUSE_CASE_028 | FEATURE_010                           | Denial of Service: Attacker floods plans endpoints with a high volume of requests.                                                       | DEFENSE_002                            |   
+| ABUSE_CASE_028 | FEATURE_010                           | Denial of Service: Attacker floods plans endpoints with a lot of requests.                                                               | DEFENSE_002                            |   
 | ABUSE_CASE_029 | FEATURE_010                           | Creation or update Injection: Attackers inject malicious data when creating or updating plans to exploit vulnerabilities in the backend. | DEFENSE_005                            |   
 
 ## References

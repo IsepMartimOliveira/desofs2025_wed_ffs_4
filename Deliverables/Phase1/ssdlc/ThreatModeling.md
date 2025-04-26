@@ -1,4 +1,5 @@
 ### Project information
+
 - Aplication Name: Music Subscription Service
 - Aplication Version: 1.0.0
 - Description: A service that allows users to subscribe to different music plans, track revenue, and manage subscriptions.
@@ -6,8 +7,6 @@
     - Backend: Spring Boot
     - Database: PostgreSQL
     - Deployment: ???
-
-
 
 | ID | Description |
 |----|------------|
@@ -26,9 +25,6 @@
 | 1.6  | /dashboard/*      | Returns metrics like churn rate, new users, and cancellations.              | (4) Project Manager<br>(5) Financial Director |
 | 1.8  | /devices          | Allows users to manage devices (add, remove, edit, list).                   | (3) Subscriber |
 | 1.9  | /user/photo      | Allows users to upload their profile picture.                               | (3) Subscriber |
-
-
-
 
 ## Exit Points
 
@@ -56,8 +52,8 @@
 | A9   | Cash Flow Reports  | Predictive analytics of future revenue.                      |
 | A10  | System APIs        | REST endpoints exposed for frontend to consume.              |       
 
-
 ## Trust Levels
+
 | ID | Name              | Description                                                                 |
 |----|-------------------|-----------------------------------------------------------------------------|
 | 1  | Anonymous User     | A user who has connected to the website but has not provided valid credentials. |
@@ -68,23 +64,22 @@
 | 6  | Marketing Director | Manages marketing and plan strategies; can create, update, and promote plans. |
 | 7  | Admin   | Handles user administration and system configuration (commented in code). |
 
-
 ## Data Flow Diagram
 
 ### 
 
 ![Data Flow Diagram](img/dfd_overview.png)
 
-
 ### User Login
-![Data Flow Diagram](img/dfd_login.png)
 
+![Data Flow Diagram](img/dfd_login.png)
 
 ### User Account Creation
 
 ![Data Flow Diagram](img/dfd_account_creation.png)
 
 ### User Upload File
+
 ![Data Flow Diagram](img/dfd_upload_file.png)
 
 ### Subscriptions
@@ -110,25 +105,24 @@
 ## Threat Tree Analysis
 
 ###  User Authentication
+
 ![Threat Three Login](img/threath_tree_login.png)
 
 ### User Upload File
+
 ![Threat Three Login](img/threat_tree_upload_file.png)
 
 ### User Account Creation
-![Threat Three Login](img/threat_tree_create_account.png)
 
+![Threat Three Login](img/threat_tree_create_account.png)
 
 ### Subscriptions
 
 ![Threat Three Login](img/threat_tree_subscriptions.png)
 
-### Devices Creation or Update
+### Plans
 
-![Threat Three Login](img/threat_tree_device_creation.png)
-
-### Device Upload Image
-![Threat Three Login](img/threat_tree_device_image.png)
+![Threat Three Plans](img/threat_tree_plans.png)
 
 ### Dashboard
 
@@ -140,8 +134,15 @@
 
 The attack tree for the "View Current Year-to-Date Revenue" feature has been omitted because it is identical to the "View Subscription Status" attack tree. Both features share the same abuse cases and countermeasures. As a result, duplicating the attack tree would not provide additional insights or value to the threat modeling process.
 
-##  Use and Abuse Cases Diagram
+### Devices Creation or Update
 
+![Threat Three Login](img/threat_tree_device_creation.png)
+
+### Device Upload Image
+
+![Threat Three Login](img/threat_tree_device_image.png)
+
+##  Use and Abuse Cases Diagram
 
 ### References
 https://owasp.org/www-community/Threat_Modeling_Process#step-2-determine-threats

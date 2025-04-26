@@ -17,6 +17,8 @@ Stride is a threat modeling framework that helps identify and categorize potenti
 | **Denial of Service** | Availability                  | Brute-force attacks or repeated login attempts lock accounts or degrade login service performance. |
 | **Elevation of Privilege**| Authorization                 | Attacker manipulates login flow to access higher-privileged user sessions.                      |
 
+---
+
 ### Account Creation
 
 | **Threat Category** | **Security Property Violated** | **Description**                                                                                   |
@@ -28,6 +30,8 @@ Stride is a threat modeling framework that helps identify and categorize potenti
 | **Denial of Service** | Availability                  | Bots create mass accounts, consuming storage and processing capacity.                             |
 | **Elevation of Privilege**| Authorization                 | Attackers register accounts that bypass default role assignments through form manipulation.       |
 
+---
+
 ### Upload File
 
 | **Threat Category** | **Security Property Violated** | **Description**                                                                                      |
@@ -38,6 +42,8 @@ Stride is a threat modeling framework that helps identify and categorize potenti
 | **Information Disclosure**| Confidentiality               | Uploaded files are publicly accessible or include metadata that leaks sensitive user or system info. |
 | **Denial of Service** | Availability                  | Oversized or malformed file uploads consume storage or crash services.                              |
 | **Elevation of Privilege**| Authorization                 | File upload exploits lead to code execution or access to restricted server paths.                    |
+
+---
 
 ### Subscriptions
 
@@ -62,7 +68,6 @@ Stride is a threat modeling framework that helps identify and categorize potenti
 | **Information Disclosure**| Confidentiality               | Sensitive data may be disclosured, due to improper access control, insecure data handling or response interception.                                                 |
 | **Denial of Service**     | Availability                  | Excessive amount of requests to view plans, impacts the system availability, either by reducing response time or shutting it down completely.                       |
 | **Elevation of Privilege**| Authorization                 | Unauthorized users are able to access to Marketing Director functionalities due to faulted role validation.                                                         |
-
 
 ---
 
@@ -93,6 +98,5 @@ A single STRIDE analysis table was included because the threats identified acros
 | **Information Disclosure**| Confidentiality               | Sensitive data may be disclosured, due to improper access control, insecure data handling or response interception.                             |
 | **Denial of Service**     | Availability                  | Excessive amount of requests to view devices, impacts the system availability, either by reducing response time or shutting it down completely. |
 | **Elevation of Privilege**| Authorization                 | Unauthorized users are able to access to a Subscriber functionalities due to faulted role validation.                                           |
-
 
 ---
