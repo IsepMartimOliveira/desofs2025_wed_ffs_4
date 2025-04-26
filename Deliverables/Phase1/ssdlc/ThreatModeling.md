@@ -103,6 +103,10 @@
 
 ![Data Flow Diagram - Subscription Revenue till now](img/dfd_revenue_till_now.png)
 
+### Device
+
+![Data Flow Diagram](img/dfd_device.png)
+
 ## Threat Tree Analysis
 
 ###  User Authentication
@@ -119,9 +123,12 @@
 
 ![Threat Three Login](img/threat_tree_subscriptions.png)
 
+### Devices Creation or Update
 
+![Threat Three Login](img/threat_tree_device_creation.png)
 
-
+### Device Upload Image
+![Threat Three Login](img/threat_tree_device_image.png)
 ##  Use and Abuse Cases Diagram
 
 
