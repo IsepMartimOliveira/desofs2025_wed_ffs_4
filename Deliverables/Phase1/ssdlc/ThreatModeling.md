@@ -144,6 +144,6 @@ The attack tree for the "View Current Year-to-Date Revenue" feature has been omi
 
 ![Threat Three Login](img/threat_tree_device_image.png)
 
-
 ### References
+
 https://owasp.org/www-community/Threat_Modeling_Process#step-2-determine-threats
