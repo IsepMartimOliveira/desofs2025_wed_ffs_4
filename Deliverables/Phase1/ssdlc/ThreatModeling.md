@@ -6,7 +6,9 @@
 
     - Backend: Spring Boot
     - Database: PostgreSQL
-    - Deployment: ???
+    - Deployment: LocalHost
+
+## Dependencies
 
 | ID | Description |
 |----|------------|
@@ -142,7 +144,6 @@ The attack tree for the "View Current Year-to-Date Revenue" feature has been omi
 
 ![Threat Three Login](img/threat_tree_device_image.png)
 
-##  Use and Abuse Cases Diagram
 
 ### References
 https://owasp.org/www-community/Threat_Modeling_Process#step-2-determine-threats
