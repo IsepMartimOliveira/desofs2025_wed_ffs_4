@@ -57,11 +57,10 @@
 1. All endpoints must enforce authentication and validate roles via RBAC.
 2. All endpoints must validate input data.
 3. All endpoints must use HTTPS.
-4. All endpoints must log access attempts.
-5. All endpoints must implement rate limiting.
+4. All failed login attemps must be logged.
+5. Necessary endpoints must implement rate limiting.
 6. Store passwords using strong hashing algorithms.
 7. Implement JWT with appropriate expiration times.
-8. Include proper logging of authentication attempts and errors.
 
 ### User Requirements
 
