@@ -35,3 +35,5 @@ The system architecture is based on a **REST API** connected to a **relational d
 [Stride](./ssdlc/STRIDE.md)
 
 [Abuse Cases](./ssdlc/Abuse_Case.md)
+
+[ASVS](./asvs/asvs.md)
