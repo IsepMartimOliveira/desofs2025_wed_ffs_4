@@ -119,7 +119,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-reload4j</artifactId>
-			<version>2.0.1</version> <!-- This is the recommended upgrade -->
+			<version>2.0.17</version> <!-- This is the recommended upgrade -->
 		</dependency>
 		<dependency>
 			<groupId>com.github.ben-manes.caffeine</groupId>
