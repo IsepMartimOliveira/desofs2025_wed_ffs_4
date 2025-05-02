@@ -50,7 +50,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
-			<version>2.2.6.RELEASE</version>
+			<version>2.7.18</version>
 			<optional>true</optional>
 		</dependency>
 		<!-- database drivers -->
@@ -104,6 +104,10 @@
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 		<!--Sanitize,loggers -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.apache.tika</groupId>
@@ -184,7 +188,7 @@
 						<path>
 							<groupId>org.springframework.boot</groupId>
 							<artifactId>spring-boot-configuration-processor</artifactId>
-							<version>2.4.2</version>
+							<version>2.7.18</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>

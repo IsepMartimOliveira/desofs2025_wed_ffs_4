@@ -9,14 +9,14 @@ import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptio
 import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepository;
 import com.example.psoft_22_23_project.usermanagement.model.User;
 import com.example.psoft_22_23_project.usermanagement.repositories.UserRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jdi.request.DuplicateRequestException;
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.Unirest;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -202,7 +202,6 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         return repository.save(subscription);
     }
 
-    @SneakyThrows
     @Override
     public PlansDetails planDetails(){
 
@@ -228,89 +227,12 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
             throw new NotFoundException("User not allowed to view this plan details");
         }
         */
-        String body = getFunnyFact();
-        JSONObject jsonObject = new JSONObject(body);
-        String fact = jsonObject.getString("text");
-
-        String weather = getWeather();
 
 
-        return new PlansDetails(subscription.getPlan(),fact, weather);
+        return new PlansDetails(subscription.getPlan());
     }
 
-    private int getDay() {
-        return LocalDate.now().getDayOfMonth();
-    }
-    private int getMonth() {
-        return LocalDate.now().getMonthValue();
-    }
 
-    private String getFunnyFact(){
-        int dia = getDay();
-        int mes = getMonth();
-        HttpResponse<String> response = Unirest.get("https://numbersapi.p.rapidapi.com/"+mes+"/"+dia+"/date?fragment=true&json=true")
-                .header("X-RapidAPI-Key", "32ff449f65msh803a8c15c44f9c7p10a029jsn6f2b5da2245c")
-                .header("X-RapidAPI-Host", "numbersapi.p.rapidapi.com")
-                .asString();
-        return response.body();
-
-    }
-
-    //5f5469901a834fac88b174917231706
-
-    private String getWeather() throws JSONException {
-
-        if (apiLocationId() == null){
-            return null;
-        }else {
-            HttpResponse<String> response = Unirest.get("https://foreca-weather.p.rapidapi.com/current/"+apiLocationId()+"?tempunit=C")
-                    .header("X-RapidAPI-Key", "f838f573bamsheba21fef17c2ecfp1b1ed0jsna1a6dd4af28e")
-                    .header("X-RapidAPI-Host", "foreca-weather.p.rapidapi.com")
-                    .asString();
-
-            JSONObject jsonObject = new JSONObject(response.body());
-            JSONObject current = jsonObject.getJSONObject("current");
-            return current.getString("symbolPhrase");
-        }
-
-    }
-
-    private String apiLocationId() throws JSONException {
-
-        if (getLocation() == null){
-            return null;
-        }else {
-            HttpResponse<String> response = Unirest.get("https://foreca-weather.p.rapidapi.com/location/search/"+getLocation())
-                    .header("X-RapidAPI-Key", "f838f573bamsheba21fef17c2ecfp1b1ed0jsna1a6dd4af28e")
-                    .header("X-RapidAPI-Host", "foreca-weather.p.rapidapi.com")
-                    .asString();
-
-            JSONObject locationJsonObject = new JSONObject(response.body());
-            JSONArray locations = locationJsonObject.getJSONArray("locations");
-            JSONObject city = locations.getJSONObject(0);
-            return city.getString("id");
-        }
-
-    }
-
-    private String getLocation(){
-
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        int commaIndex = username.indexOf(",");
-
-        String newString;
-        if (commaIndex != -1) {
-            newString = username.substring(0, commaIndex);
-        } else {
-            newString = username;
-        }
-
-        User user = userRepository.findById(Long.valueOf(newString))
-                .orElseThrow(() -> new EntityNotFoundException("You need to login"));
-
-        return user.getLocation();
-
-    }
 
     @Override
     public Subscriptions renewAnualSubscription(final long desiredVersion){

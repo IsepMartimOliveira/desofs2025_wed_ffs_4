@@ -38,8 +38,7 @@
 23. Product Manager or Financial Director can view year-to-date revenue, filtered by plan.
 24. Marketing director can change the pricing of a plan.
 25. Marketing director can view the price change history of a plan.
-26. System can augment a subscriber profile with a weather forecast based on their location.
-27. System can augment a subscriber profile with a random/funny quote of the day.
+
 
 ## Non-Functional Requirements
 1. The system must provide an OpenAPI specification.

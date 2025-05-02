@@ -39,7 +39,5 @@ public class PlansDetailsView {
         String money = " €";
         return annualFee+money;
     }
-    private String fact;
 
-    private String weather;
 }
