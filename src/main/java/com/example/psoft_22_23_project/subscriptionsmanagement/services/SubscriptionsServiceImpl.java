@@ -9,13 +9,10 @@ import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptio
 import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepository;
 import com.example.psoft_22_23_project.usermanagement.model.User;
 import com.example.psoft_22_23_project.usermanagement.repositories.UserRepository;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.sun.jdi.request.DuplicateRequestException;
-import io.joshworks.restclient.http.HttpResponse;
-import io.joshworks.restclient.http.Unirest;
+
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

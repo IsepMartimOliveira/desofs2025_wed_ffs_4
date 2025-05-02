@@ -1,6 +1,5 @@
 package com.example.psoft_22_23_project.subscriptionsmanagement.api;
 
-import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
