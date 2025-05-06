@@ -44,6 +44,17 @@ jobs:
 
       - name: Build and run unit/integration tests
         run: mvn -B clean verify
+      - name: Start SonarQube
+        run: |
+          docker pull sonarqube
+          docker run -d -p 9000:9000 sonarqube
+
+      - name: Wait for SonarQube to be ready
+        run: |
+          until curl -s http://localhost:9000/api/system/health | grep -q '"status":"UP"'; do
+          echo "Waiting for SonarQube to start...";
+          sleep 10;
+          done
 
       - name: Run SonarQube Analysis
         run: |
