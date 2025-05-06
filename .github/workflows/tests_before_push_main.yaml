@@ -45,13 +45,10 @@ jobs:
       - name: Build and run unit/integration tests
         run: mvn -B clean verify
 
-      - name: Run SonarQube analysis
+      - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-          -Dsonar.projectKey=IsepMartimOliveira_desofs2025_wed_ffs_4 \
-          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=IsepMartimOliveira_desofs2025_wed_ffs_4
 
       #- name: Check SonarQube Quality Gate
        # uses: sonarsource/sonarqube-quality-gate-action@master
