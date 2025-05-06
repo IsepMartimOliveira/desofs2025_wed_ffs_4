@@ -1,0 +1,60 @@
+name: Java CI with Maven and SonarQube
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ '**' ]
+
+env:
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+jobs:
+  build-and-analyze:
+    name: Build, Test and Analyze
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+        with:
+          fetch-depth: 0  # Required for full analysis and PR decoration
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4.7.1
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4.2.3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build and run unit/integration tests
+        run: mvn -B clean verify
+
+      - name: Run SonarQube Analysis
+        run: |
+          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+              -Dsonar.projectKey=DESOFS \
+              -Dsonar.projectName='DESOFS' \
+              -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+              -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+              -Dsonar.projectVersion=${{ github.sha }} \
+              -Dsonar.branch.name=${{ github.ref }}
+
+      - name: Check SonarQube Quality Gate
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
