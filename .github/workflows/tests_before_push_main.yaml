@@ -48,8 +48,8 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=IsepMartimOliveira_desofs2025_wed_ffs_4
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar 
+            -Dsonar.projectKey=${{ secrets.SONAR_ORGANIZATION }}
+            -Dsonar.qualitygate.wait=true
 
-      #- name: Check SonarQube Quality Gate
-       # uses: sonarsource/sonarqube-quality-gate-action@master
-        #timeout-minutes: 5
+
