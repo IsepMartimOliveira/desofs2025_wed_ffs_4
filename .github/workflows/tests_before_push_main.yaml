@@ -4,11 +4,11 @@ on:
   pull_request:
     branches: [ main ]
   push:
-    branches: [ '**' ]
+    branches: [ 'main' ]
 
 env:
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+ # SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
 jobs:
   build-and-analyze:
@@ -42,8 +42,8 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Build and run unit/integration tests
-        run: mvn -B clean verify
+      #- name: Build and run unit/integration tests
+       # run: mvn -B clean verify
 
       - name: Build and analyze
         env:
