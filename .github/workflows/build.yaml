@@ -63,6 +63,11 @@ jobs:
         with:
           name: app-jar
 
+      - name: Move JAR to target directory for Docker build
+        run: |
+            mkdir -p target
+            mv app-jar/*.jar target/
+
       - name: Build Docker image
         run: |
           docker build -t ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_TAG }} .
