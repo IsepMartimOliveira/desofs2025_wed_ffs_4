@@ -44,27 +44,12 @@ jobs:
 
       - name: Build and run unit/integration tests
         run: mvn -B clean verify
-      - name: Start SonarQube
-        run: |
-          docker pull sonarqube
-          docker run -d -p 9000:9000 sonarqube
 
-      - name: Wait for SonarQube to be ready
-        run: |
-          until curl -s http://localhost:9000/api/system/health | grep -q '"status":"UP"'; do
-          echo "Waiting for SonarQube to start...";
-          sleep 10;
-          done
 
-      - name: Run SonarQube Analysis
-        run: |
-          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-              -Dsonar.projectKey=DESOFS \
-              -Dsonar.projectName='DESOFS' \
-              -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-              -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-              -Dsonar.projectVersion=${{ github.sha }} \
-              -Dsonar.branch.name=${{ github.ref }}
+      - name: Build and analyze
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=IsepMartimOliveira_desofs2025_wed_ffs_4
 
       - name: Check SonarQube Quality Gate
         uses: sonarsource/sonarqube-quality-gate-action@master
