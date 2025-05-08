@@ -103,7 +103,7 @@ public class SecurityConfig {
 					configuration.addAllowedMethod("*");
 					return configuration;
 				}))
-				.csrf(csrf -> csrf.disable());
+				.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**")); // Exempt API endpoints from CSRF protection
 
 		// Set session management to stateless
 		http = http.sessionManagement(session ->

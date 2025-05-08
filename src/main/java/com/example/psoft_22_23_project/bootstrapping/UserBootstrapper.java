@@ -24,6 +24,7 @@ import com.example.psoft_22_23_project.usermanagement.model.Role;
 import com.example.psoft_22_23_project.usermanagement.model.User;
 import com.example.psoft_22_23_project.usermanagement.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,45 +41,63 @@ public class UserBootstrapper implements CommandLineRunner {
 
 	private final PasswordEncoder encoder;
 
+	@Value("${user.adminpassword}")
+	private String adminPassword;
+
+	@Value("${user.marketingpassword}")
+	private String marketingPassword;
+
+	@Value("${user.subscribertomas}")
+	private String subscriber1Password;
+
+	@Value("${user.subscriberalex}")
+	private String subscriber2Password;
+
+	@Value("${user.projectmanagerpassword}")
+	private String projectManagerPassword;
+
+	@Value("${user.financepassword}")
+	private String financePassword;
+
 	@Override
 	@Transactional
 	public void run(final String... args) throws Exception {
 		// admin
 		if (userRepo.findByUsername("admin@mail.com").isEmpty()) {
-			final User u1 = new User("admin@mail.com", encoder.encode("adminpass"), "admin@mail.com", 123456789, 35);
+			final User u1 = new User("admin@mail.com", encoder.encode(adminPassword), "admin@mail.com", 123456789, 35);
 			u1.addAuthority(new Role(Role.User_Admin));
 			userRepo.save(u1);
 		}
 
 		// Marketing Director
 		if (userRepo.findByUsername("chico@mail.com").isEmpty()) {
-			final User marketing = new User("chico@mail.com", encoder.encode("chicopass"), "chico@mail.com", 987654321, 42);
+			final User marketing = new User("chico@mail.com", encoder.encode(marketingPassword), "chico@mail.com", 987654321, 42);
 			marketing.addAuthority(new Role(Role.Marketing_Director));
 			userRepo.save(marketing);
 		}
 
 		//Subs1 - Tomas
 		if (userRepo.findByUsername("tomas@mail.com").isEmpty()) {
-			final User u2 = new User("tomas@mail.com", encoder.encode("tomaspass"), "tomas@mail.com", 555123456, 28);
+			final User u2 = new User("tomas@mail.com", encoder.encode(subscriber1Password), "tomas@mail.com", 555123456, 28);
 			u2.addAuthority(new Role(Role.Subscriber));
 			u2.setLocation("porto");
 			userRepo.save(u2);
 		}
 		//Subs1 - Alex
 		if (userRepo.findByUsername("alex@mail.com").isEmpty()) {
-			final User u2 = new User("alex@mail.com", encoder.encode("alexpass"), "alex@mail.com", 555987654, 24);
+			final User u2 = new User("alex@mail.com", encoder.encode(subscriber2Password), "alex@mail.com", 555987654, 24);
 			u2.addAuthority(new Role(Role.Subscriber));
 			userRepo.save(u2);
 		}
 		//Product1 - Martim
 		if (userRepo.findByUsername("martim@mail.com").isEmpty()) {
-			final User u2 = new User("martim@mail.com", encoder.encode("martimpass"), "martim@mail.com", 555111222, 31);
+			final User u2 = new User("martim@mail.com", encoder.encode(projectManagerPassword), "martim@mail.com", 555111222, 31);
 			u2.addAuthority(new Role(Role.Project_Manager));
 			userRepo.save(u2);
 		}
 		//Product2 - Martim
 		if (userRepo.findByUsername("martim2@mail.com").isEmpty()) {
-			final User u2 = new User("martim2@mail.com", encoder.encode("martimpass2"), "martim2@mail.com", 555333444, 33);
+			final User u2 = new User("martim2@mail.com", encoder.encode(financePassword), "martim2@mail.com", 555333444, 33);
 			u2.addAuthority(new Role(Role.Financial_director));
 			userRepo.save(u2);
 		}
