@@ -56,17 +56,19 @@ jobs:
       - name: Make mvnw executable
         run: chmod +x ./mvnw
                          
-                         
-      - name: Snyk Vulnerability Scanning
-        uses: snyk/actions/maven@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=medium
-        continue-on-error: true
+      #Works but has token limit
+      #- name: Snyk Vulnerability Scanning
+      #  uses: snyk/actions/maven@master
+      #  env:
+      #    SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #  with:
+      #    args: --severity-threshold=medium
+      #  continue-on-error: true
 
       - name: OWASP Dependency-Check
         uses: dependency-check/Dependency-Check_Action@main
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME }}
         with:
           project: 'fake-spotify'
           path: '.'
