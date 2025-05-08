@@ -31,14 +31,14 @@ import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -51,6 +51,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -65,16 +66,19 @@ import static java.lang.String.format;
  * https://www.toptal.com/spring/spring-security-tutorial
  * <p>
  * Based on https://github.com/Yoh0xFF/java-spring-security-example/
+ * Updated for Spring Boot 3.x
  *
  * @author pagsousa
  *
  */
+@Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(securedEnabled = true, jsr250Enabled = true, prePostEnabled = true)
+@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 @RequiredArgsConstructor
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
 
 	private final UserRepository userRepo;
+	private final AuthenticationConfiguration authenticationConfiguration;
 
 	@Value("${jwt.public.key}")
 	private RSAPublicKey rsaPublicKey;
@@ -88,83 +92,102 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Value("${springdoc.swagger-ui.path}")
 	private String swaggerPath;
 
-	@Override
-	protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(username -> userRepo.findByUsername(username)
-				.orElseThrow(() -> new UsernameNotFoundException(format("User: %s, not found", username))));
-	}
-
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		// Enable CORS and disable CSRF
-		http = http.cors().and().csrf().disable();
+		http = http.cors(cors -> cors.configurationSource(request -> {
+					CorsConfiguration configuration = new CorsConfiguration();
+					configuration.setAllowCredentials(true);
+					configuration.addAllowedOrigin("*");
+					configuration.addAllowedHeader("*");
+					configuration.addAllowedMethod("*");
+					return configuration;
+				}))
+				.csrf(csrf -> csrf.disable());
 
 		// Set session management to stateless
-		http = http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and();
+		http = http.sessionManagement(session ->
+				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 		// Set unauthorized requests exception handler
-		http = http.exceptionHandling(
-				exceptions -> exceptions.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
+		http = http.exceptionHandling(exceptions ->
+				exceptions.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
 						.accessDeniedHandler(new BearerTokenAccessDeniedHandler()));
 
 		// Set permissions on endpoints
-		http.authorizeRequests()
+		http.authorizeHttpRequests(auth -> auth
 				// Swagger endpoints must be publicly accessible
-				.antMatchers("/").permitAll().antMatchers(format("%s/**", restApiDocPath)).permitAll()
-				.antMatchers(format("%s/**", swaggerPath)).permitAll()
-				.antMatchers("/api-docs/**").permitAll()
-				.antMatchers("/swagger-ui/**").permitAll()
-				.antMatchers("/h2/**").permitAll();
+				.requestMatchers("/").permitAll()
+				.requestMatchers(format("%s/**", restApiDocPath)).permitAll()
+				.requestMatchers(format("%s/**", swaggerPath)).permitAll()
+				.requestMatchers("/api-docs/**").permitAll()
+				.requestMatchers("/swagger-ui/**").permitAll()
+				.requestMatchers("/h2/**").permitAll()
 
+				// All public endpoints
+				.requestMatchers("/api/public/**").permitAll()
 
-				// Our public endpoints
-				http.authorizeRequests()
+				// Plans management
+				.requestMatchers(HttpMethod.GET, "/api/plans").permitAll()
 
-						//all public endpoints
-						.antMatchers("/api/public/**").permitAll()
+				// Get a device image management
+				.requestMatchers(HttpMethod.GET, "/api/device/photo/**").permitAll()
 
-						// Plans management
-						.antMatchers(HttpMethod.GET,"/api/plans").permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/subscriptions/list").hasRole(Role.User_Admin)
+				.requestMatchers(HttpMethod.POST, "/api/subscriptions/create/").permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/subscriptions/").hasRole(Role.Subscriber)
+				.requestMatchers(HttpMethod.PATCH, "/api/subscriptions/").hasRole(Role.Subscriber)
+				.requestMatchers(HttpMethod.PATCH, "/api/subscriptions/renew").hasRole(Role.Subscriber)
+				.requestMatchers(HttpMethod.PATCH, "/api/subscriptions/change/{name}").hasRole(Role.Subscriber)
+				.requestMatchers(HttpMethod.PATCH, "/api/subscriptions/change/{actualPlan}/{newPlan}").hasRole(Role.Marketing_Director)
+				.requestMatchers("/api/public/subscriptions/**").permitAll()
 
-						// get a device image management
-						.antMatchers(HttpMethod.GET, "/api/device/photo/**").permitAll()
+				// Private endpoints
 
-						.antMatchers(HttpMethod.GET,"/api/subscriptions/list").hasRole(Role.User_Admin)
-						.antMatchers(HttpMethod.POST,"/api/subscriptions/create/").permitAll()
-						.antMatchers(HttpMethod.GET,"/api/subscriptions/").hasRole(Role.Subscriber)
-						.antMatchers(HttpMethod.PATCH,"/api/subscriptions/").hasRole(Role.Subscriber)
-						.antMatchers(HttpMethod.PATCH,"/api/subscriptions/renew").hasRole(Role.Subscriber)
-						.antMatchers(HttpMethod.PATCH,"/api/subscriptions/change/{name}").hasRole(Role.Subscriber)
-						.antMatchers(HttpMethod.PATCH,"/api/subscriptions/change/{actualPlan}/{newPlan}").hasRole(Role.Marketing_Director)
-						.antMatchers("/api/public/subscriptions/**").permitAll()
+				// Device management
+				.requestMatchers("/api/device/**").hasRole(Role.Subscriber)
 
-						//private endpoints
+				// Plans management
+				.requestMatchers(HttpMethod.POST, "/api/plans").hasRole(Role.Marketing_Director)
+				.requestMatchers(HttpMethod.PATCH, "/api/plans/update/**").hasRole(Role.Marketing_Director)
+				.requestMatchers(HttpMethod.PATCH, "/api/plans/updateMoney/**").hasRole(Role.Marketing_Director)
+				.requestMatchers(HttpMethod.PATCH, "/api/plans/deactivate/**").hasRole(Role.Marketing_Director)
+				.requestMatchers(HttpMethod.PATCH, "/api/plans/promote/**").hasRole(Role.Marketing_Director)
+				.requestMatchers(HttpMethod.GET, "/api/plans/history/**").hasRole(Role.Marketing_Director)
+				.requestMatchers(HttpMethod.DELETE, "/api/plans/**").hasRole(Role.Marketing_Director)
 
-						// device management
-						.antMatchers("/api/device/**").hasRole(Role.Subscriber)
+				// Dashboard Endpoints management
+				.requestMatchers(HttpMethod.GET, "/api/dashboard/**").hasRole(Role.Project_Manager)
+				.requestMatchers(HttpMethod.GET, "/api/dashboard/revenuePlan").hasRole(Role.Financial_director)
+				.requestMatchers(HttpMethod.GET, "/api/dashboard/currentRevenue").hasRole(Role.Financial_director)
 
-						//plans management
-						.antMatchers(HttpMethod.POST,"/api/plans").hasRole(Role.Marketing_Director)
-						.antMatchers(HttpMethod.PATCH,"/api/plans/update/**").hasRole(Role.Marketing_Director)
-						.antMatchers(HttpMethod.PATCH,"/api/plans/updateMoney/**").hasRole(Role.Marketing_Director)
-						.antMatchers(HttpMethod.PATCH,"/api/plans/deactivate/**").hasRole(Role.Marketing_Director)
-						.antMatchers(HttpMethod.PATCH,"/api/plans/promote/**").hasRole(Role.Marketing_Director)
-						.antMatchers(HttpMethod.GET,"/api/plans/history/**").hasRole(Role.Marketing_Director)
-						.antMatchers(HttpMethod.DELETE,"/api/plans/**").hasRole(Role.Marketing_Director)
+				// .requestMatchers("/api/admin/user/**").hasRole(Role.User_Admin) // user management no
+				.requestMatchers("/api/user/photo/**").hasRole(Role.Subscriber) // photo for user upload and see it
+				.requestMatchers(HttpMethod.POST, "/api/user/account").permitAll() // user account management
+				.anyRequest().authenticated()
+		);
 
-						//Dashboard Endpoints management
-						.antMatchers(HttpMethod.GET,"/api/dashboard/**").hasRole(Role.Project_Manager)
-						.antMatchers(HttpMethod.GET,"/api/dashboard/revenuePlan").hasRole(Role.Financial_director)
-						.antMatchers(HttpMethod.GET,"/api/dashboard/currentRevenue").hasRole(Role.Financial_director)
+		// Configure OAuth2 resource server with JWT
+		http.oauth2ResourceServer(oauth2 -> oauth2
+				.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+		);
 
-						//.antMatchers("/api/admin/user/**").hasRole(Role.User_Admin) // user management no
-						.antMatchers("/api/user/photo/**").hasRole(Role.Subscriber)// photo for user upload and see it
-						.antMatchers(HttpMethod.POST,"/api/user/account").permitAll()// user account management
-						.anyRequest().authenticated()
+		// Configure frame options for H2
+		http.headers(headers -> headers
+				.frameOptions(frameOptions -> frameOptions.sameOrigin())
+		);
 
-						.and().httpBasic(Customizer.withDefaults()).oauth2ResourceServer().jwt();
-				http.headers().frameOptions().sameOrigin().and().authorizeRequests();
+		return http.build();
+	}
 
+	@Bean
+	public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+		return http.getSharedObject(AuthenticationManagerBuilder.class)
+				.userDetailsService(username -> userRepo.findByUsername(username)
+						.orElseThrow(() -> new UsernameNotFoundException(format("User: %s, not found", username))))
+				.passwordEncoder(passwordEncoder())
+				.and()
+				.build();
 	}
 
 	// Used by JwtAuthenticationProvider to generate JWT tokens
@@ -213,9 +236,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	// Expose authentication manager bean
-	@Override
 	@Bean
 	public AuthenticationManager authenticationManagerBean() throws Exception {
-		return super.authenticationManagerBean();
+		return authenticationConfiguration.getAuthenticationManager();
 	}
 }

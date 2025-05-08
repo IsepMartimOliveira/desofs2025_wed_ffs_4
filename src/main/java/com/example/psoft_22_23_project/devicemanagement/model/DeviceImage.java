@@ -1,12 +1,10 @@
 package com.example.psoft_22_23_project.devicemanagement.model;
 
-import com.example.psoft_22_23_project.devicemanagement.model.Device;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
-import javax.persistence.*;
 
 @Entity
 @Setter

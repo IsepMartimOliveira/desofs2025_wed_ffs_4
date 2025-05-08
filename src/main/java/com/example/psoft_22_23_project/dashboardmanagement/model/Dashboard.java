@@ -3,7 +3,7 @@ package com.example.psoft_22_23_project.dashboardmanagement.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Data

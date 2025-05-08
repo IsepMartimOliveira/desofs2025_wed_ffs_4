@@ -1,15 +1,8 @@
 package PlansTest.model;
 
-import com.example.psoft_22_23_project.dashboardmanagement.model.Dashboard;
-import com.example.psoft_22_23_project.devicemanagement.model.Device;
-import com.example.psoft_22_23_project.devicemanagement.model.DeviceImage;
-import com.example.psoft_22_23_project.devicemanagement.model.MacAddress;
+
 import com.example.psoft_22_23_project.plansmanagement.model.*;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import javax.validation.constraints.Max;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PlansTest {

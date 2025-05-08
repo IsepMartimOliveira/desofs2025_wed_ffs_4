@@ -5,21 +5,17 @@ import com.example.psoft_22_23_project.plansmanagement.model.*;
 import com.example.psoft_22_23_project.plansmanagement.repositories.PlansRepository;
 import com.example.psoft_22_23_project.plansmanagement.services.CreatePlansMapper;
 import com.example.psoft_22_23_project.plansmanagement.services.PlansServiceImpl;
-import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class CreatePlanTest {

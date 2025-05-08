@@ -4,7 +4,7 @@ import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptio
 import lombok.Getter;
 import org.hibernate.StaleObjectStateException;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 
 @Entity

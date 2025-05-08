@@ -23,9 +23,9 @@ package com.example.psoft_22_23_project.plansmanagement.api;
 import lombok.*;
 import org.springframework.lang.Nullable;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 @Getter
 @Data
