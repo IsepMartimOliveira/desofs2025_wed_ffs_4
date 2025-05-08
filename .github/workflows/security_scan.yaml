@@ -50,7 +50,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-
+      - name: Set JAVA_HOME
+        run: echo "JAVA_HOME=${{ steps.java.outputs.java-home }}" >> $GITHUB_ENV
+                         
+                         
       - name: Snyk Vulnerability Scanning
         uses: snyk/actions/maven@master
         env:
