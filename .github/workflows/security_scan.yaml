@@ -52,6 +52,9 @@ jobs:
           cache: maven
       - name: Set JAVA_HOME
         run: echo "JAVA_HOME=${{ steps.java.outputs.java-home }}" >> $GITHUB_ENV
+
+      - name: Make mvnw executable
+        run: chmod +x ./mvnw
                          
                          
       - name: Snyk Vulnerability Scanning
