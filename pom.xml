@@ -34,11 +34,13 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
+			<version>3.3.7</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+			<version>3.3.7</version>
 		</dependency>
 
 		<dependency>
@@ -137,6 +139,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-cache</artifactId>
+			<version>3.2.11</version>
 		</dependency>
 
 		<!-- Mapper library to automate model transformations DTO: <-> Model -->
