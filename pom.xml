@@ -32,7 +32,7 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
-		<!-- Explicitly declare Tomcat dependencies to ensure correct version -->
+		<!--  Tomcat dependencies  -->
 		<dependency>
 			<groupId>org.apache.tomcat.embed</groupId>
 			<artifactId>tomcat-embed-core</artifactId>
@@ -78,7 +78,6 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
-			<!-- Let Spring Boot manage the version -->
 		</dependency>
 
 		<dependency>
@@ -151,6 +150,19 @@
 			<groupId>io.joshworks.unirest</groupId>
 			<artifactId>unirest-java</artifactId>
 			<version>1.8.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.json</groupId>
+					<artifactId>json</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<!-- Explicitly declare newer, non-vulnerable version of org.json:json -->
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20240205</version> <!-- Using the latest stable version as of May 2025 -->
 		</dependency>
 
 		<!-- Test Dependencies -->
