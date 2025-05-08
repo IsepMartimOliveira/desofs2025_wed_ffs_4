@@ -68,18 +68,18 @@ jobs:
       - name: OWASP Dependency-Check
         uses: dependency-check/Dependency-Check_Action@main
         env:
-          JAVA_HOME: ${{ env.JAVA_HOME }}
+            JAVA_HOME: /opt/jdk
         with:
-          project: 'fake-spotify'
-          path: '.'
-          format: 'HTML'
-          out: 'reports'
-          args: >
-            --failOnCVSS 7
-            --enableRetired
+            project: 'fake-spotify'
+            path: '.'
+            format: 'HTML'
+            out: 'reports'
+            args: >
+              --failOnCVSS 7
+              --enableRetired
 
       - name: Upload Dependency-Check report
         uses: actions/upload-artifact@v4
         with:
-          name: dependency-check-report
-          path: reports
+                name: dependency-check-report
+                path: reports
