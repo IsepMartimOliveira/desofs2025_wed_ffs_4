@@ -146,17 +146,7 @@
 		</dependency>
 
 		<!-- HTTP Client -->
-		<dependency>
-			<groupId>io.joshworks.unirest</groupId>
-			<artifactId>unirest-java</artifactId>
-			<version>1.8.0</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.json</groupId>
-					<artifactId>json</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+
 
 		<!-- Explicitly declare newer, non-vulnerable version of org.json:json -->
 		<dependency>
