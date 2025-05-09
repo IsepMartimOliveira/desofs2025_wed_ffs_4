@@ -4,12 +4,10 @@ package com.example.psoft_22_23_project.subscriptionsmanagement.model;
 
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.usermanagement.model.User;
-import lombok.Data;
 import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.StaleObjectStateException;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 
 @Entity

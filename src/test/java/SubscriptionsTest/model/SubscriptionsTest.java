@@ -2,8 +2,7 @@ package SubscriptionsTest.model;
 
 import com.example.psoft_22_23_project.devicemanagement.repositories.DeviceRepository;
 import com.example.psoft_22_23_project.plansmanagement.model.*;
-import com.example.psoft_22_23_project.subscriptionsmanagement.model.ActiveStatus;
-import com.example.psoft_22_23_project.subscriptionsmanagement.model.EndDate;
+
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PaymentType;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
 import com.example.psoft_22_23_project.usermanagement.model.User;
@@ -12,13 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
-import javax.validation.constraints.Pattern;
+
 
 import java.time.LocalDate;
-import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 

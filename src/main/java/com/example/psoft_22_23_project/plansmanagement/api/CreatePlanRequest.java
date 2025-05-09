@@ -20,12 +20,11 @@
  */
 package com.example.psoft_22_23_project.plansmanagement.api;
 import lombok.Data;
-import lombok.NonNull;
-import javax.validation.constraints.NotBlank;
+
 
 import org.springframework.lang.Nullable;
 
-import javax.validation.constraints.*;
+import jakarta.validation.constraints.*;
 
 @Data
 public class CreatePlanRequest {

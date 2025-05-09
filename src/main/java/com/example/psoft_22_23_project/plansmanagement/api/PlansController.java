@@ -20,7 +20,6 @@
  */
 package com.example.psoft_22_23_project.plansmanagement.api;
 
-import com.example.psoft_22_23_project.plansmanagement.model.FeeRevision;
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.plansmanagement.services.PlansService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,9 +34,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 
 @Tag(name = "Plans", description = "Endpoints for managing plans")

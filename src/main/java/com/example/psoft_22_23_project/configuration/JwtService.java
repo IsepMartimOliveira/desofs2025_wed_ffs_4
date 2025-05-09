@@ -15,7 +15,7 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 import org.springframework.security.core.GrantedAuthority;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 
 @Service

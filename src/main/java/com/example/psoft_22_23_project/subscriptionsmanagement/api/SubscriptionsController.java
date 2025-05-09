@@ -15,7 +15,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 @Tag(name = "Subscriptions", description = "Endpoints for managing subscriptions")
 @RestController
@@ -23,7 +23,6 @@ import javax.validation.Valid;
 @RequestMapping("/api/subscriptions")
 public class SubscriptionsController {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubscriptionsController.class);
 
     private final SubscriptionsService service;
 

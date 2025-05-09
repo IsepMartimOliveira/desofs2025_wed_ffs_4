@@ -1,9 +1,8 @@
 package com.example.psoft_22_23_project.dashboardmanagement.api;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.sun.istack.NotNull;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.NonNull;
 
 
 import java.util.Date;

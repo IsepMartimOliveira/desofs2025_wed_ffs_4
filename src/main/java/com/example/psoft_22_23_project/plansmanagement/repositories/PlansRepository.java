@@ -20,14 +20,11 @@
  */
 package com.example.psoft_22_23_project.plansmanagement.repositories;
 
-import com.example.psoft_22_23_project.plansmanagement.api.PlansView;
-import com.example.psoft_22_23_project.plansmanagement.model.Name;
+
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
+
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Caching;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -35,8 +32,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import javax.validation.constraints.NotNull;
-import java.util.List;
+import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 @Repository
 @Configuration

@@ -1,20 +1,16 @@
 package PlansTest.model;
 
-import com.example.psoft_22_23_project.dashboardmanagement.model.Dashboard;
-import com.example.psoft_22_23_project.devicemanagement.model.Device;
-import com.example.psoft_22_23_project.devicemanagement.model.DeviceImage;
-import com.example.psoft_22_23_project.devicemanagement.model.MacAddress;
-import com.example.psoft_22_23_project.plansmanagement.model.*;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
-import javax.validation.constraints.Max;
+import com.example.psoft_22_23_project.plansmanagement.model.*;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PlansTest {
 
-
+    @Value("${user.testchicouser}")
+    private String userTest;
 
     private Plans createPlan(String name) {
         Name planName = new Name();
@@ -183,7 +179,7 @@ public class PlansTest {
 
         Double aFee = 4.0;
         Double mFee = 12.0;
-        String user = "chico";
+        String user = userTest;
 
         plans.moneyData(0,aFee,mFee,user);
 

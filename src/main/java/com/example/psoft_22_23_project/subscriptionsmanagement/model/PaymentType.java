@@ -3,9 +3,8 @@ package com.example.psoft_22_23_project.subscriptionsmanagement.model;
 import lombok.Data;
 import lombok.Getter;
 
-import javax.persistence.Embeddable;
-import javax.validation.constraints.Pattern;
-import java.util.Date;
+import jakarta.persistence.Embeddable;
+
 
 @Getter
 @Data

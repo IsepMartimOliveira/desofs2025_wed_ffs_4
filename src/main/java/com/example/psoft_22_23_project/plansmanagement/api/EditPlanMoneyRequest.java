@@ -23,7 +23,7 @@ package com.example.psoft_22_23_project.plansmanagement.api;
 import lombok.Data;
 import org.springframework.lang.Nullable;
 
-import javax.validation.constraints.Min;
+import jakarta.validation.constraints.Min;
 
 @Data
 public class EditPlanMoneyRequest {
