@@ -3,7 +3,6 @@ name: Build and Publish Docker Image
 on:
   release:
     types: [published]
-  workflow_dispatch:
 
 env:
   JAVA_VERSION: '17'
