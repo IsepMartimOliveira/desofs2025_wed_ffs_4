@@ -4,14 +4,13 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
 
 jobs:
   dast-scan:
     runs-on: ubuntu-latest
 
     env:
-      DB_URL: ${{ secrets.DB_URL }}
+      DB_URL: jdbc:postgresql://db:5432/${{ secrets.DB_NAME }}
       DB_USERNAME: ${{ secrets.DB_USERNAME }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       DB_NAME: ${{ secrets.DB_NAME }}
@@ -27,22 +26,20 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Pull published image
-        run: docker pull ${{ secrets.DOCKER_USERNAME }}/spotify-copy:latest
-
+      # Using docker compose with the updated multi-stage build Dockerfile
       - name: Start containers with Compose
-        run: docker compose up -d
+        run: docker compose up -d --build
 
-      - name: Check container status
-        run: docker compose ps
-
-      - name: Check application logs
-        run: docker compose logs app
+      - name: Display logs for debugging
+        run: |
+          echo "Container status:"
+          docker compose ps
+          echo "Application logs:"
+          docker compose logs app
 
       - name: Wait for the app to be ready
         run: |
           echo "Waiting for application to start..."
-          # More robust wait with retries and timeout
           timeout=120
           counter=0
           while ! curl -s http://localhost:8080 > /dev/null; do
