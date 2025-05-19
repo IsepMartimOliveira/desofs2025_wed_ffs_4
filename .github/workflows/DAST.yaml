@@ -21,7 +21,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build  app
+      - name: Build app
         run: mvn clean package -DskipTests
 
       - name: Run the app in background
@@ -29,6 +29,9 @@ jobs:
           java -jar target/*.jar &
           echo $! > pid.txt
           sleep 20  # wait for app to be ready
+
+      - name: Print application logs
+        run: cat target/logs/application.log || echo "No logs found"
 
       - name: Run OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.7.0
