@@ -25,10 +25,30 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Pull published image
         run: docker pull ${{ secrets.DOCKER_USERNAME }}/spotify-copy:latest
+
       - name: Start containers with Compose
         run: docker compose up -d
+
+      - name: Ensure database is created
+        run: |
+          echo "Creating database if it doesn't exist..."
+          sleep 10  # Give PostgreSQL container time to initialize
+          docker compose ps
+          DB_CONTAINER=$(docker compose ps -q db)
+          
+          if [ -z "$DB_CONTAINER" ]; then
+            echo "Database container not found!"
+            exit 1
+          fi
+          
+          echo "Running database creation commands..."
+          docker exec $DB_CONTAINER psql -U ${{ secrets.DB_USERNAME }} -c "CREATE DATABASE ${{ secrets.DB_NAME }};" || echo "Database might already exist"
+
+      - name: Restart application container after DB creation
+        run: docker compose restart app
 
       - name: Display logs for debugging
         run: |
@@ -53,6 +73,13 @@ jobs:
             counter=$((counter + 5))
           done
           echo "Application is up and running!"
+
+      - name: Display logs for debugging
+        run: |
+          echo "Container status:"
+          docker compose ps
+          echo "Application logs:"
+          docker compose logs app
 
       - name: Run OWASP ZAP scan
         uses: zaproxy/action-baseline@v0.8.0
