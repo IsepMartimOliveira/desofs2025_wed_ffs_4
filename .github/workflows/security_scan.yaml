@@ -80,7 +80,7 @@ jobs:
         env:
             JAVA_HOME: /opt/jdk
         with:
-            project: 'fake-spotify'
+            project: 'spotify-copy'
             path: '.'
             format: 'HTML'
             out: 'reports'
