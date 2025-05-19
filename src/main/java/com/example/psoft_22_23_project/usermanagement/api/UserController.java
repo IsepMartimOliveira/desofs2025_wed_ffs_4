@@ -22,6 +22,7 @@ package com.example.psoft_22_23_project.usermanagement.api;
 
 import com.example.psoft_22_23_project.usermanagement.model.User;
 import com.example.psoft_22_23_project.usermanagement.services.UserService;
+import com.example.psoft_22_23_project.utils.Utils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +61,7 @@ public class UserController {
 			throws URISyntaxException {
 
 		User user = userService.upload(file);
-		logger.info("Uploading profile image: filename={} for userId={}", file.getOriginalFilename(), user.getId());
+		logger.info("Uploading profile image: filename={} for userId={}", Utils.sanitize(file.getOriginalFilename()), user.getId());
 		return ResponseEntity.ok().body(userViewMapper.toUserView(user));
 
 	}
@@ -94,7 +95,7 @@ public class UserController {
 	public ResponseEntity<UserView> createUser(@RequestBody CreateUserRequest user) {
 
 		User createdUser = userService.createUser(user);
-		logger.info("Account created for username={}, email={}", user.getUsername(), user.getEmail());
+		logger.info("Account created for username={}, email={}", Utils.sanitize(user.getUsername()), Utils.sanitize(user.getEmail()));
 		return ResponseEntity.status(HttpStatus.CREATED).body(userViewMapper.toUserView(createdUser));
 	}
 

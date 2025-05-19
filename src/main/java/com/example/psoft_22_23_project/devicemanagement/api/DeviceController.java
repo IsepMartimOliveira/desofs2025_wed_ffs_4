@@ -71,7 +71,7 @@ public class DeviceController {
                 ).build().toUri();
 
         logger.info("Creating device: name={}, macAddress={}, withImage={}",
-                resource.getName(), resource.getMacAddress(), file != null);
+                Utils.sanitize(resource.getName()), Utils.sanitize(resource.getMacAddress()), file != null);
         return ResponseEntity.created(newDeviceUri).eTag(Long.toString(device.getVersion()))
                 .body(deviceViewMapper.toDeviceView(device));
     }
@@ -86,7 +86,6 @@ public class DeviceController {
             throws URISyntaxException {
         final String ifMatchValue = request.getHeader("If-Match");
         if (ifMatchValue == null || ifMatchValue.isEmpty()) {
-            // no if-match header was sent, so we are in INSERT mode
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "You must issue a conditional PATCH using 'if-match'");
         }
@@ -99,7 +98,7 @@ public class DeviceController {
 
         final var device = service.update(macAddress, resource, deviceImage, getVersionFromIfMatchHeader(ifMatchValue));
         logger.info("Updating device with macAddress={}, name={}, ifMatch={}",
-                macAddress, resource.getName(), ifMatchValue);
+                Utils.sanitize(macAddress), Utils.sanitize(resource.getName()), Utils.sanitize(ifMatchValue));
         return ResponseEntity.ok().eTag(Long.toString(device.getVersion())).body(deviceViewMapper.toDeviceView(device));
     }
 
@@ -114,7 +113,7 @@ public class DeviceController {
     public ResponseEntity<DeviceView> delete(final WebRequest request,
                                           @RequestParam("macAddress")  final String macAddress) {
         final String ifMatchValue = request.getHeader("If-Match");
-        logger.warn("Deleting device with macAddress={}, ifMatch={}", macAddress, ifMatchValue);
+        logger.warn("Deleting device with macAddress={}, ifMatch={}", Utils.sanitize(macAddress), Utils.sanitize(ifMatchValue));
         if (ifMatchValue == null || ifMatchValue.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "You must issue a conditional DELETE using 'if-match'");
@@ -122,13 +121,13 @@ public class DeviceController {
         final int count = service.deleteDevice(macAddress, getVersionFromIfMatchHeader(ifMatchValue));
 
         if (count == 0) {
-            logger.error("Failed to delete device with macAddress={}, affected count={}", macAddress, count);
+            logger.error("Failed to delete device with macAddress={}, affected count={}", Utils.sanitize(macAddress), count);
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         } else if (count == 1) {
-            logger.info("Device with macAddress={} successfully deleted", macAddress);
+            logger.info("Device with macAddress={} successfully deleted", Utils.sanitize(macAddress));
             return ResponseEntity.ok().build();
         } else {
-            logger.error("Failed to delete device with macAddress={}, affected count={}", macAddress, count);
+            logger.error("Failed to delete device with macAddress={}, affected count={}",Utils.sanitize(macAddress), count);
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }

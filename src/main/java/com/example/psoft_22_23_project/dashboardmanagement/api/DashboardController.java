@@ -3,6 +3,7 @@ import com.example.psoft_22_23_project.dashboardmanagement.model.Dashboard;
 import com.example.psoft_22_23_project.dashboardmanagement.model.DisplayRevenue;
 import com.example.psoft_22_23_project.dashboardmanagement.services.DashboardService;
 import com.example.psoft_22_23_project.usermanagement.api.UserController;
+import com.example.psoft_22_23_project.utils.Utils;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ public class DashboardController {
             @RequestParam(value = "endDate", required = false) String endDate
     ) {
         logger.info("Dashboard status requested: year={}, month={}, onlyActive={}, onlyCanceled={}, startDate={}, endDate={}",
-                year, month, onlyActive, onlyCanceled, startDate, endDate);
+                year, month, onlyActive, onlyCanceled, Utils.sanitize(startDate),Utils.sanitize(endDate));
         if (onlyActive && !onlyCanceled)
             if (endDate != null && startDate != null) {
                 Dashboard dashboard1 = dashboardService.getTotalNewSubscriptionsByDate(year, month, startDate, endDate);
@@ -62,7 +63,7 @@ public class DashboardController {
     public List<DashboardRevenueView> getDashboardRevenue(
             @RequestParam(value = "plan", required = false) String plan,
             @RequestParam("numberMonth") Integer numberMonth) {
-        logger.info("Revenue projection requested for plan={}, numberMonth={}", plan, numberMonth);
+        logger.info("Revenue projection requested for plan={}, numberMonth={}", Utils.sanitize(plan), numberMonth);
         List<DisplayRevenue> displayRevenues = dashboardService.getMonthlyRevenuePlan(plan, numberMonth);
 
         List<DashboardRevenueView> dashboardRevenueViews = displayRevenues.stream()
@@ -75,7 +76,7 @@ public class DashboardController {
     @Operation(summary = "Gets all revenue till now")
     @GetMapping("/currentRevenue")
     public DashboardView getDashboardRevenueTillNow( @RequestParam(value = "plan", required = false) String plan){
-        logger.info("Current revenue requested for plan={}", plan);
+        logger.info("Current revenue requested for plan={}", Utils.sanitize(plan));
         Dashboard dashboard=dashboardService.getRevenueTillNow(plan);
         return dashboardViewMapper.toDashboardView(dashboard);
 

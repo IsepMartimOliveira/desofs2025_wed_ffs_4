@@ -22,6 +22,7 @@ package com.example.psoft_22_23_project.plansmanagement.api;
 
 import com.example.psoft_22_23_project.plansmanagement.model.Plans;
 import com.example.psoft_22_23_project.plansmanagement.services.PlansService;
+import com.example.psoft_22_23_project.utils.Utils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -73,7 +74,7 @@ public class PlansController {
 		final var newPlanUri =
 				ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(plan.getName().getName()).build() .toUri();
 		logger.info("Creating plan: name={}, monthlyFee={}, annualFee={}",
-				resource.getName(), resource.getMonthlyFee(), resource.getAnnualFee());
+				Utils.sanitize(Utils.sanitize(resource.getName())), resource.getMonthlyFee(), resource.getAnnualFee());
 		return
 				ResponseEntity.created(newPlanUri).eTag(Long.toString(plan.getVersion()))
 						.body(plansViewMapper.toPlansView(plan)); }
@@ -100,7 +101,7 @@ public class PlansController {
 
 
 		final var plans = service.partialUpdate(name, resource, getVersionFromIfMatchHeader(ifMatchValue));
-		logger.info("Partial update on plan: name={}, fields updated={}", name, resource);
+		logger.info("Partial update on plan: name={}, fields updated={}", Utils.sanitize(name),resource);
 		return ResponseEntity.ok().eTag(Long.toString(plans.getVersion())).body(plansViewMapper.toPlansView(plans));
 	}
 
@@ -119,7 +120,7 @@ public class PlansController {
 
 		final Plans plans = service.moneyUpdate(name, resource, getVersionFromIfMatchHeader(ifMatchValue));
 		logger.info("Updating pricing for plan: name={}, newMonthlyFee={}, newAnnualFee={}",
-				name, resource.getMonthlyFee(), resource.getAnnualFee());
+				Utils.sanitize(name), resource.getMonthlyFee(), resource.getAnnualFee());
 		return ResponseEntity.ok().eTag(Long.toString(plans.getVersion())).body(plansViewMapper.toPlansView(plans));
 	}
 
@@ -136,7 +137,7 @@ public class PlansController {
 		}
 
 		final var plans = service.deactivate(name, getVersionFromIfMatchHeader(ifMatchValue));
-		logger.warn("Deactivating plan: name={}", name);
+		logger.warn("Deactivating plan: name={}", Utils.sanitize(name));
 		return ResponseEntity.ok().eTag(Long.toString(plans.getVersion())).body(plansViewMapper.toPlansView(plans));
 	}
 
@@ -145,7 +146,7 @@ public class PlansController {
 	public ResponseEntity<PromotionResultView> promote(final WebRequest request,
 													   @RequestParam("name") @Parameter(description = "The name of the plan to promote") final String name) {
 		final String ifMatchValue = request.getHeader("If-Match");
-		logger.info("Promoting plan: name={}", name);
+		logger.info("Promoting plan: name={}", Utils.sanitize(name));
 		if (ifMatchValue == null || ifMatchValue.isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					"You must issue a conditional PATCH using 'if-match'");
@@ -172,7 +173,7 @@ public class PlansController {
 	public ResponseEntity<PlansView> cease(final WebRequest request,
 											 @RequestParam("name")  final String name) {
 		final String ifMatchValue = request.getHeader("If-Match");
-		logger.warn("Ceasing plan: name={}", name);
+		logger.warn("Ceasing plan: name={}", Utils.sanitize(name));
 		if (ifMatchValue == null || ifMatchValue.isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					"You must issue a conditional DELETE using 'if-match'");
@@ -180,13 +181,13 @@ public class PlansController {
 		final int count = service.cease(name, getVersionFromIfMatchHeader(ifMatchValue));
 
 		if (count == 0) {
-			logger.error("Ceasing plan '{}' failed, affected count={}", name, count);
+			logger.error("Ceasing plan '{}' failed, affected count={}", Utils.sanitize(name), count);
 			return ResponseEntity.status(HttpStatus.CONFLICT).build();
 		} else if (count == 1) {
-			logger.info("Plan '{}' successfully ceased", name);
+			logger.info("Plan '{}' successfully ceased", Utils.sanitize(name));
 			return ResponseEntity.ok().build();
 		} else {
-			logger.error("Ceasing plan '{}' failed, affected count={}", name, count);
+			logger.error("Ceasing plan '{}' failed, affected count={}", Utils.sanitize(name), count);
 			return ResponseEntity.status(HttpStatus.CONFLICT).build();
 		}
 	}

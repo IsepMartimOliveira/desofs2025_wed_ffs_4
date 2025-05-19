@@ -18,5 +18,10 @@ public class Utils {
         return replaced.replaceAll(" ", "_");
     }
 
+    public static String sanitize(String input) {
+            if (input == null) return null;
+            return input.replaceAll("[\n\r\t]", "_");
+        }
+
 
 }

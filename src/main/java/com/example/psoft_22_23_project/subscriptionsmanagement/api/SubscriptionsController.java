@@ -4,6 +4,7 @@ package com.example.psoft_22_23_project.subscriptionsmanagement.api;
 import com.example.psoft_22_23_project.api.AuthApi;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.services.SubscriptionsService;
+import com.example.psoft_22_23_project.utils.Utils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +52,7 @@ public class SubscriptionsController {
     public ResponseEntity<SubscriptionsView> create(@Valid @RequestBody final CreateSubscriptionsRequest resource) {
 
         logger.info("Request to create subscription for name={}, paymentType={}",
-                resource.getName(), resource.getPaymentType());
+                Utils.sanitize(resource.getName()), Utils.sanitize(resource.getPaymentType()));
 
         final var subscriptions = service.create(resource);
 
@@ -97,7 +98,7 @@ public class SubscriptionsController {
     @PatchMapping(value = "/renew")
     public ResponseEntity<SubscriptionsView> renewAnualSubscription(final WebRequest request) {
         final String ifMatchValue = request.getHeader("If-Match");
-        logger.info("Attempting to renew annual subscription with version={}", ifMatchValue);
+        logger.info("Attempting to renew annual subscription with version={}", Utils.sanitize(ifMatchValue));
         if (ifMatchValue == null || ifMatchValue.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "You must issue a conditional PATCH using 'if-match'");
@@ -113,14 +114,14 @@ public class SubscriptionsController {
     @PatchMapping(value = "/change/{name}")
     public ResponseEntity<SubscriptionsView> changePlan(final WebRequest request, @Valid @PathVariable final String name) {
         final String ifMatchValue = request.getHeader("If-Match");
-        logger.info("Changing subscription plan to '{}' with version={}", name, ifMatchValue);
+        logger.info("Changing subscription plan to '{}' with version={}", Utils.sanitize(name), Utils.sanitize(ifMatchValue));
         if (ifMatchValue == null || ifMatchValue.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "You must issue a conditional PATCH using 'if-match'");
         }
 
         final var subscriptions = service.changePlan(getVersionFromIfMatchHeader(ifMatchValue), name);
-        logger.info("Subscription ID={} successfully changed to plan '{}'", subscriptions.getId(), name);
+        logger.info("Subscription ID={} successfully changed to plan '{}'", subscriptions.getId(), Utils.sanitize(name));
         return ResponseEntity.ok().eTag(Long.toString(subscriptions.getVersion())).body(subscriptionsViewMapper.toSubscriptionView(subscriptions));
     }
 
@@ -128,12 +129,12 @@ public class SubscriptionsController {
     @PatchMapping(value = "/change/{actualPlan}/{newPlan}")
     public void migrateAllToPlan(final WebRequest request,@Valid @PathVariable final String actualPlan, @Valid @PathVariable final String newPlan) {
         final String ifMatchValue = request.getHeader("If-Match");
-        logger.warn("Migration requested from plan '{}' to plan '{}', version={}", actualPlan, newPlan, ifMatchValue);
+        logger.warn("Migration requested from plan '{}' to plan '{}', version={}", Utils.sanitize(actualPlan), Utils.sanitize(newPlan), Utils.sanitize(ifMatchValue));
         if (ifMatchValue == null || ifMatchValue.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "You must issue a conditional PATCH using 'if-match'");
         }
-        logger.info("Migration from plan '{}' to '{}' completed", actualPlan, newPlan);
+        logger.info("Migration from plan '{}' to '{}' completed", Utils.sanitize(actualPlan), Utils.sanitize(newPlan));
         service.migrateAllToPlan(getVersionFromIfMatchHeader(ifMatchValue), actualPlan, newPlan);
     }
 
