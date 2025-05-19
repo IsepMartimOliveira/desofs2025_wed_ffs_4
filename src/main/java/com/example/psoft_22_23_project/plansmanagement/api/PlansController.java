@@ -72,6 +72,8 @@ public class PlansController {
 		final Plans plan = service.create(resource);
 		final var newPlanUri =
 				ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(plan.getName().getName()).build() .toUri();
+		logger.info("Creating plan: name={}, monthlyFee={}, annualFee={}",
+				resource.getName(), resource.getMonthlyFee(), resource.getAnnualFee());
 		return
 				ResponseEntity.created(newPlanUri).eTag(Long.toString(plan.getVersion()))
 						.body(plansViewMapper.toPlansView(plan)); }
@@ -98,6 +100,7 @@ public class PlansController {
 
 
 		final var plans = service.partialUpdate(name, resource, getVersionFromIfMatchHeader(ifMatchValue));
+		logger.info("Partial update on plan: name={}, fields updated={}", name, resource);
 		return ResponseEntity.ok().eTag(Long.toString(plans.getVersion())).body(plansViewMapper.toPlansView(plans));
 	}
 
@@ -115,6 +118,8 @@ public class PlansController {
 		}
 
 		final Plans plans = service.moneyUpdate(name, resource, getVersionFromIfMatchHeader(ifMatchValue));
+		logger.info("Updating pricing for plan: name={}, newMonthlyFee={}, newAnnualFee={}",
+				name, resource.getMonthlyFee(), resource.getAnnualFee());
 		return ResponseEntity.ok().eTag(Long.toString(plans.getVersion())).body(plansViewMapper.toPlansView(plans));
 	}
 
@@ -131,6 +136,7 @@ public class PlansController {
 		}
 
 		final var plans = service.deactivate(name, getVersionFromIfMatchHeader(ifMatchValue));
+		logger.warn("Deactivating plan: name={}", name);
 		return ResponseEntity.ok().eTag(Long.toString(plans.getVersion())).body(plansViewMapper.toPlansView(plans));
 	}
 
@@ -139,12 +145,18 @@ public class PlansController {
 	public ResponseEntity<PromotionResultView> promote(final WebRequest request,
 													   @RequestParam("name") @Parameter(description = "The name of the plan to promote") final String name) {
 		final String ifMatchValue = request.getHeader("If-Match");
+		logger.info("Promoting plan: name={}", name);
 		if (ifMatchValue == null || ifMatchValue.isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					"You must issue a conditional PATCH using 'if-match'");
 		}
 
+
 		final var promotionResult = service.promote(name, getVersionFromIfMatchHeader(ifMatchValue));
+
+		logger.info("Promotion result: newPromotedPlan={}, previousPromotedPlan={}",
+				promotionResult.getNewPromotedPlan().getName(),
+				promotionResult.getPreviousPromotedPlan() != null ? promotionResult.getPreviousPromotedPlan().getName() : "none");
 
 		PromotionResultView promotionResultView = new PromotionResultView();
 		promotionResultView.setNewPromotedPlan(plansViewMapper.toPlansView(promotionResult.getNewPromotedPlan()));
@@ -160,6 +172,7 @@ public class PlansController {
 	public ResponseEntity<PlansView> cease(final WebRequest request,
 											 @RequestParam("name")  final String name) {
 		final String ifMatchValue = request.getHeader("If-Match");
+		logger.warn("Ceasing plan: name={}", name);
 		if (ifMatchValue == null || ifMatchValue.isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					"You must issue a conditional DELETE using 'if-match'");
@@ -167,10 +180,13 @@ public class PlansController {
 		final int count = service.cease(name, getVersionFromIfMatchHeader(ifMatchValue));
 
 		if (count == 0) {
+			logger.error("Ceasing plan '{}' failed, affected count={}", name, count);
 			return ResponseEntity.status(HttpStatus.CONFLICT).build();
 		} else if (count == 1) {
+			logger.info("Plan '{}' successfully ceased", name);
 			return ResponseEntity.ok().build();
 		} else {
+			logger.error("Ceasing plan '{}' failed, affected count={}", name, count);
 			return ResponseEntity.status(HttpStatus.CONFLICT).build();
 		}
 	}

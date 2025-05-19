@@ -49,8 +49,7 @@ public class DeviceController {
         return Long.parseLong(ifMatchHeader);
     }
 
-    // the client determines the id of the resource since the client sends the name,
-    // so POST to the collection
+
     @Operation(summary = "Creates a new device")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -71,6 +70,8 @@ public class DeviceController {
                 ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(device.getMacAddress().getMacAddress()
                 ).build().toUri();
 
+        logger.info("Creating device: name={}, macAddress={}, withImage={}",
+                resource.getName(), resource.getMacAddress(), file != null);
         return ResponseEntity.created(newDeviceUri).eTag(Long.toString(device.getVersion()))
                 .body(deviceViewMapper.toDeviceView(device));
     }
@@ -96,8 +97,9 @@ public class DeviceController {
             deviceImage = doUploadFile(resource.getName(), file);
         }
 
-        // if-match header was sent, so we are in UPDATE mode
         final var device = service.update(macAddress, resource, deviceImage, getVersionFromIfMatchHeader(ifMatchValue));
+        logger.info("Updating device with macAddress={}, name={}, ifMatch={}",
+                macAddress, resource.getName(), ifMatchValue);
         return ResponseEntity.ok().eTag(Long.toString(device.getVersion())).body(deviceViewMapper.toDeviceView(device));
     }
 
@@ -112,6 +114,7 @@ public class DeviceController {
     public ResponseEntity<DeviceView> delete(final WebRequest request,
                                           @RequestParam("macAddress")  final String macAddress) {
         final String ifMatchValue = request.getHeader("If-Match");
+        logger.warn("Deleting device with macAddress={}, ifMatch={}", macAddress, ifMatchValue);
         if (ifMatchValue == null || ifMatchValue.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "You must issue a conditional DELETE using 'if-match'");
@@ -119,10 +122,13 @@ public class DeviceController {
         final int count = service.deleteDevice(macAddress, getVersionFromIfMatchHeader(ifMatchValue));
 
         if (count == 0) {
+            logger.error("Failed to delete device with macAddress={}, affected count={}", macAddress, count);
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         } else if (count == 1) {
+            logger.info("Device with macAddress={} successfully deleted", macAddress);
             return ResponseEntity.ok().build();
         } else {
+            logger.error("Failed to delete device with macAddress={}, affected count={}", macAddress, count);
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
@@ -131,10 +137,10 @@ public class DeviceController {
     @GetMapping("/photo/{fileName:.+}")
     public ResponseEntity<Resource> downloadFile(@PathVariable final String fileName,
                                                  final HttpServletRequest request) {
-        // Load file as Resource
+
         final Resource resource = fileStorageService.loadFileAsResource(fileName);
 
-        // Try to determine file's content type
+
         String contentType = null;
         try {
             contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
@@ -142,7 +148,7 @@ public class DeviceController {
             logger.info("Could not determine file type.");
         }
 
-        // Fallback to the default content type if type could not be determined
+
         if (contentType == null) {
             contentType = "application/octet-stream";
         }
@@ -158,9 +164,7 @@ public class DeviceController {
 
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(fileName)
                 .toUriString();
-        // since we are reusing this method both for single file upload and multiple
-        // file upload and have different urls we need to make sure we always return the
-        // right url for the single file download
+
         fileDownloadUri = fileDownloadUri.replace("/photos/", "/photo/");
 
         return new DeviceImage(Utils.transformSpaces(id), fileName, fileDownloadUri, file.getContentType(), file.getSize());

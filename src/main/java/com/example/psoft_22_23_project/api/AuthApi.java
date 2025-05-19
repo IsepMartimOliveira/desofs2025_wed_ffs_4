@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +32,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 
 @Tag(name = "Authentication")
@@ -44,6 +47,7 @@ public class AuthApi {
 	private final LoginAttemptService loginAttemptService;
 	private final JwtService jwtService;
 	private final ClientIPUtil clientIPUtil;
+	private static final Logger logger = LoggerFactory.getLogger(AuthApi.class);
 
 	private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -58,6 +62,10 @@ public class AuthApi {
 	public ResponseEntity<?> login(@RequestBody @Valid final AuthRequest request) {
 		String clientIp = clientIPUtil.getClientIP();
 		String username = request.getUsername();
+		long start = System.currentTimeMillis();
+		String requestId = UUID.randomUUID().toString();
+
+		logger.info("[{}] Login attempt for user '{}' from IP {}", requestId, username, clientIp);
 
 		if (loginAttemptService.isIpBlocked(clientIp)) {
 			LocalDateTime unlockTime = loginAttemptService.getIpUnlockTime(clientIp);
@@ -94,7 +102,8 @@ public class AuthApi {
 			loginAttemptService.loginSucceeded(username, clientIp);
 
 			final User user = (User) authentication.getPrincipal();
-			log.info("User {} successfully authenticated from IP {}", username, clientIp);
+			long duration = System.currentTimeMillis() - start;
+			log.info("User {} successfully authenticated from IP {} in {} ms", username, clientIp,duration);
 
 			final String token = jwtService.generateToken(user, authentication);
 

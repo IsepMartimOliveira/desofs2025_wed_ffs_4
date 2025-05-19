@@ -71,21 +71,10 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
             if (existingSubscription.get().getActiveStatus().isActive()) {
                 throw new IllegalArgumentException("You need to let your active subscription end in order to subscribe");
             }
-/*
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDate dateTime = LocalDate.parse(existingSubscription.get().getEndDate().getEndDate(), formatter);
-
-            if (LocalDate.now().isBefore(dateTime)) {
-                throw new IllegalArgumentException("You need to let your active subscription end in order to subscribe");
-            }*/
         }
 
 
 
-        /*
-        if (existingSubscription.isPresent()) {
-            throw new IllegalArgumentException("You need to cancel your active subscription in order to subscribe");
-        }*/
 
 
         // construct a new object based on data received by the service
@@ -95,36 +84,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
         return repository.save(obj);
     }
 
-    /*
 
-    @Override
-    public void delete(final Long id) {
-        // Check if subscription exists
-        Subscriptions subscription = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Subscription not found with ID " + id));
-
-        // Check if the current user is authorized to delete the subscription
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        int commaIndex = username.indexOf(",");
-
-        String newString;
-        if (commaIndex != -1) {
-            newString = username.substring(0, commaIndex);
-        } else {
-            newString = username;
-        }
-
-        User user = subscription.getUser();
-        boolean userAuthorized = Long.valueOf(newString).equals(user.getId());
-        if (!userAuthorized) {
-            throw new AccessDeniedException("User not allowed to delete the subscription");
-        }
-
-        // Delete the subscription
-        repository.delete(subscription);
-    }
-
-*/
 
     @Override
     public Subscriptions cancelSubscription(final long desiredVersion){
@@ -147,16 +107,7 @@ public class SubscriptionsServiceImpl implements SubscriptionsService {
                 .orElseThrow(() -> new EntityNotFoundException("No subscriptions associated with this user"));
 
 
-        /*
-        if (!subscription.getActiveStatus().isActive()){
-            throw new EntityNotFoundException("Subscription already canceled");
-        }
 
-        boolean userAuthorized = Long.valueOf(newString).equals(user.getId());
-        if (!userAuthorized) {
-            throw new NotFoundException("User not allowed to cancel the subscription");
-        }
-*/
 
         subscription.deactivate(desiredVersion);
 

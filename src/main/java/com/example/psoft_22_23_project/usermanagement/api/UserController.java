@@ -60,6 +60,7 @@ public class UserController {
 			throws URISyntaxException {
 
 		User user = userService.upload(file);
+		logger.info("Uploading profile image: filename={} for userId={}", file.getOriginalFilename(), user.getId());
 		return ResponseEntity.ok().body(userViewMapper.toUserView(user));
 
 	}
@@ -93,6 +94,7 @@ public class UserController {
 	public ResponseEntity<UserView> createUser(@RequestBody CreateUserRequest user) {
 
 		User createdUser = userService.createUser(user);
+		logger.info("Account created for username={}, email={}", user.getUsername(), user.getEmail());
 		return ResponseEntity.status(HttpStatus.CREATED).body(userViewMapper.toUserView(createdUser));
 	}
 
