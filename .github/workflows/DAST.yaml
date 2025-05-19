@@ -16,7 +16,6 @@ jobs:
       DB_NAME: ${{ secrets.DB_NAME }}
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
 
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -33,10 +32,29 @@ jobs:
       - name: Start containers with Compose
         run: docker compose up -d
 
+      - name: Check container status
+        run: docker compose ps
+
+      - name: Check application logs
+        run: docker compose logs app
+
       - name: Wait for the app to be ready
         run: |
-          sleep 30
-          curl --fail http://localhost:8080 || exit 1
+          echo "Waiting for application to start..."
+          # More robust wait with retries and timeout
+          timeout=120
+          counter=0
+          while ! curl -s http://localhost:8080 > /dev/null; do
+            if [ $counter -ge $timeout ]; then
+              echo "Timed out waiting for application to start"
+              docker compose logs app
+              exit 1
+            fi
+            echo "Still waiting... ($counter seconds elapsed)"
+            sleep 5
+            counter=$((counter + 5))
+          done
+          echo "Application is up and running!"
 
       - name: Run OWASP ZAP scan
         uses: zaproxy/action-baseline@v0.8.0
@@ -45,4 +63,5 @@ jobs:
           failOnRisk: 'high'
 
       - name: Stop containers
+        if: always()
         run: docker compose down
