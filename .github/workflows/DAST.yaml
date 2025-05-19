@@ -9,15 +9,26 @@ jobs:
   dast-scan:
     runs-on: ubuntu-latest
 
-    env:  # Inject secrets as environment variables here
+    env:
       DB_URL: ${{ secrets.DB_URL }}
       DB_USERNAME: ${{ secrets.DB_USERNAME }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       DB_NAME: ${{ secrets.DB_NAME }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Pull published image
+        run: docker pull ${{ secrets.DOCKER_USERNAME }}/spotify-copy:latest
 
       - name: Start containers with Compose
         run: docker compose up -d
@@ -34,4 +45,4 @@ jobs:
           failOnRisk: 'high'
 
       - name: Stop containers
-        run: docker-compose down
+        run: docker compose down
