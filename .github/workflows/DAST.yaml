@@ -1,4 +1,4 @@
-name: DAST OWASP ZAP Scan
+name: DAST OWASP ZAP Scan (No Docker)
 
 on:
   push:
@@ -9,13 +9,17 @@ on:
 jobs:
   dast-scan:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Write application-passwords.properties file
+      - name: Write  file
         run: |
           echo "${{ secrets.APPLICATION_PASSWORDS }}" > src/main/resources/application-passwords.properties
+
+      - name: Make Maven Wrapper executable
+        run: chmod +x ./mvnw
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -29,15 +33,13 @@ jobs:
       - name: Run Spring Boot app in background
         run: |
           nohup java -jar target/demoOrm-0.0.1-SNAPSHOT.jar &
-          sleep 30  # wait for app startup
+          sleep 30
 
       - name: Run OWASP ZAP baseline scan
         uses: zaproxy/action-baseline@v0.8.0
         with:
-          target: 'http://localhost:8080'  # change if your app runs on different port or URL
+          target: 'http://localhost:8080'
           failOnRisk: 'high'
-          rulesFileName: '.zap/rules.txt'  # optional
 
       - name: Kill Spring Boot app
-        run: |
-          pkill -f 'java -jar'
+        run: pkill -f 'java -jar'
