@@ -1,17 +1,26 @@
+
 services:
   app:
     build: .
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=${DB_URL}
+      - SPRING_DATASOURCE_URL=${DB_URL}${DB_NAME}
       - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_DATASOURCE_HIKARI_INITIALIZATION_FAIL_TIMEOUT=60000
+      - SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT=60000
     volumes:
       - app-uploads:/app/uploads
     depends_on:
       - db
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
   db:
     image: postgres:14-alpine
@@ -22,6 +31,11 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   app-uploads:
