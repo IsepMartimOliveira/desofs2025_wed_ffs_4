@@ -35,7 +35,7 @@ jobs:
         run: docker pull $DOCKER_USERNAME/$DOCKER_IMAGE_NAME:$VERSION
 
       - name: Build and start services
-        run: docker-compose up -d
+        run: docker compose up -d
 
       - name: Wait for services to be healthy
         run: |
