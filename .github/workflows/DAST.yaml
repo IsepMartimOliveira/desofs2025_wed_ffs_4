@@ -73,6 +73,7 @@ jobs:
 
       - name: Run OWASP ZAP scan
         run: |
+          mkdir -p zap-output
           docker run --network="host" \
             -v $(pwd):/zap/wrk/:rw \
            ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
@@ -83,7 +84,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: zap-report
-          path: zap_report.html
+          path: zap-output/zap_report.html
 
       - name: Tear down app service
         run: docker compose --env-file .env down --volumes
