@@ -12,6 +12,7 @@ jobs:
     env:
       DOCKER_IMAGE_NAME: 'spotify-copy'
       VERSION: 'latest'
+      JAVA_VERSION: '17'
 
     steps:
       - name: Checkout code
