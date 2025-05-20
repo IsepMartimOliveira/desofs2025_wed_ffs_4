@@ -74,11 +74,12 @@ jobs:
       - name: Run OWASP ZAP scan
         run: |
           mkdir -p zap-output
+          chmod -R 777 zap-output
           docker run --network="host" \
-            -v $(pwd):/zap/wrk/:rw \
+          -v $(pwd)/zap-output:/zap/wrk/:rw \
            ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
-            -t http://localhost:8080 \
-            -r zap_report.html
+          -t http://localhost:8080 \
+          -r zap_report.html
 
       - name: Upload ZAP Report Artifact
         uses: actions/upload-artifact@v4
