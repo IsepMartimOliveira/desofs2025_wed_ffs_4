@@ -81,8 +81,7 @@ jobs:
           docker logs $(docker ps -q)
           echo "DB container ID:"
           docker ps -q
-          echo "DB container logs:"
-          docker logs $(docker ps -q)
+ 
       
 
       - name: Run OWASP ZAP scan
