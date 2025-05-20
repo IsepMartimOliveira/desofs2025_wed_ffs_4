@@ -161,13 +161,9 @@ public class UserService implements UserDetailsService {
 		}
 
 		if (request.getNewPassword() == null || request.getNewPassword().isEmpty() ||
-				request.getNewPassword().length() > 24 || request.getNewPassword().length() < 12 ||
-				!request.getNewPassword().matches(".*[A-Z].*") ||
-				!request.getNewPassword().matches(".*\\d.*") ||
-				!request.getNewPassword().matches(".*[@$!%*?&].*")) {
+				request.getNewPassword().length() > 24 || request.getNewPassword().length() < 12) {
 			throw new IllegalArgumentException("Password must be between 12-24 characters...");
 		}
-		// Update password
 		user.setPassword(passwordEncoder.encode(request.getNewPassword()));
 		return userRepository.save(user);
 	}
