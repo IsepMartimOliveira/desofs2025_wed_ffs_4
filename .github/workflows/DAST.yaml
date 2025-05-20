@@ -71,6 +71,20 @@ jobs:
       - name: Start app service
         run: docker compose --env-file .env up -d
 
+      - name: Debug
+        run: |
+          echo "Running containers:"
+          docker ps
+          echo "App container ID:"
+          docker ps -q
+          echo "App container logs:"
+          docker logs $(docker ps -q)
+          echo "DB container ID:"
+          docker ps -q
+          echo "DB container logs:"
+          docker logs $(docker ps -q)
+      
+
       - name: Run OWASP ZAP scan
         run: |
           mkdir -p zap-output
@@ -78,7 +92,7 @@ jobs:
           docker run --network="host" \
           -v $(pwd)/zap-output:/zap/wrk/:rw \
            ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
-          -t http://localhost:8080 \
+          -t http://localhost:8080/api/ \
           -r zap_report.html
 
       - name: Upload ZAP Report Artifact
