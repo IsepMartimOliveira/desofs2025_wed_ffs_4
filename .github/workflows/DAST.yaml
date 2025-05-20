@@ -54,13 +54,13 @@ jobs:
               exit 1
             fi
           done
-      - name: Create database
-        run: |
-          DB_CONTAINER=$(docker compose -f docker-compose-db.yml ps -q db)
-          docker exec -i $DB_CONTAINER psql -U ${{ secrets.DB_USERNAME }} -d postgres <<EOF
-          CREATE DATABASE ${{ secrets.DB_NAME }};
-          \l
-          EOF
+#      - name: Create database
+#        run: |
+#          DB_CONTAINER=$(docker compose -f docker-compose-db.yml ps -q db)
+#          docker exec -i $DB_CONTAINER psql -U ${{ secrets.DB_USERNAME }} -d postgres <<EOF
+#          CREATE DATABASE ${{ secrets.DB_NAME }};
+#          \l
+#          EOF
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -75,7 +75,7 @@ jobs:
         run: |
           docker run --network="host" \
             -v $(pwd):/zap/wrk/:rw \
-            owasp/zap2docker-stable zap-baseline.py \
+           ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
             -t http://localhost:8080 \
             -r zap_report.html
 
