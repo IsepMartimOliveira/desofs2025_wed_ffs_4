@@ -30,6 +30,7 @@ import com.example.psoft_22_23_project.usermanagement.repositories.UserRepositor
 import com.example.psoft_22_23_project.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -38,6 +39,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 
 
 
@@ -140,5 +142,34 @@ public class UserService implements UserDetailsService {
 
 			return userRepository.save(user);
     }
+
+	public User changePassword(PasswordChangeRequest request) {
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		int commaIndex = username.indexOf(",");
+		String newString;
+		if (commaIndex != -1) {
+			newString = username.substring(0, commaIndex);
+		} else {
+			newString = username;
+		}
+
+		User user = userRepository.findById(Long.valueOf(newString))
+				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+		if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+			throw new AccessDeniedException("Current password is incorrect");
+		}
+
+		if (request.getNewPassword() == null || request.getNewPassword().isEmpty() ||
+				request.getNewPassword().length() > 24 || request.getNewPassword().length() < 12 ||
+				!request.getNewPassword().matches(".*[A-Z].*") ||
+				!request.getNewPassword().matches(".*\\d.*") ||
+				!request.getNewPassword().matches(".*[@$!%*?&].*")) {
+			throw new IllegalArgumentException("Password must be between 12-24 characters...");
+		}
+		// Update password
+		user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+		return userRepository.save(user);
+	}
 
 }

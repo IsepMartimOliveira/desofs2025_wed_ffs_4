@@ -96,5 +96,12 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(userViewMapper.toUserView(createdUser));
 	}
 
+	@Operation(summary = "Change user password")
+	@PatchMapping("password")
+	public ResponseEntity<UserView> changePassword(@RequestBody PasswordChangeRequest request) {
+		User updatedUser = userService.changePassword(request);
+		return ResponseEntity.ok().body(userViewMapper.toUserView(updatedUser));
+	}
+
 
 }
