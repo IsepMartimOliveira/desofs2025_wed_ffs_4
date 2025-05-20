@@ -36,7 +36,7 @@ jobs:
           echo "DB_URL=${{ secrets.DB_URL }}" >> .env
 
       - name: Start DB service
-        run: docker compose -f docker-compose.db.yml --env-file .env up -d
+        run: docker compose -f docker-compose-db.yml --env-file .env up -d
 
       - name: Wait for DB to be healthy
         run: |
@@ -50,13 +50,13 @@ jobs:
             sleep 5
             if [ "$i" -eq 20 ]; then
               echo "DB did not become healthy in time."
-              docker compose -f docker-compose.db.yml logs
+              docker compose -f docker-compose-db.yml logs
               exit 1
             fi
           done
       - name: Create database
         run: |
-          DB_CONTAINER=$(docker compose -f docker-compose.db.yml ps -q db)
+          DB_CONTAINER=$(docker compose -f docker-compose-db.yml ps -q db)
           docker exec -i $DB_CONTAINER psql -U ${{ secrets.DB_USERNAME }} -d postgres <<EOF
           CREATE DATABASE ${{ secrets.DB_NAME }};
           \l
