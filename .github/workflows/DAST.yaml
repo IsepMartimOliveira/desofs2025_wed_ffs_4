@@ -10,11 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DB_URL: ${{secrets.DB_URL}}${{ secrets.DB_NAME }}
-      DB_USERNAME: ${{ secrets.DB_USERNAME }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_IMAGE_NAME: 'spotify-copy'
       VERSION: 'latest'
 
@@ -22,22 +17,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build JAR with Maven
+        run: ./mvnw clean package -DskipTests
+
+      - name: Create .env file from secrets
+        run: |
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build Docker image
+        run: docker compose --env-file .env build
 
-      - name: Pull latest image
-        run: docker pull $DOCKER_USERNAME/$DOCKER_IMAGE_NAME:$VERSION
+      - name: Start services
+        run: docker compose --env-file .env up -d
 
-      - name: Build and start services
-        run: docker compose up -d
-
-      - name: Wait for services to be healthy
+      - name: Wait for app to be healthy
         run: |
           for i in {1..30}; do
             status=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose ps -q app))
@@ -69,4 +73,7 @@ jobs:
           path: zap_report.html
 
       - name: Tear down services
-        run: docker compose down --volumes
+        run: docker compose --env-file .env down --volumes
+
+      - name: Clean up .env
+        run: rm -f .env
