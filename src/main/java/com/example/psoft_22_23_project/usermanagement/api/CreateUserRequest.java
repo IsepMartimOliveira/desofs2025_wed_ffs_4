@@ -18,7 +18,7 @@ public class CreateUserRequest {
 
     @NotNull
     @NotBlank
-    @Size(min = 12)
+    @Size(min = 12 , max = 24)
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).+$",
             message = "Password must be at least 12 characters and include at least one uppercase letter, one digit, and one special character")
     private String password;
