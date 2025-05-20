@@ -35,13 +35,40 @@ jobs:
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "DB_URL=${{ secrets.DB_URL }}" >> .env
 
+      - name: Start DB service
+        run: docker compose -f docker-compose.db.yml --env-file .env up -d
+
+      - name: Wait for DB to be healthy
+        run: |
+          for i in {1..20}; do
+            status=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose -f docker-compose.db.yml ps -q db))
+            echo "DB status: $status"
+            if [ "$status" = "healthy" ]; then
+              echo "DB is healthy!"
+              break
+            fi
+            sleep 5
+            if [ "$i" -eq 20 ]; then
+              echo "DB did not become healthy in time."
+              docker compose -f docker-compose.db.yml logs
+              exit 1
+            fi
+          done
+      - name: Create database
+        run: |
+          DB_CONTAINER=$(docker compose -f docker-compose.db.yml ps -q db)
+          docker exec -i $DB_CONTAINER psql -U ${{ secrets.DB_USERNAME }} -d postgres <<EOF
+          CREATE DATABASE ${{ secrets.DB_NAME }};
+          \l
+          EOF
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
         run: docker compose --env-file .env build
 
-      - name: Start services
+      - name: Start app service
         run: docker compose --env-file .env up -d
 
       - name: Wait for app to be healthy
@@ -60,6 +87,9 @@ jobs:
               exit 1
             fi
           done
+          
+   
+
 
       - name: Run OWASP ZAP scan
         run: |
@@ -75,8 +105,11 @@ jobs:
           name: zap-report
           path: zap_report.html
 
-      - name: Tear down services
+      - name: Tear down app service
         run: docker compose --env-file .env down --volumes
+
+      - name: Tear down DB service
+        run: docker compose -f docker-compose.db.yml down --volumes
 
       - name: Clean up .env
         run: rm -f .env

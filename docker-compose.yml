@@ -1,18 +1,18 @@
 
 services:
-  db:
-    image: postgres:14-alpine
-    environment:
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USERNAME}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-    tmpfs: /var/lib/postgresql/data
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+  #db:
+  #  image: postgres:14-alpine
+  #  environment:
+  #    - POSTGRES_DB=${DB_NAME}
+  #    - POSTGRES_USER=${DB_USERNAME}
+  #    - POSTGRES_PASSWORD=${DB_PASSWORD}
+  #  tmpfs: /var/lib/postgresql/data
+  #  restart: unless-stopped
+  #  healthcheck:
+  #    test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+  #    interval: 10s
+  #    timeout: 5s
+  #    retries: 5
 
   app:
     image: spotify-copy:latest
@@ -28,9 +28,9 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=create
     volumes:
       - app-uploads:/app/uploads
-    depends_on:
-      db:
-        condition: service_healthy
+    #depends_on:
+    #  db:
+    #    condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080"]
