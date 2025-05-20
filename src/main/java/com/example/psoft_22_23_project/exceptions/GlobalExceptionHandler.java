@@ -39,11 +39,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ValidationException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
+import java.util.*;
 
 
 /**
@@ -141,12 +138,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public ResponseEntity<ApiCallError<String>> handleInternalServerError(final HttpServletRequest request,
 			final Exception ex) {
-		logger.error("handleInternalServerError {}\n", Utils.sanitize(request.getRequestURI()), ex);
+		String errorId = UUID.randomUUID().toString();
+		logger.error("Erro interno [ID: {}] na URI {}: {}", errorId, Utils.sanitize(request.getRequestURI()), Utils.sanitize(ex.getMessage()), ex);
 
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 				.body(new ApiCallError<>("Internal server error", List.of(ex.getMessage())));
 	}
-
 	@Data
 	@NoArgsConstructor
 	@AllArgsConstructor
