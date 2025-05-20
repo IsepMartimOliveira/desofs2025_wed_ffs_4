@@ -74,15 +74,7 @@ jobs:
       - name: Debug
         run: |
           echo "Running containers:"
-          docker ps
-          echo "App container ID:"
-          docker ps -q
-          echo "App container logs:"
-          docker logs $(docker ps -q)
-          echo "DB container ID:"
-          docker ps -q
- 
-      
+          docker ps      
 
       - name: Run OWASP ZAP scan
         run: |
