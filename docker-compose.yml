@@ -1,3 +1,4 @@
+version: '3.8'
 
 services:
   db:
@@ -6,11 +7,10 @@ services:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
-    volumes:
-      - db-data:/var/lib/postgresql/data
+    tmpfs: /var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -20,15 +20,17 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=${DB_URL}${DB_NAME}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${DB_NAME}
       - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_DATASOURCE_HIKARI_INITIALIZATION_FAIL_TIMEOUT=60000
       - SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT=60000
     volumes:
       - app-uploads:/app/uploads
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
@@ -37,8 +39,5 @@ services:
       retries: 5
       start_period: 40s
 
-
-
 volumes:
   app-uploads:
-  db-data:

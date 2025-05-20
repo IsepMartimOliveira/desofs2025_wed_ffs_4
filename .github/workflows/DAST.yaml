@@ -15,133 +15,58 @@ jobs:
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       DB_NAME: ${{ secrets.DB_NAME }}
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_IMAGE_NAME: 'spotify-copy'
+      VERSION: 'latest'
 
     steps:
-      - name: Remove any existing volumes and networks
-        run: |
-          echo "Removing any existing docker volumes..."
-          docker volume prune -f
-          echo "Volumes removed."
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Log in to Docker Hub
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Pull published image
-        run: docker pull ${{ secrets.DOCKER_USERNAME }}/spotify-copy:latest
+      - name: Pull latest image
+        run: docker pull $DOCKER_USERNAME/$DOCKER_IMAGE_NAME:$VERSION
 
+      - name: Build and start services
+        run: docker-compose up -d
 
-
-      - name: Start containers with Compose
+      - name: Wait for services to be healthy
         run: |
-          echo "Starting containers with docker-compose..."
-          docker compose up -d
-          echo "Containers started."
-
-      - name: Check running containers and logs
-        run: |
-          echo "Checking running containers:"
-          docker compose ps
-          echo "Initial container logs:"
-          docker compose logs
-
-      - name: Ensure database is created
-        run: |
-          echo "Creating database if it doesn't exist..."
-          sleep 15  # Give PostgreSQL container more time to initialize
-          echo "Container status after sleep:"
-          docker compose ps
-          DB_CONTAINER=$(docker compose ps -q db)
-          
-          if [ -z "$DB_CONTAINER" ]; then
-            echo "ERROR: Database container not found!"
-            docker compose logs db
-            exit 1
-          fi
-          
-          echo "Database container found: $DB_CONTAINER"
-          echo "Database container logs:"
-          docker compose logs db
-          
-          echo "Running database creation commands..."
-          # First check if the database already exists
-          EXISTING_DB=$(docker exec $DB_CONTAINER psql -U ${{ secrets.DB_USERNAME }} -t -c "SELECT datname FROM pg_database WHERE datname='${{ secrets.DB_NAME }}';" | xargs)
-          
-          if [ "$EXISTING_DB" = "${{ secrets.DB_NAME }}" ]; then
-            echo "Database '${{ secrets.DB_NAME }}' already exists."
-          else
-            echo "Creating database '${{ secrets.DB_NAME }}'..."
-            docker exec $DB_CONTAINER psql -U ${{ secrets.DB_USERNAME }} -c "CREATE DATABASE ${{ secrets.DB_NAME }};"
-            echo "Database created successfully."
-          fi
-
-      - name: Restart application container after DB creation
-        run: |
-          echo "Restarting application container..."
-          docker compose restart app
-          echo "Application container restarted."
-
-      - name: Display detailed logs for debugging
-        run: |
-          echo "Container status after restart:"
-          docker compose ps
-          echo "Application logs after restart:"
-          docker compose logs app
-          echo "Database logs:"
-          docker compose logs db
-          echo "Network configuration:"
-          docker network ls
-          docker network inspect $(docker network ls -q -f name=`basename $PWD`)
-          echo "Environment variables for app container:"
-          APP_CONTAINER=$(docker compose ps -q app)
-          docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' $APP_CONTAINER
-
-      - name: Wait for the app to be ready
-        run: |
-          echo "Waiting for application to start..."
-          timeout=180
-          counter=0
-          while true; do
-            if [ $counter -ge $timeout ]; then
-              echo "ERROR: Timed out waiting for application to start"
-              docker compose logs app
-              exit 1
-            fi
-          
-            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080 || echo "failed")
-            if [ "$HTTP_CODE" == "200" ] || [ "$HTTP_CODE" == "302" ]; then
-              echo "Application is responding with HTTP code: $HTTP_CODE"
+          for i in {1..30}; do
+            status=$(docker inspect --format='{{.State.Health.Status}}' $(docker-compose ps -q app))
+            echo "App status: $status"
+            if [ "$status" = "healthy" ]; then
+              echo "App is healthy!"
               break
             fi
-          
-            echo "Still waiting... ($counter seconds elapsed) - HTTP code: $HTTP_CODE"
             sleep 10
-            counter=$((counter + 10))
+            if [ "$i" -eq 30 ]; then
+              echo "App did not become healthy in time."
+              docker-compose logs
+              exit 1
+            fi
           done
-          echo "Application is up and running!"
-
-      - name: Final check before ZAP scan
-        run: |
-          echo "Final container status:"
-          docker compose ps
-          echo "Testing application endpoint:"
-          curl -v http://localhost:8080
-          echo "Ready for ZAP scan."
 
       - name: Run OWASP ZAP scan
-        uses: zaproxy/action-baseline@v0.8.0
-        with:
-          target: 'http://localhost:8080'
-          failOnRisk: 'high'
-          allow_issue_writing: true
-
-      - name: Stop containers
-        if: always()
         run: |
-          echo "Stopping all containers..."
-          docker compose down
-          echo "Containers stopped."
+          docker run --network="host" \
+            -v $(pwd):/zap/wrk/:rw \
+            owasp/zap2docker-stable zap-baseline.py \
+            -t http://localhost:8080 \
+            -r zap_report.html
+
+      - name: Upload ZAP Report Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-report
+          path: zap_report.html
+
+      - name: Tear down services
+        run: docker-compose down --volumes
