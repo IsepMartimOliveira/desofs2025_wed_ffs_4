@@ -34,5 +34,4 @@ build/
 .vscode/
 
 ### Secretes ###
-application-passwords.properties
-
+application-local.properties
