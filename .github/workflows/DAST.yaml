@@ -91,6 +91,7 @@ jobs:
         with:
           target: 'http://localhost:8080'
           allow_issue_writing: false
+          artifact_name: 'zapscan'
 
       - name: Tear down app service
         run: docker compose --env-file .env down --volumes
