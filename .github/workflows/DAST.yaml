@@ -92,6 +92,15 @@ jobs:
           target: 'http://localhost:8080'
           allow_issue_writing: false
 
+      - name: Upload ZAP reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: zap_scan_report
+          path: |
+            report_html.html
+            report_json.json
+            report_md.md    
+
       - name: Tear down app service
         run: docker compose --env-file .env down --volumes
 
