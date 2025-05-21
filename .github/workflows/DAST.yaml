@@ -91,6 +91,7 @@ jobs:
         with:
             target: 'http://localhost:8080'
             allow_issue_writing: false
+            upload_artifact: false
             cmd_options: '-J report_json.json -w report_md.md -r report_html.html'
 
       - name: Upload ZAP reports
