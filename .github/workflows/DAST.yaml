@@ -91,25 +91,27 @@ jobs:
         with:
             target: 'http://localhost:8080'
             allow_issue_writing: false
-            artifact_name: 'zap-scan-report' # Optional: Define a custom artifact name
             cmd_options: '-J report_json.json -w report_md.md -r report_html.html'
 
       - name: Upload ZAP reports
         uses: actions/upload-artifact@v4
         with:
-            name: zap-scan-report
+            name: zap_reports
             path: |
                   report_html.html
                   report_json.json
                   report_md.md  
-            token: ${{ github.token }}
 
-      - name: Archive ZAP reports
+      - name: Output ZAP report summary
         if: always()
         run: |
-            mkdir -p zap-reports
-            cp report_*.* zap-reports/ || true
-            tar -czvf zap-reports.tar.gz zap-reports/
+            echo "## ZAP Scan Summary" >> $GITHUB_STEP_SUMMARY
+            echo "Full scan completed at $(date)" >> $GITHUB_STEP_SUMMARY    
+            if [ -f report_md.md ]; then
+              cat report_md.md >> $GITHUB_STEP_SUMMARY
+            else
+              echo "No detailed report available" >> $GITHUB_STEP_SUMMARY
+            fi
 
       - name: Tear down app service
         run: docker compose --env-file .env down --volumes
