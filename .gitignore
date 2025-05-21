@@ -35,3 +35,5 @@ build/
 
 ### Secretes ###
 application-local.properties
+rsa.private.key
+rsa.public.key
