@@ -91,7 +91,7 @@ jobs:
         with:
           target: 'http://localhost:8080'
           allow_issue_writing: false
-          upload-artifact: false
+          upload_artifact: false
         
 
       - name: Upload ZAP reports
