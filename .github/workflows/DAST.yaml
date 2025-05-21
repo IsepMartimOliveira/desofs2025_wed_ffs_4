@@ -76,19 +76,31 @@ jobs:
       - name: Build Docker image
         run: docker compose --env-file .env build
 
+      - name: Download JaCoCo Agent
+        run: |
+          mkdir jacoco
+          curl -s -L -o jacoco/org.jacoco.agent.jar https://repo1.maven.org/maven2/org/jacoco/org.jacoco.agent/0.8.8/org.jacoco.agent-0.8.8-runtime.jar
+
+
       - name: Start app service
         run: docker compose --env-file .env up -d
 
       - name: Debug
         run: |
           echo "Running containers:"
-          sleep 30
+      #sleep 30
           docker ps      
 
       - name: Run OWASP ZAP Scan
         uses: zaproxy/action-full-scan@v0.6.0
         with:
           target: 'http://localhost:8080'
+
+      - name: Generate JaCoCo coverage report
+        run: |
+          mkdir -p target/jacoco
+          cp jacoco/jacoco.exec target/jacoco/
+          mvn jacoco:report
 
       - name: Tear down app service
         run: docker compose --env-file .env down --volumes
