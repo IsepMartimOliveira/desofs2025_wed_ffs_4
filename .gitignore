@@ -35,5 +35,6 @@ build/
 
 ### Secretes ###
 application-local.properties
-rsa.private.key
-rsa.public.key
+src/main/resources/rsa.private.key
+src/main/resources/rsa.public.key
+
