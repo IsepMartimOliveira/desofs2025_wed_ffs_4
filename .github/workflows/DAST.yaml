@@ -30,18 +30,18 @@ jobs:
 
       - name: Create .env file from secrets
         run: |
-          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
-          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-          echo "DB_URL=${{ secrets.DB_URL }}" >> .env
-          echo "ADMIN_PASS=${{ secrets.ADMIN_PASS }}" >> .env
-          echo "MARKETING_PASS=${{ secrets.MARKETING_PASS }}" >> .env
-          echo "SUBSCRIBER_PASS_1=${{ secrets.SUBSCRIBER_PASS_1 }}" >> .env
-          echo "SUBSCRIBER_PASS_2=${{ secrets.SUBSCRIBER_PASS_2 }}" >> .env
-          echo "PROJECT_MANAGER=${{ secrets.PROJECT_MANAGER }}" >> .env
-          echo "FINANCE_PASSWORD=${{ secrets.FINANCE_PASSWORD }}" >> .env
-          echo "JWT_PRIVATE_KEY=${{ secrets.JWT_PRIVATE_KEY }}" >> .env
-          echo "JWT_PUBLIC_KEY=${{ secrets.JWT_PUBLIC_KEY }}" >> .env
+          echo 'DB_NAME=${{ secrets.DB_NAME }}' >> .env
+          echo 'DB_USERNAME=${{ secrets.DB_USERNAME }}' >> .env
+          echo 'DB_PASSWORD=${{ secrets.DB_PASSWORD }}' >> .env
+          echo 'DB_URL=${{ secrets.DB_URL }}' >> .env
+          echo 'ADMIN_PASS=${{ secrets.ADMIN_PASS }}' >> .env
+          echo 'MARKETING_PASS=${{ secrets.MARKETING_PASS }}' >> .env
+          echo 'SUBSCRIBER_PASS_1=${{ secrets.SUBSCRIBER_PASS_1 }}' >> .env
+          echo 'SUBSCRIBER_PASS_2=${{ secrets.SUBSCRIBER_PASS_2 }}' >> .env
+          echo 'PROJECT_MANAGER=${{ secrets.PROJECT_MANAGER }}' >> .env
+          echo 'FINANCE_PASSWORD=${{ secrets.FINANCE_PASSWORD }}' >> .env
+          echo 'JWT_PRIVATE_KEY="${{ secrets.JWT_PRIVATE_KEY }}"' >> .env
+          echo 'JWT_PUBLIC_KEY="${{ secrets.JWT_PUBLIC_KEY }}"' >> .env
 
       - name: Start DB service
         run: docker compose -f docker-compose-db.yml --env-file .env up -d
