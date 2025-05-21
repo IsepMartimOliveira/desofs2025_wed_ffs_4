@@ -34,10 +34,8 @@ services:
       - FINANCE_PASSWORD=${FINANCE_PASSWORD}
       - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}
       - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}
-      - JAVA_TOOL_OPTIONS=-javaagent:/jacoco/org.jacoco.agent.jar=destfile=/jacoco/jacoco.exec
 
     volumes:
-      - ./jacoco:/jacoco
       - app-uploads:/app/uploads
     #depends_on:
     #  db:
