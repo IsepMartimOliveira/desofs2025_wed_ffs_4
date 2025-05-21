@@ -82,6 +82,7 @@ jobs:
       - name: Debug
         run: |
           echo "Running containers:"
+          sleep 30
           docker ps      
 
       - name: Run OWASP ZAP Scan
