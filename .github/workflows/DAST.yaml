@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  issues: write
+  security-events: write
 
 jobs:
   dast-scan:
