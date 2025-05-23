@@ -122,7 +122,7 @@ jobs:
       - name: Deploy using Docker Compose
         run: |
             ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_HOST_VM }} << 'EOF'
-              cd /home/${{ secrets.AZURE_VM_USERNAME }}
+              cd /home/${{ secrets.AZURE_VM_USER }}
               docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
               docker compose --env-file .env -f docker-compose.yml down || true
               docker compose --env-file .env -f docker-compose.yml up -d --pull always
