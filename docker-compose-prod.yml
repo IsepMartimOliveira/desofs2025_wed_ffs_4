@@ -31,6 +31,8 @@ services:
       - FINANCE_PASSWORD=${FINANCE_PASSWORD}
       - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}
       - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}
+      - SSL_KEYSTORE_PASSWORD=${SSL_KEYSTORE_PASSWORD}
+      - SSL_KEYSTORE=${SSL_KEYSTORE}
 
     volumes:
       - app-uploads:/app/uploads
