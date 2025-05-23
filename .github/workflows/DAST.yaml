@@ -1,9 +1,16 @@
 name: DAST OWASP ZAP Scan
 
 on:
-  push:
-    branches: [main]
-  pull_request:
+  #push:
+  #  branches: [main]
+  #pull_request:
+  #  branches: [main]
+    workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  security-events: write
 
 jobs:
   dast-scan:
@@ -44,7 +51,7 @@ jobs:
           echo 'JWT_PUBLIC_KEY="${{ secrets.JWT_PUBLIC_KEY }}"' >> .env
 
       - name: Start DB service
-        run: docker compose -f docker-compose-db.yml --env-file .env up -d
+        run: docker compose -f docker-compose-db-test.yml --env-file .env up -d
 
       - name: Wait for DB to be healthy
         run: |
@@ -64,7 +71,7 @@ jobs:
           done
       #      - name: Create database
       #        run: |
-      #          DB_CONTAINER=$(docker compose -f docker-compose-db.yml ps -q db)
+      #          DB_CONTAINER=$(docker compose -f docker-compose-db-test.yml ps -q db)
       #          docker exec -i $DB_CONTAINER psql -U ${{ secrets.DB_USERNAME }} -d postgres <<EOF
       #          CREATE DATABASE ${{ secrets.DB_NAME }};
       #          \l
@@ -74,12 +81,10 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
-        run: docker compose --env-file .env build
-
-
+        run: docker compose --env-file .env -f docker-compose-test.yml build
 
       - name: Start app service
-        run: docker compose --env-file .env up -d
+        run: docker compose --env-file .env -f docker-compose-test.yml up -d
 
       - name: Debug
         run: |
@@ -87,11 +92,9 @@ jobs:
           docker ps      
 
       - name: Run OWASP ZAP Scan
-        uses: zaproxy/action-full-scan@v0.7.0
+        uses: zaproxy/action-full-scan@v0.12.0
         with:
             target: 'http://localhost:8080'
-            allow_issue_writing: false
-            upload_artifact: false
             cmd_options: '-J report_json.json -w report_md.md -r report_html.html'
 
       - name: Upload ZAP reports
@@ -101,24 +104,13 @@ jobs:
             path: |
                   report_html.html
                   report_json.json
-                  report_md.md  
-
-      - name: Output ZAP report summary
-        if: always()
-        run: |
-            echo "## ZAP Scan Summary" >> $GITHUB_STEP_SUMMARY
-            echo "Full scan completed at $(date)" >> $GITHUB_STEP_SUMMARY    
-            if [ -f report_md.md ]; then
-              cat report_md.md >> $GITHUB_STEP_SUMMARY
-            else
-              echo "No detailed report available" >> $GITHUB_STEP_SUMMARY
-            fi
+                  report_md.md
 
       - name: Tear down app service
-        run: docker compose --env-file .env down --volumes
+        run: docker compose -f docker-compose-test.yml --env-file .env down --volumes
 
       - name: Tear down DB service
-        run: docker compose -f docker-compose-db.yml down --volumes
+        run: docker compose -f docker-compose-db-test.yml down --volumes
 
       - name: Clean up .env
         run: rm -f .env
