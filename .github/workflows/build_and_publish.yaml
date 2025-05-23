@@ -100,11 +100,12 @@ jobs:
             echo 'FINANCE_PASSWORD=${{ secrets.FINANCE_PASSWORD }}' >> .env
             echo 'JWT_PRIVATE_KEY="${{ secrets.JWT_PRIVATE_KEY }}"' >> .env
             echo 'JWT_PUBLIC_KEY="${{ secrets.JWT_PUBLIC_KEY }}"' >> .env
+            echo 'DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}' >> .env
       - name: Add private key to SSH agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
            ssh-private-key: ${{ secrets.AZURE_SSH_PRIV_KEY }}
-      - name: Copy docker-compose.yml to Azure VM
+      - name: Copy docker-compose-prod.yml to Azure VM
         run: |
             scp -o StrictHostKeyChecking=no docker-compose.yml \
             ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_HOST_VM }}:/home/${{ secrets.AZURE_VM_USER }}/docker-compose.yml
