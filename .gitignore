@@ -38,3 +38,6 @@ application-local.properties
 src/main/resources/rsa.private.key
 src/main/resources/rsa.public.key
 
+### Certificates ###
+*.p1
+

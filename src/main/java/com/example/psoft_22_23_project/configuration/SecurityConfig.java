@@ -95,6 +95,10 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		// Enable CORS and disable CSRF
+
+		http = http.requiresChannel(channel ->
+				channel.anyRequest().requiresSecure()
+		);
 		http = http.cors(cors -> cors.configurationSource(request -> {
 					CorsConfiguration configuration = new CorsConfiguration();
 					configuration.setAllowCredentials(true);
@@ -104,6 +108,8 @@ public class SecurityConfig {
 					return configuration;
 				}))
 				.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**")); // Exempt API endpoints from CSRF protection
+
+
 
 		// Set session management to stateless
 		http = http.sessionManagement(session ->
@@ -176,6 +182,7 @@ public class SecurityConfig {
 		http.headers(headers -> headers
 				.frameOptions(frameOptions -> frameOptions.sameOrigin())
 		);
+
 
 		return http.build();
 	}
