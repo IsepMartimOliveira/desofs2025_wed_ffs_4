@@ -107,8 +107,8 @@ jobs:
            ssh-private-key: ${{ secrets.AZURE_SSH_PRIV_KEY }}
       - name: Copy docker-compose-prod.yml to Azure VM
         run: |
-            scp -o StrictHostKeyChecking=no docker-compose.yml \
-            ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_HOST_VM }}:/home/${{ secrets.AZURE_VM_USER }}/docker-compose.yml
+            scp -o StrictHostKeyChecking=no docker-compose-prod.yml \
+            ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_HOST_VM }}:/home/${{ secrets.AZURE_VM_USER }}/docker-compose-prod.yml
       - name: Copy setup script to VM
         run: scp -o StrictHostKeyChecking=no scripts/setup-java-docker.sh ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_HOST_VM }}:/home/${{ secrets.AZURE_VM_USER }}/setup-java-docker.sh
 
