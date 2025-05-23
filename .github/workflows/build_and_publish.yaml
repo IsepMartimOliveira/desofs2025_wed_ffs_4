@@ -119,14 +119,13 @@ jobs:
          scp -o StrictHostKeyChecking=no .env \
          ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_HOST_VM }}:/home/${{ secrets.AZURE_VM_USER }}/.env
 
-      - name: Deploy using Docker Compose
+      - name: SSH to server and deploy
         run: |
-            ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_HOST_VM }} << 'EOF'
-              cd /home/${{ secrets.AZURE_VM_USER }}
-              docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-              docker compose --env-file .env -f docker-compose.yml down || true
-              docker compose --env-file .env -f docker-compose.yml up -d --pull always
-            EOF
+          ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_HOST_VM }} << EOF
+            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+            docker compose --env-file .env -f docker-compose.yml pull
+            docker compose --env-file .env -f docker-compose.yml up -d
+          EOF
 
 
 
