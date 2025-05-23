@@ -36,3 +36,6 @@ build/
 ### Secretes ###
 application-passwords.properties
 
+### Certificates ###
+*.p1
+
