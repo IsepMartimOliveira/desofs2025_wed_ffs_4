@@ -17,7 +17,6 @@ services:
   app:
     image: ${DOCKER_USERNAME}/spotify-copy:latest
     ports:
-      - "80:8080"
       - "443:8443"
     environment:
       - SPRING_DATASOURCE_URL=${DB_URL}/${DB_NAME}
