@@ -51,7 +51,7 @@ jobs:
           echo 'JWT_PUBLIC_KEY="${{ secrets.JWT_PUBLIC_KEY }}"' >> .env
 
       - name: Start DB service
-        run: docker compose -f docker-compose-db.yml --env-file .env up -d
+        run: docker compose -f docker-compose-db-test.yml --env-file .env up -d
 
       - name: Wait for DB to be healthy
         run: |
@@ -71,7 +71,7 @@ jobs:
           done
       #      - name: Create database
       #        run: |
-      #          DB_CONTAINER=$(docker compose -f docker-compose-db.yml ps -q db)
+      #          DB_CONTAINER=$(docker compose -f docker-compose-db-test.yml ps -q db)
       #          docker exec -i $DB_CONTAINER psql -U ${{ secrets.DB_USERNAME }} -d postgres <<EOF
       #          CREATE DATABASE ${{ secrets.DB_NAME }};
       #          \l
@@ -110,7 +110,7 @@ jobs:
         run: docker compose -f docker-compose-test.yml --env-file .env down --volumes
 
       - name: Tear down DB service
-        run: docker compose -f docker-compose-db.yml down --volumes
+        run: docker compose -f docker-compose-db-test.yml down --volumes
 
       - name: Clean up .env
         run: rm -f .env
