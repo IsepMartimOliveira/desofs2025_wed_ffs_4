@@ -34,7 +34,9 @@ build/
 .vscode/
 
 ### Secretes ###
-application-passwords.properties
+application-local.properties
+src/main/resources/rsa.private.key
+src/main/resources/rsa.public.key
 
 ### Certificates ###
 *.p1
