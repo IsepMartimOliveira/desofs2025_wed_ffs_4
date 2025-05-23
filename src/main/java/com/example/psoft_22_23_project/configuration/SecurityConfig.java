@@ -96,9 +96,10 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		// Enable CORS and disable CSRF
 
-		http = http.requiresChannel(channel ->
+		/*http = http.requiresChannel(channel ->
 				channel.anyRequest().requiresSecure()
-		);
+		);*/
+		//TEST DEPLOYMENT
 		http = http.cors(cors -> cors.configurationSource(request -> {
 					CorsConfiguration configuration = new CorsConfiguration();
 					configuration.setAllowCredentials(true);
