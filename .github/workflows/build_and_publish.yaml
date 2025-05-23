@@ -109,7 +109,7 @@ jobs:
             scp -o StrictHostKeyChecking=no docker-compose.yml \
             ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_HOST_VM }}:/home/${{ secrets.AZURE_VM_USER }}/docker-compose.yml
       - name: Copy setup script to VM
-        run: scp -o StrictHostKeyChecking=no scripts/setup-java-docker.sh ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_HOST_VM }}:/home/${{ secrets.AZURE_VM_USERNAME }}/setup-java-docker.sh
+        run: scp -o StrictHostKeyChecking=no scripts/setup-java-docker.sh ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_HOST_VM }}:/home/${{ secrets.AZURE_VM_USER }}/setup-java-docker.sh
 
       - name: Run setup script on VM
         run: ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_HOST_VM }} "bash /home/${{ secrets.AZURE_VM_USER }}/setup-java-docker.sh"
