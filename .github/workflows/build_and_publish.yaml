@@ -116,7 +116,7 @@ jobs:
       - name: SSH to server and deploy
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_HOST_DB_VM }} << EOF
-            docker compose --env-file .env -f docker-compose-db.yml up -d
+           sudo docker compose --env-file .env -f docker-compose-db.yml up -d
           EOF
   deploy-backend-azure:
     name: Deploy to Azure Web App
