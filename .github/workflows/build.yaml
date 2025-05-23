@@ -107,16 +107,16 @@ jobs:
       - name: Copy docker-compose.yml to Azure VM
         run: |
             scp -o StrictHostKeyChecking=no docker-compose.yml \
-            ${{ secrets.AZURE_VM_USERNAME }}@${{ secrets.AZURE_VM_HOST }}:/home/${{ secrets.AZURE_VM_USERNAME }}/docker-compose.yml
+            ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_HOST_VM }}:/home/${{ secrets.AZURE_VM_USER }}/docker-compose.yml
 
       - name: Copy .env file to Azure VM
         run: |
          scp -o StrictHostKeyChecking=no .env \
-         ${{ secrets.AZURE_VM_USERNAME }}@${{ secrets.AZURE_VM_HOST }}:/home/${{ secrets.AZURE_VM_USERNAME }}/.env
+         ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_HOST_VM }}:/home/${{ secrets.AZURE_VM_USER }}/.env
 
       - name: Deploy using Docker Compose
         run: |
-            ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USERNAME }}@${{ secrets.AZURE_VM_HOST }} << 'EOF'
+            ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_HOST_VM }} << 'EOF'
               cd /home/${{ secrets.AZURE_VM_USERNAME }}
               docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
               docker compose --env-file .env -f docker-compose.yml down || true
