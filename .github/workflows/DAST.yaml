@@ -107,7 +107,7 @@ jobs:
                   report_md.md
 
       - name: Tear down app service
-        run: docker compose --env-file .env down --volumes
+        run: docker compose -f docker-compose-test.yml --env-file .env down --volumes
 
       - name: Tear down DB service
         run: docker compose -f docker-compose-db.yml down --volumes
