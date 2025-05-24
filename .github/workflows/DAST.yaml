@@ -102,6 +102,15 @@ jobs:
         with:
             target: 'http://localhost:8080'
             cmd_options: '-J report_json.json -w report_md.md -r report_html.html'
+      - name: Show Docker logs after ZAP scan
+        if: always()
+        run: |
+            echo "=== Docker Compose Logs ==="
+            docker compose -f docker-compose-test.yml --env-file .env logs
+            echo "=== Database Logs ==="
+            docker compose -f docker-compose-db-test.yml logs
+            echo "=== Container Status ==="
+            docker ps -a
 
       - name: Upload ZAP reports
         uses: actions/upload-artifact@v4
