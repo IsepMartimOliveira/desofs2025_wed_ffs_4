@@ -100,18 +100,9 @@ jobs:
       - name: Run OWASP ZAP Scan
         uses: zaproxy/action-full-scan@v0.12.0
         with:
-            target: 'http://app:8080'
+            target: 'http://localhost:8080'
             cmd_options: '-J report_json.json -w report_md.md -r report_html.html'
-      - name: Show Docker logs after ZAP scan
-        if: always()
-        run: |
-            sleep 10  # Wait for ZAP to finish processing
-            echo "=== Docker Compose Logs ==="
-            docker compose -f docker-compose-test.yml --env-file .env logs
-            echo "=== Database Logs ==="
-            docker compose -f docker-compose-db-test.yml logs
-            echo "=== Container Status ==="
-            docker ps -a
+
 
       - name: Upload ZAP reports
         uses: actions/upload-artifact@v4
