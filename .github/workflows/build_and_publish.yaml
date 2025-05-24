@@ -154,6 +154,7 @@ jobs:
             echo 'DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}' >> .env
             echo 'SSL_KEYSTORE=keystore.p12' >> .env
             echo 'SSL_KEYSTORE_PASSWORD=${{ secrets.SSL_KEYSTORE_PASSWORD }}' >> .env
+            echo 'SSL_KEY_ALIAS=${{ secrets.SSL_KEY_ALIAS }}' >> .env
       - name: Add private key to SSH agent
         uses: webfactory/ssh-agent@v0.9.0
         with:

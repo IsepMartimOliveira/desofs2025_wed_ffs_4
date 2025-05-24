@@ -34,6 +34,7 @@ services:
       - FINANCE_PASSWORD=${FINANCE_PASSWORD}
       - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}
       - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}
+      - SERVER_SSL_ENABLED=false
 
     volumes:
       - app-uploads:/app/uploads
