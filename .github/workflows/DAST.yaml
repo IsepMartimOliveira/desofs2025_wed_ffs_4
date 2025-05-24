@@ -62,7 +62,7 @@ jobs:
       - name: Wait for DB to be healthy
         run: |
           for i in {1..20}; do
-            status=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose -f docker-compose-db.yml ps -q db))
+            status=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose -f docker-compose-db-test.yml ps -q db))
             echo "DB status: $status"
             if [ "$status" = "healthy" ]; then
               echo "DB is healthy!"
