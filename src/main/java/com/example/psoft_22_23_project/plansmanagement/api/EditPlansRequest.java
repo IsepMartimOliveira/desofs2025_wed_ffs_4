@@ -33,10 +33,12 @@ import jakarta.validation.constraints.Size;
 @AllArgsConstructor
 public class EditPlansRequest {
 	@Size(min = 3, max = 25)
+	@Pattern(regexp = "^[^<>'\"%;()&+/\\\\\\-|`{}\\[\\]$*!^=~#]*$")
 	private String description;
 	@Pattern(regexp = "(automatic|personalized)")
 	private String musicSuggestion;
 	@Size(min = 1, max = 10)
+	@Pattern(regexp = "^[^<>'\"%;()&+/\\\\\\-|`{}\\[\\]$*!^=~#]*$")
 	private String numberOfMinutes;
 	@Min(0)
 	private Integer maximumNumberOfUsers;

@@ -30,12 +30,15 @@ import jakarta.validation.constraints.*;
 public class CreatePlanRequest {
 	@Size(min = 1)
 	@NotNull
+	@Pattern(regexp = "^[^<>'\"%;()&+/\\\\\\-|`{}\\[\\]$*!^=~#]*$")
 	private String name;
 	@Size(min = 1)
 	@NotNull
+	@Pattern(regexp = "^[^<>'\"%;()&+/\\\\\\-|`{}\\[\\]$*!^=~#]*$")
 	private String description;
 	@Size(min = 1)
 	@NotNull
+	@Pattern(regexp = "^[^<>'\"%;()&+/\\\\\\-|`{}\\[\\]$*!^=~#]*$")
 	private String numberOfMinutes;
 	@Pattern(regexp = "(automatic|personalized)")
 	@NotNull
