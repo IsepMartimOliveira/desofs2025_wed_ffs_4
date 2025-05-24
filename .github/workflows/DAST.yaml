@@ -105,6 +105,7 @@ jobs:
       - name: Show Docker logs after ZAP scan
         if: always()
         run: |
+            sleep 10  # Wait for ZAP to finish processing
             echo "=== Docker Compose Logs ==="
             docker compose -f docker-compose-test.yml --env-file .env logs
             echo "=== Database Logs ==="
