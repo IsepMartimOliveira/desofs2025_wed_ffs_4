@@ -38,3 +38,10 @@ application-local.properties
 src/main/resources/rsa.private.key
 src/main/resources/rsa.public.key
 
+### Certificates ###
+*.p1
+*.p12
+
+### macOS ###
+.DS_Store
+.DS_Store?
