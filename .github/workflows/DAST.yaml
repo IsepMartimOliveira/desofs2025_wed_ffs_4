@@ -35,6 +35,10 @@ jobs:
       - name: Build JAR with Maven
         run: mvn clean package -DskipTests
 
+      - name: Decode Base64 keystore and save as file
+        run: |
+          echo "${{ secrets.SSL_KEYSTORE }}" | base64 -d > keystore.p12
+
       - name: Create .env file from secrets
         run: |
           echo 'DB_NAME=${{ secrets.DB_NAME }}' >> .env
@@ -51,7 +55,6 @@ jobs:
           echo 'JWT_PUBLIC_KEY="${{ secrets.JWT_PUBLIC_KEY }}"' >> .env
           echo 'SSL_KEYSTORE=keystore.p12' >> .env
           echo 'SSL_KEYSTORE_PASSWORD=${{ secrets.SSL_KEYSTORE_PASSWORD }}' >> .env
-          echo 'SSL_KEY_ALIAS=${{ secrets.SSL_KEY_ALIAS }}' >> .env
 
       - name: Start DB service
         run: docker compose -f docker-compose-db-test.yml --env-file .env up -d
