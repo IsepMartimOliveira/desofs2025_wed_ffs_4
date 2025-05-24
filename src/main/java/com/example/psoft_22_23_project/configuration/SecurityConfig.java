@@ -95,9 +95,7 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		// Enable CORS and disable CSRF
-		http = http.requiresChannel(channel ->
-				channel.anyRequest().requiresSecure()
-		);
+
 
 
 		//TEST DEPLOYMENT
