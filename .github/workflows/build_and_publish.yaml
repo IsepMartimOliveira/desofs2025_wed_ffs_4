@@ -167,7 +167,10 @@ jobs:
 
       - name: Run setup script on VM
         run: ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_HOST_VM }} "bash /home/${{ secrets.AZURE_VM_USER }}/setup-java-docker.sh"
-
+      - name: Copy keystore file to Azure VM
+        run: |
+          scp -o StrictHostKeyChecking=no keystore.p12 \
+          ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_HOST_VM }}:/home/${{ secrets.AZURE_VM_USER }}/keystore.p12
       - name: Copy .env file to Azure VM
         run: |
          scp -o StrictHostKeyChecking=no .env \

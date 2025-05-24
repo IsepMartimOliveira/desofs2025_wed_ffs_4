@@ -32,10 +32,11 @@ services:
       - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}
       - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}
       - SSL_KEYSTORE_PASSWORD=${SSL_KEYSTORE_PASSWORD}
-      - SSL_KEYSTORE=${SSL_KEYSTORE}
+      - SSL_KEYSTORE=/app/keystore.p12
 
     volumes:
       - app-uploads:/app/uploads
+      - ./keystore.p12:/app/keystore.p12:ro
     #depends_on:
     #  db:
     #    condition: service_healthy
