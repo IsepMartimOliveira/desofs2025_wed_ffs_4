@@ -36,6 +36,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import jakarta.validation.Valid;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -51,8 +52,6 @@ public class UserController {
 	private final UserService userService;
 
 	private final UserViewMapper userViewMapper;
-
-
 
 	@Operation(summary = "Upload Image")
 	@PatchMapping("photo")
@@ -70,7 +69,6 @@ public class UserController {
 	@Operation(summary = "Downloads a photo of a device")
 	@GetMapping("photo")
 	public ResponseEntity<Resource> downloadFile(final HttpServletRequest request) {
-
 
 		Resource resource = userService.seeImage();
 
@@ -100,5 +98,18 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(userViewMapper.toUserView(createdUser));
 	}
 
+	@Operation(summary = "Export user's personal data")
+	@GetMapping("/export/personal-data")
+	public ResponseEntity<PersonalDataExportDTO> exportPersonalData() {
+		PersonalDataExportDTO dataExport = userService.exportPersonalData();
+		return ResponseEntity.ok(dataExport);
+	}
 
+	@Operation(summary = "Delete user's personal data")
+	@DeleteMapping("/personal-data")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public ResponseEntity<Void> deletePersonalData(@Valid @RequestBody PersonalDataDeletionRequest request) {
+		userService.deletePersonalData(request);
+		return ResponseEntity.noContent().build();
+	}
 }
