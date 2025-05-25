@@ -61,7 +61,8 @@ public class UserController {
 			throws URISyntaxException {
 
 		User user = userService.upload(file);
-		logger.info("Uploading profile image: filename={} for userId={}", Utils.sanitize(file.getOriginalFilename()), user.getId());
+		logger.info("Uploading profile image: filename={} for userId={}", Utils.sanitize(file.getOriginalFilename()),
+				user.getId());
 		return ResponseEntity.ok().body(userViewMapper.toUserView(user));
 
 	}
@@ -111,12 +112,13 @@ public class UserController {
 	public ResponseEntity<Void> deletePersonalData(@Valid @RequestBody PersonalDataDeletionRequest request) {
 		userService.deletePersonalData(request);
 		return ResponseEntity.noContent().build();
-	}	@Operation(summary = "Change user password")
+	}
+
+	@Operation(summary = "Change user password")
 	@PatchMapping("password")
 	public ResponseEntity<UserView> changePassword(@RequestBody PasswordChangeRequest request) {
 		User updatedUser = userService.changePassword(request);
 		return ResponseEntity.ok().body(userViewMapper.toUserView(updatedUser));
 	}
-
 
 }
