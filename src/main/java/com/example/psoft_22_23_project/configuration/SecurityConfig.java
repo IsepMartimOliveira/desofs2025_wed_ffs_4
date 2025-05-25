@@ -243,8 +243,4 @@ public class SecurityConfig {
 	}
 
 	// Expose authentication manager bean
-	@Bean
-	public AuthenticationManager authenticationManagerBean() throws Exception {
-		return authenticationConfiguration.getAuthenticationManager();
-	}
 }

@@ -13,7 +13,7 @@ import jakarta.validation.constraints.*;
 public class CreateUserRequest {
     @NotNull
     @NotBlank
-    @Email
+    @Email(message = "Invalid email format")
     private String username;
 
     @NotNull
@@ -23,7 +23,7 @@ public class CreateUserRequest {
             message = "Password must be at least 12 characters and include at least one uppercase letter, one digit, and one special character")
     private String password;
 
-    @Email
+    @Email(message = "Invalid email format")
     @NotNull
     @NotBlank
     private String email;
