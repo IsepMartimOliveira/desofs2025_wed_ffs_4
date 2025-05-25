@@ -29,6 +29,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serial;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -69,8 +70,6 @@ public class User implements UserDetails {
 	@Getter
 	@NotNull
 	@NotBlank
-	@Size(min = 12)
-	@Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).+$")
 	private String password;
 
 	@Getter
@@ -94,12 +93,20 @@ public class User implements UserDetails {
 	private int age;
 
 	@Setter
-    @OneToOne(fetch = FetchType.EAGER)
+	@OneToOne(fetch = FetchType.EAGER)
 	private UserImage userImage;
 
-    @ElementCollection
+	@ElementCollection
 	@Getter
 	private final Set<Role> authorities = new HashSet<>();
+
+	@Setter
+	@Getter
+	private boolean personalDataDeleted = false;
+
+	@Setter
+	@Getter
+	private LocalDateTime personalDataDeletionDate;
 
 	protected User() {
 	}
@@ -116,8 +123,6 @@ public class User implements UserDetails {
 		this.phoneNumber = phoneNumber;
 		this.age = age;
 	}
-
-
 
 	public void setPassword(final String password) {
 		this.password = Objects.requireNonNull(password);

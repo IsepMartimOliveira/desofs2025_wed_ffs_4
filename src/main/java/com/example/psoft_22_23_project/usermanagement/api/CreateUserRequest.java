@@ -13,17 +13,15 @@ import jakarta.validation.constraints.*;
 public class CreateUserRequest {
     @NotNull
     @NotBlank
-    @Email
+    @Email(message = "Invalid email format")
     private String username;
 
     @NotNull
     @NotBlank
-    @Size(min = 12)
-    @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).+$",
-            message = "Password must be at least 12 characters and include at least one uppercase letter, one digit, and one special character")
+    @Size(min = 12 , max = 24)
     private String password;
 
-    @Email
+    @Email(message = "Invalid email format")
     @NotNull
     @NotBlank
     private String email;
