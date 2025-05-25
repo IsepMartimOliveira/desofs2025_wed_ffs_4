@@ -66,7 +66,9 @@ public class AuthApi {
 		long start = System.currentTimeMillis();
 		String requestId = UUID.randomUUID().toString();
 
+    if (logger.isInfoEnabled()) {
 		logger.info("[{}] Login attempt for user '{}' from IP {}", requestId,Utils.sanitize(request.getUsername()), Utils.sanitize(clientIp));
+    }
 
 		if (loginAttemptService.isIpBlocked(clientIp)) {
 			LocalDateTime unlockTime = loginAttemptService.getIpUnlockTime(clientIp);
