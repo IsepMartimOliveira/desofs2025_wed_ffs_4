@@ -136,6 +136,10 @@ public class UserService implements UserDetailsService {
 	public PersonalDataExportDTO exportPersonalData() {
 		User user = getCurrentAuthenticatedUser();
 
+		if (!user.isEnabled()) {
+            throw new AccessDeniedException("User account is inactive. Data export not allowed.");
+        }
+
 		PersonalDataExportDTO.UserDataDTO userDataDTO = new PersonalDataExportDTO.UserDataDTO();
 		userDataDTO.setUsername(user.getUsername());
 		userDataDTO.setEmail(user.getEmail());
@@ -162,6 +166,10 @@ public class UserService implements UserDetailsService {
 	@Transactional
 	public void deletePersonalData(PersonalDataDeletionRequest request) {
 		User user = getCurrentAuthenticatedUser();
+
+		if (!user.isEnabled()) {
+            throw new AccessDeniedException("User account is inactive. Data deletion not allowed.");
+        }
 
 		if (!passwordEncoder.matches(request.getConfirmationPassword(), user.getPassword())) {
 			throw new AccessDeniedException("Invalid password confirmation.");
