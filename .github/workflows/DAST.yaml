@@ -103,12 +103,11 @@ jobs:
             target: 'http://localhost:8080'
             cmd_options: '-J report_json.json -w report_md.md -r report_html.html'
 
-      - name: Show running containers after ZAP
-        run: docker ps
-
-      - name: Show logs for app container
+      - name: Show ZAP logs
+        if: always()
         run: |
-                docker logs $(docker ps -aq --filter "name=app" | head -n 1)
+          docker ps
+          docker logs $(docker ps -aq --filter "ancestor=owasp/zap2docker-stable" | head -n 1)
       - name: Upload ZAP reports
         uses: actions/upload-artifact@v4
         with:
