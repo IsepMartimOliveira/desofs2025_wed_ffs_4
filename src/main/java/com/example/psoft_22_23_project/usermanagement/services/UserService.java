@@ -167,28 +167,45 @@ public class UserService implements UserDetailsService {
 			throw new AccessDeniedException("Invalid password confirmation.");
 		}
 
-		// Anonymize or nullify user data fields
+		Optional<Subscriptions> optionalSubscription = subscriptionsRepository.findByUser(user);
+		if (optionalSubscription.isPresent()) {
+			Subscriptions sub = optionalSubscription.get();
+			if (sub.getActiveStatus().isActive()) {
+				try {
+					subscriptionsService.cancelSubscription(sub.getVersion());
+					logger.info("Subscription {} for user {} has been successfully deactivated.", sub.getId(), user.getId());
+				} catch (Exception e) {
+					logger.error("Failed to deactivate subscription {} for user {}. Deletion process aborted.", sub.getId(), user.getId(), e);
+					// Throw a runtime exception to ensure the transaction rolls back.
+					throw new RuntimeException("Subscription cancellation failed for user " + user.getId() + ", aborting user data deletion.", e);
+				}
+			} else {
+				logger.info("Subscription {} for user {} was already inactive. No action taken.", sub.getId(), user.getId());
+			}
+		}
+
+		if (user.getUserImage() != null) {
+			UserImage imageToDelete = user.getUserImage();
+			String imageFileName = imageToDelete.getFileName();
+
+			try {
+				fileStorageService.deleteFile(imageFileName);
+				
+				user.setUserImage(null);
+				userImageRepository.delete(imageToDelete);
+				logger.info("User image {} and its record deleted for user ID: {}", imageFileName, user.getId());
+			} catch (Exception e) {
+				logger.error("Could not delete user image (file: {}) or its record for user ID: {}. Deletion process aborted. Error: {}",
+						imageFileName, user.getId(), e.getMessage(), e);
+				// Throw a runtime exception to ensure the transaction rolls back.
+				throw new RuntimeException("User image deletion failed for user " + user.getId() + ", aborting user data deletion.", e);
+			}
+		}
+		
 		user.setEmail("deleted_" + user.getId() + "@anonymous.local");
 		user.setPhoneNumber(0); 
 		user.setAge(0);
 		user.setLocation(null);
-
-		// Delete user image if it exists
-		if (user.getUserImage() != null) {
-			try {
-				fileStorageService.deleteFile(user.getUserImage().getFileName());
-				UserImage imageToDelete = user.getUserImage();
-				user.setUserImage(null); // Break the association
-				userImageRepository.delete(imageToDelete); // Delete the image record
-				logger.info("User image {} deleted for user ID: {}", imageToDelete.getFileName(), user.getId());
-			} catch (Exception e) {
-				logger.error("Could not delete user image file: {} for user ID: {}. Error: {}",
-						user.getUserImage() != null ? user.getUserImage().getFileName() : "unknown",
-						user.getId(),
-						e.getMessage());
-			}
-		}
-		
 
 		user.setPersonalDataDeleted(true);
 		user.setPersonalDataDeletionDate(LocalDateTime.now());
@@ -196,19 +213,7 @@ public class UserService implements UserDetailsService {
 
 		userRepository.save(user);
 
-		Optional<Subscriptions> optionalSubscription = subscriptionsRepository.findByUser(user);
-		if (optionalSubscription.isPresent()) {
-			Subscriptions sub = optionalSubscription.get();
-			if (sub.getActiveStatus().isActive()) {
-				try {
-					subscriptionsService.cancelSubscription(sub.getVersion());
-					logger.info("Subscription {} for user {} has been deactivated.", sub.getId(), user.getId());
-				} catch (Exception e) {
-					logger.error("Failed to deactivate subscription {} for user {}", sub.getId(), user.getId(), e);
-				}
-			}
-		}
-		logger.info("Personal data deleted for user ID: {}", user.getId());
+		logger.info("Personal data successfully deleted, and user {} anonymized and disabled.", user.getId());
 	}
 
 	private User getCurrentAuthenticatedUser() {
