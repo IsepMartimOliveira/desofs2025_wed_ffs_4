@@ -5,12 +5,15 @@ import com.example.psoft_22_23_project.configuration.JwtService;
 import com.example.psoft_22_23_project.usermanagement.api.UserViewMapper;
 import com.example.psoft_22_23_project.usermanagement.model.User;
 import com.example.psoft_22_23_project.usermanagement.services.LoginAttemptService;
+import com.example.psoft_22_23_project.utils.Utils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +33,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 
 @Tag(name = "Authentication")
@@ -44,6 +48,7 @@ public class AuthApi {
 	private final LoginAttemptService loginAttemptService;
 	private final JwtService jwtService;
 	private final ClientIPUtil clientIPUtil;
+	private static final Logger logger = LoggerFactory.getLogger(AuthApi.class);
 
 	private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -58,10 +63,16 @@ public class AuthApi {
 	public ResponseEntity<?> login(@RequestBody @Valid final AuthRequest request) {
 		String clientIp = clientIPUtil.getClientIP();
 		String username = request.getUsername();
+		long start = System.currentTimeMillis();
+		String requestId = UUID.randomUUID().toString();
+
+    if (logger.isInfoEnabled()) {
+		logger.info("[{}] Login attempt for user '{}' from IP {}", requestId,Utils.sanitize(request.getUsername()), Utils.sanitize(clientIp));
+    }
 
 		if (loginAttemptService.isIpBlocked(clientIp)) {
 			LocalDateTime unlockTime = loginAttemptService.getIpUnlockTime(clientIp);
-			log.warn("Login attempt from blocked IP: {}", clientIp);
+			log.warn("Login attempt from blocked IP: {}", Utils.sanitize(clientIp));
 
 			Map<String, Object> response = createErrorResponse(
 					"IP address temporarily blocked",
@@ -75,7 +86,7 @@ public class AuthApi {
 
 		if (loginAttemptService.isUserBlocked(username)) {
 			LocalDateTime unlockTime = loginAttemptService.getUserUnlockTime(username);
-			log.warn("Login attempt for blocked user: {}", username);
+			log.warn("Login attempt for blocked user: {}", Utils.sanitize(username));
 
 			Map<String, Object> response = createErrorResponse(
 					"Account temporarily locked",
@@ -94,7 +105,8 @@ public class AuthApi {
 			loginAttemptService.loginSucceeded(username, clientIp);
 
 			final User user = (User) authentication.getPrincipal();
-			log.info("User {} successfully authenticated from IP {}", username, clientIp);
+			long duration = System.currentTimeMillis() - start;
+			log.info("User {} successfully authenticated from IP {} in {} ms", Utils.sanitize(username), Utils.sanitize(clientIp),duration);
 
 			final String token = jwtService.generateToken(user, authentication);
 
@@ -107,7 +119,7 @@ public class AuthApi {
 
 			int attemptsLeft = loginAttemptService.getUserAttemptsLeft(username);
 			log.warn("Failed login attempt for user: {} from IP: {}, attempts left: {}",
-					username, clientIp, attemptsLeft);
+					Utils.sanitize(username), Utils.sanitize(clientIp), attemptsLeft);
 
 			Map<String, Object> response = new HashMap<>();
 			response.put("error", "Invalid credentials");
@@ -122,13 +134,13 @@ public class AuthApi {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
 
 		} catch (final LockedException ex) {
-			log.warn("Attempt to login to locked account: {} from IP: {}", username, clientIp);
+			log.warn("Attempt to login to locked account: {} from IP: {}", Utils.sanitize(username), Utils.sanitize(clientIp));
 			return ResponseEntity.status(HttpStatus.LOCKED)
 					.body(Map.of("error", "Account locked",
 							"message", "This account has been locked. Please contact support."));
 
 		} catch (Exception ex) {
-			log.error("Unexpected error during authentication for user: {}", username, ex);
+			log.error("Unexpected error during authentication for user: {}", Utils.sanitize(username), ex);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(Map.of("error", "Authentication error",
 							"message", "An unexpected error occurred during authentication"));

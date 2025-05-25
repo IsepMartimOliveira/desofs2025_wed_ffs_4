@@ -1,8 +1,10 @@
 package com.example.psoft_22_23_project.subscriptionsmanagement.api;
 
 
+import com.example.psoft_22_23_project.api.AuthApi;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PlansDetails;
 import com.example.psoft_22_23_project.subscriptionsmanagement.services.SubscriptionsService;
+import com.example.psoft_22_23_project.utils.Utils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class SubscriptionsController {
 
 
     private final SubscriptionsService service;
+    private static final Logger logger = LoggerFactory.getLogger(SubscriptionsController.class);
 
 
     private final SubscriptionsViewMapper subscriptionsViewMapper;
@@ -44,50 +47,25 @@ public class SubscriptionsController {
         return subscriptionsViewMapper.toSubscriptionsView(service.findAll());
     }
 
-/*
-    @Operation(summary = "Gets a specific subscription")
-    @GetMapping(value = "/{id}")
-    public ResponseEntity<SubscriptionsView> findById(
-            @PathVariable("id") @Parameter(description = "The id of the subscription to find") final String id) {
-        final var foo = service.findOne(id).orElseThrow(() -> new NotFoundException(Plans.class, id));
-
-        return ResponseEntity.ok().eTag(Long.toString(foo.getVersion())).body(subscriptionsViewMapper.toSubscriptionsView(foo));
-    }
-*/
-    // the client determines the id of the resource since the client sends the name,
-    // so POST to the collection
-
     @PostMapping(value = "/create")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<SubscriptionsView> create(@Valid @RequestBody final CreateSubscriptionsRequest resource) {
+
+        logger.info("Request to create subscription for name={}, paymentType={}",
+                Utils.sanitize(resource.getName()), Utils.sanitize(resource.getPaymentType()));
 
         final var subscriptions = service.create(resource);
 
         final var newSubscriptionUri =
                 ServletUriComponentsBuilder.fromCurrentRequestUri().pathSegment(subscriptions.getPlan().getName().getName()).build().toUri();
 
+        logger.info("Subscription created with ID={} for userId={}",
+                subscriptions.getId(), subscriptions.getUser().getId());
         return ResponseEntity.created(newSubscriptionUri)
                 .eTag(Long.toString(subscriptions.getVersion()))
                 .body(subscriptionsViewMapper.toSubscriptionView(subscriptions));
     }
 
-/*
-
-    @DeleteMapping("/{id}")
-    public String delete(@PathVariable("id") Long id) {
-        //try {
-            service.delete(id);
-            return "Subscription canceled with success";
-
-
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-    }
-
-*/
     @Operation(summary = "Cancel a subscription")
     @PatchMapping
     public ResponseEntity<SubscriptionsView> cancelSubscription(final WebRequest request) {
@@ -96,8 +74,13 @@ public class SubscriptionsController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "You must issue a conditional PATCH using 'if-match'");
         }
+        Long version = getVersionFromIfMatchHeader(ifMatchValue);
+        logger.info("Attempting to cancel subscription with version={}", version);
+
+
 
         final var subscriptions = service.cancelSubscription(getVersionFromIfMatchHeader(ifMatchValue));
+        logger.info("Subscription with ID={} successfully cancelled", subscriptions.getId());
         return ResponseEntity.ok().eTag(Long.toString(subscriptions.getVersion())).body(subscriptionsViewMapper.toSubscriptionView(subscriptions));
     }
 
@@ -115,12 +98,14 @@ public class SubscriptionsController {
     @PatchMapping(value = "/renew")
     public ResponseEntity<SubscriptionsView> renewAnualSubscription(final WebRequest request) {
         final String ifMatchValue = request.getHeader("If-Match");
+        logger.info("Attempting to renew annual subscription with version={}", Utils.sanitize(ifMatchValue));
         if (ifMatchValue == null || ifMatchValue.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "You must issue a conditional PATCH using 'if-match'");
         }
 
         final var subscriptions = service.renewAnualSubscription(getVersionFromIfMatchHeader(ifMatchValue));
+        logger.info("Annual subscription with ID={} successfully renewed", subscriptions.getId());
         return ResponseEntity.ok().eTag(Long.toString(subscriptions.getVersion())).body(subscriptionsViewMapper.toSubscriptionView(subscriptions));
     }
 
@@ -129,12 +114,14 @@ public class SubscriptionsController {
     @PatchMapping(value = "/change/{name}")
     public ResponseEntity<SubscriptionsView> changePlan(final WebRequest request, @Valid @PathVariable final String name) {
         final String ifMatchValue = request.getHeader("If-Match");
+        logger.info("Changing subscription plan to '{}' with version={}", Utils.sanitize(name), Utils.sanitize(ifMatchValue));
         if (ifMatchValue == null || ifMatchValue.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "You must issue a conditional PATCH using 'if-match'");
         }
 
         final var subscriptions = service.changePlan(getVersionFromIfMatchHeader(ifMatchValue), name);
+        logger.info("Subscription ID={} successfully changed to plan '{}'", subscriptions.getId(), Utils.sanitize(name));
         return ResponseEntity.ok().eTag(Long.toString(subscriptions.getVersion())).body(subscriptionsViewMapper.toSubscriptionView(subscriptions));
     }
 
@@ -142,11 +129,12 @@ public class SubscriptionsController {
     @PatchMapping(value = "/change/{actualPlan}/{newPlan}")
     public void migrateAllToPlan(final WebRequest request,@Valid @PathVariable final String actualPlan, @Valid @PathVariable final String newPlan) {
         final String ifMatchValue = request.getHeader("If-Match");
+        logger.warn("Migration requested from plan '{}' to plan '{}', version={}", Utils.sanitize(actualPlan), Utils.sanitize(newPlan), Utils.sanitize(ifMatchValue));
         if (ifMatchValue == null || ifMatchValue.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "You must issue a conditional PATCH using 'if-match'");
         }
-
+        logger.info("Migration from plan '{}' to '{}' completed", Utils.sanitize(actualPlan), Utils.sanitize(newPlan));
         service.migrateAllToPlan(getVersionFromIfMatchHeader(ifMatchValue), actualPlan, newPlan);
     }
 
