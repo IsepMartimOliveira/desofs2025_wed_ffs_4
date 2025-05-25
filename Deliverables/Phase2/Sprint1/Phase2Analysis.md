@@ -88,7 +88,7 @@ The error handling covers authentication failures with uniform responses to prev
 
 
 
-# Communication
+## Communication
 
 The system implements comprehensive security measures to ensure secure communication and data protection across all API endpoints. **HTTPS enforcement** is mandatory for all data transmission, preventing man-in-the-middle attacks and ensuring encrypted communication channels. 
 
@@ -98,3 +98,6 @@ The platform utilizes **JWT-based authentication** with secure token management,
 
 The error handling strategy prioritizes **information disclosure prevention** with generic error messages that prevent system architecture exposure, database schema protection through masked SQL exceptions, and consistent error response formats across all endpoints, ensuring secure communication while maintaining system reliability and user experience.
 
+## Data Protection
+
+The system provides users with control over their personal data by implementing features for data export and deletion. Users can request an export of their data, which will be provided in a common, JSON format. Additionally, users have the right to request the deletion of their personal data from the system, ensuring compliance with data privacy regulations.
