@@ -1,5 +1,5 @@
 
-
+# Phase 1 Analysis
 # Introduction
 
 
@@ -25,7 +25,7 @@ The system allows users to subscribe to different music plans, manage their acti
 
 The system architecture is based on a **REST API** connected to a **relational database**, ensuring data persistence and scalability. Designed without a frontend, the platform is intended to be integrated with external clients or user interfaces, acting purely as a service provider.
 
-
+ 
 
 
 [Archithecture Analasys](./docs/ArchithectureAnalysis.md)
@@ -38,8 +38,29 @@ The system architecture is based on a **REST API** connected to a **relational d
 
 [ASVS](./asvs/asvs.md)
 
-[Workflow](./ssdlc/pipeline/Workflow.md)
+# Phase 2 Analysis
+# Changes Made
+The project has undergone significant changes to enhance its security posture and usability. The following sections outline the key areas of improvement, including architecture, design, authentication, error handling, logging, and communication protocols.
+First it was noticed that there was a extensive vulnerability in the system dependencies, which were updated to the latest versions to mitigate known security issues. This included updating libraries and frameworks to their latest stable releases, ensuring that the system is protected against vulnerabilities that have been addressed in newer versions.
+This is the current state of the vulnerabilities in the system dependencies:
+![img.png](ssdlc/img/state_vulnarabilities.png)
+In the image there are  4 issues in the  code analysis, related with CORS , in which we ignored because there is no frontend in the system, so there is no risk of CORS attacks.
+Ther were also defined the Test Plan and the threat Hirearchy, which where not defined in Phase 1.
 
+[Test Plan](./ssdlc/TestPlan.md)
+
+[Threat Hierarchy](./ssdlc/DREAD.md)
+# Workflow
+To address the Project requirements of using pipelines for SAST, DAST, SCA and IAST. It was developed several pipelines that automate the security testing process, ensuring that the code is continuously monitored for vulnerabilities and compliance with security standards. The pipelines include:
+ 
+- **Build and Test Pipeline**: This pipeline automates the build and test process, ensuring that the code is compiled and tested before deployment. It includes steps for compiling the code, running unit tests, and generating test reports this is possible using a SAST tool like Sonarquebe.
+- **Security Scanning Pipeline**: This pipeline integrates security scanning tools to identify vulnerabilities in the codebase. It includes steps for running static analysis tools, dependency checks, and vulnerability scans. The results are reported and can be used to track and remediate security issues it was used tools like Snyk, Gitleaks, OWASP Dependecy Check this pipeline uses SCA tools.
+- **Build and Deploy Pipeline**: This pipeline automates the deployment process, ensuring that the code is deployed to the production environment securely. It includes steps for building the application, running security checks, and deploying to the target environment.
+- **DAST Pipeline**: This pipeline focuses on dynamic application security testing, running tests against the deployed application to identify runtime vulnerabilities. It includes steps for configuring the testing environment, running DAST tools, and generating reports on identified issues.
+
+No IAST pipelene was implemented, because no free solution was found that could be used in the project, and the project does not have a frontend, so it was not necessary to implement IAST testing.
+
+  [Github Workflow](./ssdlc/pipeline/Workflow.md)
 
 # Requirements Implemented
 
@@ -77,88 +98,3 @@ The platform utilizes **JWT-based authentication** with secure token management,
 
 The error handling strategy prioritizes **information disclosure prevention** with generic error messages that prevent system architecture exposure, database schema protection through masked SQL exceptions, and consistent error response formats across all endpoints, ensuring secure communication while maintaining system reliability and user experience.
 
-# Test Planning
-
-## 1. Password Encryption:
-
-- **Password Encryption**:
-    - Test that the provided password is properly encrypted.
-
-- **User Authentication**:
-    - Test the authentication process with valid username and password.
-    - Ensure that the user is authenticated successfully.
-
-- **Invalid Credentials**:
-    - Test the authentication process with invalid username and/or password.
-    - Ensure that the user is not authenticated and receives appropriate error messages.
-
-
- ## 2. Subscription Process    
-
-  #### Functional Tests 
-
-
-- **Subscription Creation**:
-
-  - Test creating a new subscription with valid plan name and payment type (monthly/annually)
-   - Verify subscription is created with correct start date, end date, and active status
-   - Ensure user can only have one active subscription at a time
-
-
-- **Invalid Subscription Creation**:
-
-  - Test creating subscription with non-existent plan name
-  - Test creating subscription when user already has an active subscription
-  - Test creating subscription with invalid payment type
-  - Verify appropriate error messages are returned
-
-
-
-- **Subscription Cancellation**:
-
-
-  - Test canceling an active subscription with proper version control (If-Match header)
-  - Verify subscription status changes to inactive
-  - Ensure only the subscription owner can cancel their subscription
-  
-
-
-- **Plan Change/Migration**:
-
-
-  - Test changing subscription plan with valid plan name and version
-  - Verify device limit compatibility when changing plans
-  - Test preventing change to same plan
-  - Ensure proper version control during plan changes
-
-
-
-- **Subscription Renewal**:
-
-  - Test renewing annual subscription with proper version control
-  - Verify end date is extended by one year
-  - Test preventing renewal of monthly subscriptions
-  - Test renewal authorization (only subscription owner)
-
-
-### Security Tests:
-
-- **Authorization Tests**:
-
-  - Test that only authenticated users can create subscriptions
-  - Test that users can only access their own subscription details
-  - Verify proper JWT token validation for all subscription endpoints
-
- - **Parameter Validation**:
-
- 
-   - Test payment type validation against regex pattern (annually|monthly)
-   - Verify proper validation of version numbers for concurrent access control
-
-
-### Error Handling Tests:
-
-- **Secure Error Messages**:
-  - Verify error responses don't leak sensitive system information
-  - Test that database errors are properly masked
-  - Ensure consistent error message format across endpoints
