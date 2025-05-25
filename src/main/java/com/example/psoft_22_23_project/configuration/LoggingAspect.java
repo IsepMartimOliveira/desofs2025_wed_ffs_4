@@ -1,6 +1,7 @@
 package com.example.psoft_22_23_project.configuration;
 
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
@@ -27,6 +28,7 @@ public class LoggingAspect {
     public Object logAroundDashboardMethods(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        Signature signature = joinPoint.getSignature();
 
         // Log user identifier for non-repudiation (only id, not email)
         String userIdRaw = (request.getUserPrincipal() != null) ? request.getUserPrincipal().getName() : "ANONYMOUS";
@@ -34,8 +36,8 @@ public class LoggingAspect {
 
         logger.info("UserId: [{}], Entering endpoint: [{}], Method: [{}], URI: [{}], Parameters: [{}]",
                 userId,
-                joinPoint.getSignature().getDeclaringTypeName(),
-                joinPoint.getSignature().getName(),
+                signature.getDeclaringTypeName(),
+                signature.getName(),
                 request.getRequestURI(),
                 Arrays.toString(joinPoint.getArgs()));
 
@@ -45,8 +47,8 @@ public class LoggingAspect {
             long elapsedTime = System.currentTimeMillis() - startTime;
             logger.info("UserId: [{}], Exiting endpoint: [{}], Method: [{}], URI: [{}], ResultType: [{}], Execution time: [{}ms]",
                     userId,
-                    joinPoint.getSignature().getDeclaringTypeName(),
-                    joinPoint.getSignature().getName(),
+                    signature.getDeclaringTypeName(),
+                    signature.getName(),
                     request.getRequestURI(),
                     (result != null ? result.getClass().getSimpleName() : "null"),
                     elapsedTime);
@@ -55,16 +57,16 @@ public class LoggingAspect {
             logger.error("UserId: [{}], Illegal argument values: [{}] in endpoint: [{}], Method: [{}], URI: [{}]",
                     userId,
                     Arrays.toString(joinPoint.getArgs()),
-                    joinPoint.getSignature().getDeclaringTypeName(),
-                    joinPoint.getSignature().getName(),
+                    signature.getDeclaringTypeName(),
+                    signature.getName(),
                     request.getRequestURI(), e);
             throw e;
         } catch (Exception e) {
             long elapsedTime = System.currentTimeMillis() - startTime;
             logger.error("UserId: [{}], Exception in endpoint: [{}], Method: [{}], URI: [{}], Parameters: [{}], Execution time: [{}ms], Exception: [{}]",
                     userId,
-                    joinPoint.getSignature().getDeclaringTypeName(),
-                    joinPoint.getSignature().getName(),
+                    signature.getDeclaringTypeName(),
+                    signature.getName(),
                     request.getRequestURI(),
                     Arrays.toString(joinPoint.getArgs()),
                     elapsedTime,
