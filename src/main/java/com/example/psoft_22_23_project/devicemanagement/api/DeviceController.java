@@ -140,18 +140,8 @@ public class DeviceController {
         final Resource resource = fileStorageService.loadFileAsResource(fileName);
 
         // Try to determine file's content type
-        String contentType = null;
-        try {
-            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
-            contentType ="application/octet-stream";
-        } catch (final IOException ex) {
-            logger.info("Could not determine file type.");
-        }
+        String contentType =  "application/octet-stream";
 
-        // Fallback to the default content type if type could not be determined
-        if (contentType == null) {
-            contentType = "application/octet-stream";
-        }
 
         return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
