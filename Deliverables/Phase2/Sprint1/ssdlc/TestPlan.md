@@ -104,6 +104,18 @@
   - Verify image is stored correctly and associated with the device
   - Ensure image upload fails for invalid file types or sizes
   
+## 5. Plan Management  
+
+- **Plan Creation/Update**:
+  - Ensure that only the assigned role can create/update plans, in this case the marketing director
+  - Test creating a new plan with valid parameters
+  - Verify if the plan was actually created~~~~
+  - Ensure the plan can´t be created with invalid inputs, especially malicious ones.
+
+- **Plan Removal**:
+  - Ensure that only the assigned role can remove plans, in this case the marketing director
+  - Verify if the plan was actually removed after its removal
+
 ### Security Tests:
 
 - **Authorization Tests**:
