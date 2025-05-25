@@ -95,7 +95,7 @@ public class UserController {
 	public ResponseEntity<UserView> createUser(@RequestBody CreateUserRequest user) {
 
 		User createdUser = userService.createUser(user);
-		logger.info("Account created for username={}, email={}", Utils.sanitize(user.getUsername()), Utils.sanitize(user.getEmail()));
+		logger.info("Account created for userId={}, email={}", Utils.sanitize(createdUser.getId().toString()));
 		return ResponseEntity.status(HttpStatus.CREATED).body(userViewMapper.toUserView(createdUser));
 	}
 
