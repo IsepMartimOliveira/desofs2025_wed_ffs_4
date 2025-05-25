@@ -36,3 +36,7 @@ build/
 ### Secretes ###
 application-passwords.properties
 
+### keys ###
+*.p12
+*.key
+
