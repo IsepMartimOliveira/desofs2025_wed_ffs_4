@@ -118,6 +118,11 @@ public class UserService implements UserDetailsService {
 				throw new IllegalArgumentException("Username already exists");
 			}
 
+			if (request.getPassword() == null || request.getPassword().isEmpty() ||
+				request.getPassword().length() > 24 || request.getPassword().length() < 12) {
+			throw new IllegalArgumentException("Password must be between 12-24 characters...");
+			}
+
 			User user = new User(
 					request.getUsername(),
 					passwordEncoder.encode(request.getPassword()),

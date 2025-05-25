@@ -69,8 +69,6 @@ public class User implements UserDetails {
 	@Getter
 	@NotNull
 	@NotBlank
-	@Size(min = 12)
-	@Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).+$")
 	private String password;
 
 	@Getter
