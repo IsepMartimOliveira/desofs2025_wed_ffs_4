@@ -34,9 +34,14 @@ import com.example.psoft_22_23_project.utils.Utils;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -48,8 +53,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
+
+
 
 @Service
 @RequiredArgsConstructor
@@ -107,9 +112,14 @@ public class UserService implements UserDetailsService {
 	}
 
 	public User createUser(CreateUserRequest request) {
-		if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-			throw new IllegalArgumentException("Username already exists");
-		}
+			if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+				throw new IllegalArgumentException("Username already exists");
+			}
+
+			if (request.getPassword() == null || request.getPassword().isEmpty() ||
+				request.getPassword().length() > 24 || request.getPassword().length() < 12) {
+			throw new IllegalArgumentException("Password must be between 12-24 characters...");
+			}
 
 		User user = new User(
 				request.getUsername(),
@@ -128,7 +138,33 @@ public class UserService implements UserDetailsService {
 			user.setLocation(location);
 		}
 
-		user.addAuthority(new Role(Role.Subscriber));
+			user.addAuthority(new Role(Role.Subscriber));
+
+			return userRepository.save(user);
+    }
+
+	public User changePassword(PasswordChangeRequest request) {
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		int commaIndex = username.indexOf(",");
+		String newString;
+		if (commaIndex != -1) {
+			newString = username.substring(0, commaIndex);
+		} else {
+			newString = username;
+		}
+
+		User user = userRepository.findById(Long.valueOf(newString))
+				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+		if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+			throw new AccessDeniedException("Current password is incorrect");
+		}
+
+		if (request.getNewPassword() == null || request.getNewPassword().isEmpty() ||
+				request.getNewPassword().length() > 24 || request.getNewPassword().length() < 12) {
+			throw new IllegalArgumentException("Password must be between 12-24 characters...");
+		}
+		user.setPassword(passwordEncoder.encode(request.getNewPassword()));
 		return userRepository.save(user);
 	}
 

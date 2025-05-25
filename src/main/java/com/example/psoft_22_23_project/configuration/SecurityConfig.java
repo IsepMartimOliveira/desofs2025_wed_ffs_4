@@ -96,7 +96,9 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		// Enable CORS and disable CSRF
 
-		// TEST DEPLOYMENT
+		http = http.requiresChannel(channel ->
+				channel.anyRequest().requiresSecure()
+		);
 		http = http.cors(cors -> cors.configurationSource(request -> {
 			CorsConfiguration configuration = new CorsConfiguration();
 			configuration.setAllowCredentials(true);
@@ -162,7 +164,7 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.GET, "/api/dashboard/**").hasRole(Role.Project_Manager)
 				.requestMatchers(HttpMethod.GET, "/api/dashboard/revenuePlan").hasRole(Role.Financial_director)
 				.requestMatchers(HttpMethod.GET, "/api/dashboard/currentRevenue").hasRole(Role.Financial_director)
-
+				.requestMatchers(HttpMethod.PATCH, "/api/user/password").authenticated()
 				// .requestMatchers("/api/admin/user/**").hasRole(Role.User_Admin) // user
 				// management no
 				.requestMatchers("/api/user/photo/**").hasRole(Role.Subscriber) // photo for user upload and see it
