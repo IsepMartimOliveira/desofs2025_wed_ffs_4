@@ -181,6 +181,8 @@ public class SecurityConfig {
 		// Configure frame options for H2
 		http.headers(headers -> headers
 				.frameOptions(frameOptions -> frameOptions.sameOrigin())
+				.contentSecurityPolicy(csp -> csp
+						.policyDirectives("default-src 'self'; script-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'"))
 		);
 
 

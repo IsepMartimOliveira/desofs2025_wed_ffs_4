@@ -136,27 +136,28 @@ public class DeviceController {
     @GetMapping("/photo/{fileName:.+}")
     public ResponseEntity<Resource> downloadFile(@PathVariable final String fileName,
                                                  final HttpServletRequest request) {
-
+        // Load file as Resource
         final Resource resource = fileStorageService.loadFileAsResource(fileName);
 
-
+        // Try to determine file's content type
         String contentType = null;
         try {
             contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+            contentType ="application/octet-stream";
         } catch (final IOException ex) {
             logger.info("Could not determine file type.");
         }
 
-
+        // Fallback to the default content type if type could not be determined
         if (contentType == null) {
             contentType = "application/octet-stream";
         }
 
         return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .header("X-Content-Type-Options", "nosniff")
                 .body(resource);
     }
-
     public DeviceImage doUploadFile(final String id, final MultipartFile file) {
 
         final String fileName = fileStorageService.storeFile(id, file);
