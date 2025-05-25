@@ -91,6 +91,19 @@
     - Ensure file upload fails for invalid file types or sizes
     - Ensure no embemedded scripts or malicious content in uploaded files
     - Image is stored in the correct directory and accessible via the API
+
+
+## 4. Device Management
+- **Device Creation**:
+    - Test creating a new device with valid parameters (description, macAdress, name, fileName)
+    - Verify device is associated with the user and stored correctly
+    - Ensure device creation fails for invalid parameters or duplicate names
+
+- **Device Upload Image**:
+   - Test uploading an image for a device with valid parameters (file type, size)
+  - Verify image is stored correctly and associated with the device
+  - Ensure image upload fails for invalid file types or sizes
+  
 ### Security Tests:
 
 - **Authorization Tests**:
