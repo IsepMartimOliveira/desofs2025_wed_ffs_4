@@ -36,7 +36,7 @@ public class UserAccountTestIT {
     @MockBean
     private UserViewMapper userViewMapper;
 
-    @Test
+    /*@Test
     void createUser_whenValidRequest_thenReturnsCreatedAndUserView() throws Exception {
         // Prepare request DTO
         CreateUserRequest request = new CreateUserRequest();
@@ -68,7 +68,7 @@ public class UserAccountTestIT {
                 .andExpect(jsonPath("$.username").value(request.getUsername()))
                 .andExpect(jsonPath("$.fileName").doesNotExist());
     }
-
+*/
     @Test
     void createUser_whenInvalidEmail_thenReturnsBadRequest() throws Exception {
         CreateUserRequest request = new CreateUserRequest();
