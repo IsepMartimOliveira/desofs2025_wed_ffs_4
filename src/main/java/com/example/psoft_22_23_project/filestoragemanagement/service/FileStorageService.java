@@ -23,6 +23,9 @@ package com.example.psoft_22_23_project.filestoragemanagement.service;
 import com.example.psoft_22_23_project.exceptions.NotFoundException;
 import com.example.psoft_22_23_project.filestoragemanagement.sanitize.SanitizeImage;
 import com.example.psoft_22_23_project.utils.Utils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -50,6 +53,7 @@ import java.util.UUID;
 public class FileStorageService {
 
 	private final Path fileStorageLocation;
+	private static final Logger logger = LoggerFactory.getLogger(FileStorageService.class);
 
 	@Autowired
 	public FileStorageService(final FileStorageProperties fileStorageProperties) {
@@ -77,7 +81,6 @@ public class FileStorageService {
 			throw new FileStorageException("Error while validating the file", ex);
 		}
 
-
 		final String fileName = Utils.transformSpaces(prefix) + "_" + determineFileName(file);
 
 		// Copy file to the target location (Replacing existing file with the same name)
@@ -92,14 +95,14 @@ public class FileStorageService {
 	}
 
 	private String determineFileName(final MultipartFile file) {
-//		// Normalize file name
-//		final String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-//		// Check if the file's name contains invalid characters
-//		if (fileName.contains("..")) {
-//			throw new FileStorageException("Sorry! Filename contains invalid path sequence " + fileName);
-//		}
-//		return fileName;
-
+		// // Normalize file name
+		// final String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+		// // Check if the file's name contains invalid characters
+		// if (fileName.contains("..")) {
+		// throw new FileStorageException("Sorry! Filename contains invalid path
+		// sequence " + fileName);
+		// }
+		// return fileName;
 
 		return UUID.randomUUID().toString() + "." + getExtension(file.getOriginalFilename()).orElse("");
 	}
@@ -119,6 +122,16 @@ public class FileStorageService {
 			throw new NotFoundException("File not found " + fileName);
 		} catch (final MalformedURLException ex) {
 			throw new NotFoundException("File not found " + fileName, ex);
+		}
+	}
+
+	public boolean deleteFile(final String fileName) {
+		try {
+			Path filePath = fileStorageLocation.resolve(fileName).normalize();
+			return Files.deleteIfExists(filePath);
+		} catch (IOException ex) {
+			logger.error("Could not delete file {}: {}", fileName, ex.getMessage());
+			return false;
 		}
 	}
 }

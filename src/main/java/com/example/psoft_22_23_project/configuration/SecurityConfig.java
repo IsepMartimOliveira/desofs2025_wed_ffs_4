@@ -100,24 +100,21 @@ public class SecurityConfig {
 				channel.anyRequest().requiresSecure()
 		);
 		http = http.cors(cors -> cors.configurationSource(request -> {
-					CorsConfiguration configuration = new CorsConfiguration();
-					configuration.setAllowCredentials(true);
-					configuration.addAllowedOrigin("*");
-					configuration.addAllowedHeader("*");
-					configuration.addAllowedMethod("*");
-					return configuration;
-				}))
+			CorsConfiguration configuration = new CorsConfiguration();
+			configuration.setAllowCredentials(true);
+			configuration.addAllowedOrigin("*");
+			configuration.addAllowedHeader("*");
+			configuration.addAllowedMethod("*");
+			return configuration;
+		}))
 				.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**")); // Exempt API endpoints from CSRF protection
 
-
-
 		// Set session management to stateless
-		http = http.sessionManagement(session ->
-				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+		http = http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 		// Set unauthorized requests exception handler
-		http = http.exceptionHandling(exceptions ->
-				exceptions.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
+		http = http.exceptionHandling(
+				exceptions -> exceptions.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
 						.accessDeniedHandler(new BearerTokenAccessDeniedHandler()));
 
 		// Set permissions on endpoints
@@ -145,7 +142,8 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.PATCH, "/api/subscriptions/").hasRole(Role.Subscriber)
 				.requestMatchers(HttpMethod.PATCH, "/api/subscriptions/renew").hasRole(Role.Subscriber)
 				.requestMatchers(HttpMethod.PATCH, "/api/subscriptions/change/{name}").hasRole(Role.Subscriber)
-				.requestMatchers(HttpMethod.PATCH, "/api/subscriptions/change/{actualPlan}/{newPlan}").hasRole(Role.Marketing_Director)
+				.requestMatchers(HttpMethod.PATCH, "/api/subscriptions/change/{actualPlan}/{newPlan}")
+				.hasRole(Role.Marketing_Director)
 				.requestMatchers("/api/public/subscriptions/**").permitAll()
 
 				// Private endpoints
@@ -167,22 +165,24 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.GET, "/api/dashboard/revenuePlan").hasRole(Role.Financial_director)
 				.requestMatchers(HttpMethod.GET, "/api/dashboard/currentRevenue").hasRole(Role.Financial_director)
 				.requestMatchers(HttpMethod.PATCH, "/api/user/password").authenticated()
-				// .requestMatchers("/api/admin/user/**").hasRole(Role.User_Admin) // user management no
+				// .requestMatchers("/api/admin/user/**").hasRole(Role.User_Admin) // user
+				// management no
 				.requestMatchers("/api/user/photo/**").hasRole(Role.Subscriber) // photo for user upload and see it
 				.requestMatchers(HttpMethod.POST, "/api/user/account").permitAll() // user account management
-				.anyRequest().authenticated()
-		);
+				.requestMatchers(HttpMethod.GET, "/api/user/export/personal-data").hasRole(Role.Subscriber) // Export
+																											// personal
+																											// data
+				.requestMatchers(HttpMethod.DELETE, "/api/user/personal-data").hasRole(Role.Subscriber) // Delete
+																										// personal data
+				.anyRequest().authenticated());
 
 		// Configure OAuth2 resource server with JWT
 		http.oauth2ResourceServer(oauth2 -> oauth2
-				.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
-		);
+				.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
 
 		// Configure frame options for H2
 		http.headers(headers -> headers
-				.frameOptions(frameOptions -> frameOptions.sameOrigin())
-		);
-
+				.frameOptions(frameOptions -> frameOptions.sameOrigin()));
 
 		return http.build();
 	}
@@ -243,8 +243,4 @@ public class SecurityConfig {
 	}
 
 	// Expose authentication manager bean
-	@Bean
-	public AuthenticationManager authenticationManagerBean() throws Exception {
-		return authenticationConfiguration.getAuthenticationManager();
-	}
 }

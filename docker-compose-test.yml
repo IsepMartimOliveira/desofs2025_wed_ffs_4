@@ -1,0 +1,49 @@
+
+services:
+  #db:
+  #  image: postgres:14-alpine
+  #  environment:
+  #    - POSTGRES_DB=${DB_NAME}
+  #    - POSTGRES_USER=${DB_USERNAME}
+  #    - POSTGRES_PASSWORD=${DB_PASSWORD}
+  #  tmpfs: /var/lib/postgresql/data
+  #  restart: unless-stopped
+  #  healthcheck:
+  #    test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+  #    interval: 10s
+  #    timeout: 5s
+  #    retries: 5
+
+  app:
+    image: spotify-copy:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=${DB_URL}/${DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+      - ADMIN_PASS=${ADMIN_PASS}
+      - MARKETING_PASS=${MARKETING_PASS}
+      - SUBSCRIBER_PASS_1=${SUBSCRIBER_PASS_1}
+      - SUBSCRIBER_PASS_2=${SUBSCRIBER_PASS_2}
+      - PROJECT_MANAGER=${PROJECT_MANAGER}
+      - FINANCE_PASSWORD=${FINANCE_PASSWORD}
+      - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}
+      - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}
+      - SERVER_SSL_ENABLED=false
+      - SERVER_PORT=8080
+
+    volumes:
+      - app-uploads:/app/uploads
+    #depends_on:
+    #  db:
+    #    condition: service_healthy
+    restart: unless-stopped
+
+
+volumes:
+  app-uploads:

@@ -13,7 +13,7 @@ import jakarta.validation.constraints.*;
 public class CreateUserRequest {
     @NotNull
     @NotBlank
-    @Email
+    @Email(message = "Invalid email format")
     private String username;
 
     @NotNull
@@ -21,7 +21,7 @@ public class CreateUserRequest {
     @Size(min = 12 , max = 24)
     private String password;
 
-    @Email
+    @Email(message = "Invalid email format")
     @NotNull
     @NotBlank
     private String email;

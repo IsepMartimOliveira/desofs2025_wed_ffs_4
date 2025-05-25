@@ -1,45 +1,123 @@
-name: DAST OWASP ZAP Scan (No Docker)
+name: DAST OWASP ZAP Scan
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
+  #push:
+  #  branches: [main]
+  #pull_request:
+  #  branches: [main]
+    workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  security-events: write
 
 jobs:
   dast-scan:
     runs-on: ubuntu-latest
 
+    env:
+      DOCKER_IMAGE_NAME: 'spotify-copy'
+      VERSION: 'latest'
+      JAVA_VERSION: '17'
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Write  file
-        run: |
-          echo "${{ secrets.APPLICATION_PASSWORDS }}" > src/main/resources/application-passwords.properties
-
-      - name: Make Maven Wrapper executable
-        run: chmod +x ./mvnw
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
+          cache: 'maven'
 
-      - name: Build Spring Boot app
-        run: ./mvnw clean package -DskipTests
+      - name: Build JAR with Maven
+        run: mvn clean package -DskipTests
 
-      - name: Run Spring Boot app in background
+      - name: Decode Base64 keystore and save as file
         run: |
-          nohup java -jar target/demoOrm-0.0.1-SNAPSHOT.jar &
-          sleep 30
+          echo "${{ secrets.SSL_KEYSTORE }}" | base64 -d > keystore.p12
 
-      - name: Run OWASP ZAP baseline scan
-        uses: zaproxy/action-baseline@v0.8.0
+      - name: Create .env file from secrets
+        run: |
+          echo 'DB_NAME=${{ secrets.DB_NAME }}' >> .env
+          echo 'DB_USERNAME=${{ secrets.DB_USERNAME }}' >> .env
+          echo 'DB_PASSWORD=${{ secrets.DB_PASSWORD }}' >> .env
+          echo 'DB_URL=${{ secrets.DB_URL }}' >> .env
+          echo 'ADMIN_PASS=${{ secrets.ADMIN_PASS }}' >> .env
+          echo 'MARKETING_PASS=${{ secrets.MARKETING_PASS }}' >> .env
+          echo 'SUBSCRIBER_PASS_1=${{ secrets.SUBSCRIBER_PASS_1 }}' >> .env
+          echo 'SUBSCRIBER_PASS_2=${{ secrets.SUBSCRIBER_PASS_2 }}' >> .env
+          echo 'PROJECT_MANAGER=${{ secrets.PROJECT_MANAGER }}' >> .env
+          echo 'FINANCE_PASSWORD=${{ secrets.FINANCE_PASSWORD }}' >> .env
+          echo 'JWT_PRIVATE_KEY="${{ secrets.JWT_PRIVATE_KEY }}"' >> .env
+          echo 'JWT_PUBLIC_KEY="${{ secrets.JWT_PUBLIC_KEY }}"' >> .env
+          echo 'SSL_KEYSTORE=keystore.p12' >> .env
+          echo 'SSL_KEYSTORE_PASSWORD=${{ secrets.SSL_KEYSTORE_PASSWORD }}' >> .env
+
+      - name: Start DB service
+        run: docker compose -f docker-compose-db-test.yml --env-file .env up -d
+
+      - name: Wait for DB to be healthy
+        run: |
+          for i in {1..20}; do
+            status=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose -f docker-compose-db-test.yml ps -q db))
+            echo "DB status: $status"
+            if [ "$status" = "healthy" ]; then
+              echo "DB is healthy!"
+              break
+            fi
+            sleep 5
+            if [ "$i" -eq 20 ]; then
+              echo "DB did not become healthy in time."
+              docker compose -f docker-compose-db.yml logs
+              exit 1
+            fi
+          done
+      #      - name: Create database
+      #        run: |
+      #          DB_CONTAINER=$(docker compose -f docker-compose-db-test.yml ps -q db)
+      #          docker exec -i $DB_CONTAINER psql -U ${{ secrets.DB_USERNAME }} -d postgres <<EOF
+      #          CREATE DATABASE ${{ secrets.DB_NAME }};
+      #          \l
+      #          EOF
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: docker compose --env-file .env -f docker-compose-test.yml build
+
+      - name: Start app service
+        run: docker compose --env-file .env -f docker-compose-test.yml up -d
+
+      - name: Debug
+        run: |
+          echo "Running containers:"
+          docker ps      
+
+      - name: Run OWASP ZAP Scan
+        uses: zaproxy/action-full-scan@v0.12.0
         with:
-          target: 'http://localhost:8080'
-          failOnRisk: 'high'
+            target: 'http://localhost:8080'
+            cmd_options: '-J report_json.json -w report_md.md -r report_html.html'
 
-      - name: Kill Spring Boot app
-        run: pkill -f 'java -jar'
+
+      - name: Upload ZAP reports
+        uses: actions/upload-artifact@v4
+        with:
+            name: reportszap
+            path: |
+                  report_html.html
+                  report_json.json
+                  report_md.md
+
+      - name: Tear down app service
+        run: docker compose -f docker-compose-test.yml --env-file .env down --volumes
+
+      - name: Tear down DB service
+        run: docker compose -f docker-compose-db-test.yml down --volumes
+
+      - name: Clean up .env
+        run: rm -f .env

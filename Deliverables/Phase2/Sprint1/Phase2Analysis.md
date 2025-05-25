@@ -37,3 +37,5 @@ The system architecture is based on a **REST API** connected to a **relational d
 [Abuse Cases](./ssdlc/Abuse_Case.md)
 
 [ASVS](./asvs/asvs.md)
+
+[Workflow](./ssdlc/pipeline/Workflow.md)
