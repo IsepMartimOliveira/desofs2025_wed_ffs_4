@@ -24,6 +24,7 @@ import com.example.psoft_22_23_project.usermanagement.model.User;
 import com.example.psoft_22_23_project.usermanagement.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +91,7 @@ public class UserController {
 	@Operation(summary = "Create a user account")
 	@PostMapping("account")
 	@ResponseStatus(HttpStatus.CREATED)
-	public ResponseEntity<UserView> createUser(@RequestBody CreateUserRequest user) {
+	public ResponseEntity<UserView> createUser(@Valid @RequestBody CreateUserRequest user) {
 
 		User createdUser = userService.createUser(user);
 		return ResponseEntity.status(HttpStatus.CREATED).body(userViewMapper.toUserView(createdUser));
