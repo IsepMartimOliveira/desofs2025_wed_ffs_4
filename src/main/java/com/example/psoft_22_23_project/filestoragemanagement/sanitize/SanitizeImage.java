@@ -3,11 +3,9 @@ package com.example.psoft_22_23_project.filestoragemanagement.sanitize;
 import org.apache.tika.Tika;
 import org.slf4j.LoggerFactory;
 
-
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Optional;
 
 public class SanitizeImage {
@@ -43,61 +41,67 @@ public class SanitizeImage {
         }
     }
 
-
-
     private static boolean isValidFileName(String fileName) {
         return fileName != null && fileName.matches("^[a-zA-Z0-9_-]+\\.[a-zA-Z]{3,4}$");
     }
 
-    private static boolean hasValidHeader(InputStream inputStream, String mimeType, String extension) throws IOException {
-        Optional<AllowedImage> match = Arrays.stream(AllowedImage.values())
-                .filter(e -> e.getMimeType().equalsIgnoreCase(mimeType))
-                .findFirst();
-
-        if (match.isEmpty()) {
-            return false;
+    public static boolean isValidImage(String fileName, InputStream inputStream) throws IOException {
+        if (!inputStream.markSupported()) {
+            inputStream = new BufferedInputStream(inputStream);
         }
 
-        byte[] expectedHeader = match.get().getHeader();
-        byte[] fileHeader = new byte[expectedHeader.length];
-        inputStream.read(fileHeader, 0, expectedHeader.length);
-
-        return Arrays.equals(expectedHeader, fileHeader);
-    }
-
-
-    public static boolean isValidImage(String fileName, InputStream inputStream) throws IOException {
-        try (BufferedInputStream bufferedStream = new BufferedInputStream(inputStream)) {
-            String fileExtension = getFileExtension(fileName);
-            String mimeType = tika.detect(bufferedStream, fileName);
+        try {
+            // Mark the stream for MIME detection
+            inputStream.mark(8192);
+            String mimeType = tika.detect(inputStream, fileName);
+            inputStream.reset();
 
             boolean isValidExtension = isValidExtension(fileName);
-            boolean isValidMimeType = isValidMimeType(bufferedStream, fileName);
+            boolean isValidMimeType = mimeType != null && AllowedImage.isAllowedMimeType(mimeType);
             boolean isValidFileName = isValidFileName(fileName);
-            boolean hasValidHeader = hasValidHeader(bufferedStream, mimeType, fileExtension);
 
-            boolean isValid = isValidExtension && isValidMimeType &&  isValidFileName && hasValidHeader;
+            // Additional validation: ensure extension matches MIME type
+            boolean extensionMimeTypeMatch = isExtensionMimeTypeConsistent(fileName, mimeType);
+
+            boolean isValid = isValidExtension && isValidMimeType && isValidFileName && extensionMimeTypeMatch;
 
             if (isValid) {
-                LoggerFactory.getLogger(SanitizeImage.class).info("File '{}' passed sanitization.", fileName);
+                LoggerFactory.getLogger(SanitizeImage.class).info("File '{}' passed sanitization. MIME type: {}", fileName, mimeType);
             } else {
-                String reason = buildFailureReason(isValidExtension, isValidMimeType, isValidFileName);
-                LoggerFactory.getLogger(SanitizeImage.class).warn("File '{}' failed sanitization. Reason: {}", fileName, reason);
+                String reason = buildFailureReason(isValidExtension, isValidMimeType, isValidFileName, extensionMimeTypeMatch);
+                LoggerFactory.getLogger(SanitizeImage.class).warn("File '{}' failed sanitization. Reason: {} MIME type: {}", fileName, reason, mimeType);
             }
 
             return isValid;
+        } catch (Exception e) {
+            LoggerFactory.getLogger(SanitizeImage.class).error("Error validating image file '{}'", fileName, e);
+            return false;
         }
     }
 
-    private static String getFileExtension(String fileName) {
-        int dotIndex = fileName.lastIndexOf(".");
-        return (dotIndex > 0) ? fileName.substring(dotIndex + 1).toLowerCase() : "";
+    private static boolean isExtensionMimeTypeConsistent(String fileName, String mimeType) {
+        if (mimeType == null) return false;
+
+        String extension = getExtension(fileName).orElse("").toLowerCase();
+
+        return switch (mimeType.toLowerCase()) {
+            case "image/jpeg" -> extension.equals("jpg") || extension.equals("jpeg");
+            case "image/png" -> extension.equals("png");
+            case "image/gif" -> extension.equals("gif");
+            case "image/webp" -> extension.equals("webp");
+            case "image/tiff" -> extension.equals("tiff") || extension.equals("tif");
+            case "image/bmp" -> extension.equals("bmp");
+            default -> false;
+        };
     }
-    private static String buildFailureReason(boolean isValidExtension, boolean isValidMimeType, boolean isValidFileName) {
+
+    private static String buildFailureReason(boolean isValidExtension, boolean isValidMimeType,
+                                             boolean isValidFileName, boolean extensionMimeTypeMatch) {
         StringBuilder reason = new StringBuilder();
         if (!isValidExtension) reason.append("Invalid extension. ");
         if (!isValidMimeType) reason.append("Invalid MIME type. ");
-        if (!isValidFileName) reason.append("Invalid file name format.");
+        if (!isValidFileName) reason.append("Invalid file name format. ");
+        if (!extensionMimeTypeMatch) reason.append("Extension doesn't match MIME type. ");
         return reason.toString().trim();
     }
 }
