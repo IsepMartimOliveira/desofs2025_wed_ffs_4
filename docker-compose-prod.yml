@@ -48,3 +48,5 @@ services:
 
 volumes:
   app-uploads:
+  app-logs:
+
