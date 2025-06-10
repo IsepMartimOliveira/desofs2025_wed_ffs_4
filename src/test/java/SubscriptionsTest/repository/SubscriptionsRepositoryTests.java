@@ -1,12 +1,9 @@
 package SubscriptionsTest.repository;
 
-
-import com.example.psoft_22_23_project.devicemanagement.repositories.DeviceRepository;
 import com.example.psoft_22_23_project.plansmanagement.model.*;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PaymentType;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptions;
 import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepository;
-import com.example.psoft_22_23_project.subscriptionsmanagement.services.SubscriptionsService;
 import com.example.psoft_22_23_project.usermanagement.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +12,8 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+
+
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -79,7 +77,6 @@ public class SubscriptionsRepositoryTests {
 
     }
 
-
     @Test
     public void testFindAllByPlanAndActiveStatus_Active_ExistingActiveSubscriptions_ReturnsSubscriptionsList() {
         List<Subscriptions> testSubscriptions = new ArrayList<>();
@@ -89,7 +86,6 @@ public class SubscriptionsRepositoryTests {
         Plans plan = createPlan("teste");
 
         when(subscriptionsRepository.findAllByPlanAndActiveStatus_Active(plan, true)).thenReturn(testSubscriptions);
-
 
         List<Subscriptions> result = subscriptionsRepository.findAllByPlanAndActiveStatus_Active(plan, true);
 

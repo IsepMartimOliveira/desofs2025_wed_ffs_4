@@ -21,14 +21,14 @@ public abstract class SubscriptionsViewMapper {
     public abstract Iterable<SubscriptionsView> toSubscriptionsView(Iterable<Subscriptions> subscriptions);
 
     public Integer mapOptInt(final Optional<Integer> i) {
-        return i.orElse(null);
+        return i != null ? i.orElse(null) : null;
     }
 
     public Long mapOptLong(final Optional<Long> i) {
-        return i.orElse(null);
+        return i != null ? i.orElse(null) : null;
     }
 
     public String mapOptString(final Optional<String> i) {
-        return i.orElse(null);
+        return i != null ? i.orElse(null) : null;
     }
 }

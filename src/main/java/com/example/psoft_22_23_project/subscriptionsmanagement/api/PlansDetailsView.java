@@ -30,11 +30,17 @@ public class PlansDetailsView {
     private String promoted;
 
     public String getMonthlyFee() {
+        if (monthlyFee == null) {
+            return null;
+        }
         String money = " €";
         return monthlyFee+money;
     }
 
     public String getAnnualFee() {
+        if (annualFee == null) {
+            return null;
+        }
         String money = " €";
         return annualFee+money;
     }

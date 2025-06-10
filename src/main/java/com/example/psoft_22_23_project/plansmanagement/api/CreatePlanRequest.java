@@ -56,8 +56,8 @@ public class CreatePlanRequest {
 	@NotNull
 	private double monthlyFee;
 	@Nullable
-	private boolean active;
+	private Boolean active;
 	@Nullable
-	private boolean promoted;
+	private Boolean promoted;
 
 }
