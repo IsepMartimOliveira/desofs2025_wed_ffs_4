@@ -38,7 +38,7 @@ services:
 
     volumes:
       - app-uploads:/app/uploads
-      - app-logs:/app/logs
+      - /var/log/myapp:/app/logs
       - ./keystore.p12:/app/keystore.p12:ro
     #depends_on:
     #  db:
