@@ -33,9 +33,12 @@ services:
       - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}
       - SSL_KEYSTORE_PASSWORD=${SSL_KEYSTORE_PASSWORD}
       - SSL_KEYSTORE=/app/keystore.p12
+      - LOGGING_FILE_NAME=/app/logs/application.log
+
 
     volumes:
       - app-uploads:/app/uploads
+      - app-logs:/app/logs
       - ./keystore.p12:/app/keystore.p12:ro
     #depends_on:
     #  db:
