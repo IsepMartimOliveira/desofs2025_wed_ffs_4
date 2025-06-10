@@ -74,6 +74,7 @@ public class UserTestLoginIT {
 
         mockMvc.perform(post("/api/public/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .secure(true)
                         .content(objectMapper.writeValueAsString(authRequest)))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Authorization", jwtToken))
@@ -96,6 +97,7 @@ public class UserTestLoginIT {
 
         mockMvc.perform(post("/api/public/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .secure(true)
                         .content(objectMapper.writeValueAsString(authRequest)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.error").value("Invalid credentials"))
@@ -116,6 +118,7 @@ public class UserTestLoginIT {
 
         mockMvc.perform(post("/api/public/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .secure(true)
                         .content(objectMapper.writeValueAsString(authRequest)))
                 .andExpect(status().isLocked())
                 .andExpect(jsonPath("$.error").value("Account temporarily locked"))
@@ -136,6 +139,7 @@ public class UserTestLoginIT {
 
         mockMvc.perform(post("/api/public/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .secure(true)
                         .content(objectMapper.writeValueAsString(authRequest)))
                 .andExpect(status().isTooManyRequests())
                 .andExpect(jsonPath("$.error").value("IP address temporarily blocked"))
