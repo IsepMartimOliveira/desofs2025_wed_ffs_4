@@ -1,13 +1,14 @@
 package com.example.psoft_22_23_project.filestoragemanagement.sanitize;
 
-import org.apache.tika.Tika;
-import org.slf4j.LoggerFactory;
-
+// This class ensures consistent URL decoding and parsing of filenames to prevent SSRF/RFI attacks through encoding bypass
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Optional;
+
+import org.apache.tika.Tika;
+import org.slf4j.LoggerFactory;
 
 public class SanitizeImage {
 
@@ -29,17 +30,28 @@ public class SanitizeImage {
         }
 
         try {
+            // First, consistently decode any URL encoding
+            String decodedFilename = java.net.URLDecoder.decode(filename, java.nio.charset.StandardCharsets.UTF_8);
+            
+            // Check for double encoding attacks
+            String doubleDecoded = java.net.URLDecoder.decode(decodedFilename, java.nio.charset.StandardCharsets.UTF_8);
+            if (!decodedFilename.equals(doubleDecoded)) {
+                LoggerFactory.getLogger(SanitizeImage.class)
+                        .warn("Double encoding attack detected in filename: {}", filename);
+                return Optional.empty();
+            }
+
             // Normalize the path and extract just the filename component
             // This prevents path traversal attacks like "../../../file.jpg"
-            String normalizedFilename = Paths.get(filename).getFileName().toString();
+            String normalizedFilename = Paths.get(decodedFilename).getFileName().toString();
 
-            // Ensure the normalized filename matches the original (no path components were removed)
-            if (!normalizedFilename.equals(filename)) {
+            // Ensure the normalized filename matches the decoded one (no path components were removed)
+            if (!normalizedFilename.equals(decodedFilename)) {
                 LoggerFactory.getLogger(SanitizeImage.class)
                         .warn("Potential path traversal attempt detected in filename: {}", filename);
                 return Optional.empty();
             }
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             // Invalid path characters or other path-related issues
             LoggerFactory.getLogger(SanitizeImage.class)
                     .warn("Invalid filename format detected: {}", filename);
@@ -114,7 +126,7 @@ public class SanitizeImage {
         try {
             String mimeType = tika.detect(imageData, fileName);
             return mimeType != null && AllowedImage.isAllowedMimeType(mimeType);
-        } catch (Exception e) {
+        } catch (IOException | RuntimeException e) {
             LoggerFactory.getLogger(SanitizeImage.class).error("Error detecting MIME type for file '{}'", fileName, e);
             return false;
         }
@@ -158,7 +170,7 @@ public class SanitizeImage {
             inputStream.reset();
 
             boolean isValidExtension = isValidExtension(fileName);
-            boolean isValidMimeType = mimeType != null && AllowedImage.isAllowedMimeType(mimeType);
+            boolean isValidMimeType = isValidMimeType(inputStream, fileName);
             boolean isValidFileName = isValidFileName(fileName);
 
             // Additional validation: ensure extension matches MIME type
@@ -174,7 +186,7 @@ public class SanitizeImage {
             }
 
             return isValid;
-        } catch (Exception e) {
+        } catch (IOException | RuntimeException e) {
             LoggerFactory.getLogger(SanitizeImage.class).error("Error validating image file '{}'", fileName, e);
             return false;
         }
