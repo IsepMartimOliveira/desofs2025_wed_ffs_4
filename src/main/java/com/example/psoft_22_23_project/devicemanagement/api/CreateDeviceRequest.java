@@ -17,4 +17,9 @@ public class CreateDeviceRequest {
 
     private String description;
 
+    public CreateDeviceRequest(String testMacAddress, String newDevice, String description) {
+        this.macAddress = testMacAddress;
+        this.name = newDevice;
+        this.description = description;
+    }
 }
