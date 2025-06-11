@@ -230,7 +230,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\":\"admin@mail.com\",\r\n    \"password\":\"adminpass\"\r\n}",
+							"raw": "{\r\n    \"username\":\"filipe@mail.com\",\r\n    \"password\":\"adminpass\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
