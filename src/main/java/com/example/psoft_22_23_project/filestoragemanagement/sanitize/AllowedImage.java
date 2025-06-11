@@ -3,26 +3,25 @@ package com.example.psoft_22_23_project.filestoragemanagement.sanitize;
 import lombok.Getter;
 
 import java.util.Arrays;
+import java.util.Set;
 
 @Getter
 public enum AllowedImage {
 
-    JPG("image/jpeg", "jpg", new byte[] { (byte) 0xFF, (byte) 0xD8 }),
-    JPEG("image/jpeg", "jpeg", new byte[] { (byte) 0xFF, (byte) 0xD8 }),
-    PNG("image/png", "png", new byte[] { (byte) 0x89, (byte) 0x50, (byte) 0x4E, (byte) 0x47 }),
-    GIF("image/gif", "gif", new byte[] { (byte) 0x47, (byte) 0x49, (byte) 0x46, (byte) 0x38 }),
-    WEBP("image/webp", "webp", new byte[] { (byte) 0x52, (byte) 0x49, (byte) 0x46, (byte) 0x46 }),
-    TIFF("image/tiff", "tiff", new byte[] { (byte) 0x49, (byte) 0x49, (byte) 0x2A, (byte) 0x00 }),
-    BMP("image/bmp", "bmp", new byte[] { (byte) 0x42, (byte) 0x4D });
+    JPG("image/jpeg", "jpg"),
+    JPEG("image/jpeg", "jpeg"),
+    PNG("image/png", "png"),
+    GIF("image/gif", "gif"),
+    WEBP("image/webp", "webp"),
+    TIFF("image/tiff", "tiff"),
+    BMP("image/bmp", "bmp");
 
     private final String mimeType;
     private final String extension;
-    private final byte[] header;
 
-    AllowedImage(String mimeType, String extension, byte[] header) {
+    AllowedImage(String mimeType, String extension) {
         this.mimeType = mimeType;
         this.extension = extension;
-        this.header = header;
     }
 
     public static boolean isAllowedMimeType(String mimeType) {
@@ -35,13 +34,17 @@ public enum AllowedImage {
                 .anyMatch(e -> e.getExtension().equalsIgnoreCase(extension));
     }
 
-    public static boolean hasValidHeader(String mimeType, byte[] fileHeader) {
+    // Get all allowed MIME types for documentation/debugging
+    public static Set<String> getAllowedMimeTypes() {
         return Arrays.stream(values())
-                .filter(e -> e.getMimeType().equalsIgnoreCase(mimeType))
-                .anyMatch(e -> Arrays.equals(e.getHeader(), fileHeader));
+                .map(AllowedImage::getMimeType)
+                .collect(java.util.stream.Collectors.toSet());
     }
 
-    public static boolean isValidImage(String mimeType, String extension, byte[] fileHeader) {
-        return isAllowedMimeType(mimeType) && isAllowedExtension(extension) && hasValidHeader(mimeType, fileHeader);
+    // Get all allowed extensions for documentation/debugging
+    public static Set<String> getAllowedExtensions() {
+        return Arrays.stream(values())
+                .map(AllowedImage::getExtension)
+                .collect(java.util.stream.Collectors.toSet());
     }
 }

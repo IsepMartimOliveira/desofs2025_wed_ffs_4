@@ -1,0 +1,64 @@
+@startuml
+hide circle
+
+
+class Plan {
+    id
+    name
+    description
+    numberOfminutes
+    maxUsersDevices
+    musicCollections
+    musicSuggestions
+    monthlyFee
+    annualFee
+    isPromoted
+    isDeactivated
+    isCeased
+    feeRevisions
+}
+
+
+
+class Subscriptions {
+    id
+    startDate
+    endDate
+    paymentType
+    isActive
+}
+
+class User {
+    id
+    username
+    password
+    location
+}
+
+class Device {
+    id
+    macAddress
+    name
+    description
+}
+
+
+class Dashboard {
+id
+    totalActiveSubscriptions
+    totalRevenue
+    monthlyNewSubscriptions
+    monthlyCanceledSubscriptions
+    planName
+    month
+}
+
+User "1" -- "*"Plan: can  create
+User "1" -- "1" Subscriptions: Subscribes
+User "1" -- "0..*" Device : has
+User "1" -- "1" Dashboard: has  access
+Subscriptions "1" -- "1" Plan: has
+Subscriptions "1" -- "*" Device:  associates
+
+
+@enduml

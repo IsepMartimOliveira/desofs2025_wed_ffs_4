@@ -39,6 +39,8 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.validation.Valid;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 
@@ -59,6 +61,9 @@ public class UserController {
 	public ResponseEntity<UserView> upload(
 			@RequestParam(name = "file", required = false) final MultipartFile file)
 			throws URISyntaxException {
+		if (file == null || file.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File must not be null or empty");
+		}
 
 		User user = userService.upload(file);
 		logger.info("Uploading profile image: filename={} for userId={}", Utils.sanitize(file.getOriginalFilename()),
