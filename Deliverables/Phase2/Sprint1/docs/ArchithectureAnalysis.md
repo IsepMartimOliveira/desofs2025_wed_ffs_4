@@ -107,10 +107,4 @@
 
 ## Deployment View
 
-### Curent Deployment View
-![Deployment View Current](./VD/VD_current_deployment.png)
-
-
-### Future Deployment View
-
 ![Deployment View Future](./VD/VD_future_deployment.png)

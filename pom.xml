@@ -101,6 +101,7 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
+			<version>42.7.7</version>
 		</dependency>
 
 		<dependency>
@@ -119,7 +120,6 @@
 		<dependency>
 			<groupId>com.github.ben-manes.caffeine</groupId>
 			<artifactId>caffeine</artifactId>
-			<!-- Version managed by Spring Boot -->
 		</dependency>
 
 		<!-- Lombok -->
