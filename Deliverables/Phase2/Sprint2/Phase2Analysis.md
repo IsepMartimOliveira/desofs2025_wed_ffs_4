@@ -101,3 +101,7 @@ The error handling strategy prioritizes **information disclosure prevention** wi
 ## Data Protection
 
 The system provides users with control over their personal data by implementing features for data export and deletion. Users can request an export of their data, which will be provided in a common, JSON format. Additionally, users have the right to request the deletion of their personal data from the system, ensuring compliance with data privacy regulations.
+## Backup and Recovery
+
+Currently it is being doing backup of the database, which is stored in a secure location. The backup process is automated to ensure regular backups are taken at 00:00 every day. The backup files are encrypted to protect sensitive data and are stored in a secure location to prevent unauthorized access.
+![Data Flow Diagram](ssdlc/img/backups.png)

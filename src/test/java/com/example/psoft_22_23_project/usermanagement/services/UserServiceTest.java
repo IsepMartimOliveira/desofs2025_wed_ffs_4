@@ -1,6 +1,8 @@
 package com.example.psoft_22_23_project.usermanagement.services;
 
 import com.example.psoft_22_23_project.filestoragemanagement.service.FileStorageService;
+import com.example.psoft_22_23_project.usermanagement.api.CreateUserRequest;
+import com.example.psoft_22_23_project.usermanagement.api.PasswordChangeRequest;
 import com.example.psoft_22_23_project.usermanagement.api.PersonalDataDeletionRequest;
 import com.example.psoft_22_23_project.usermanagement.api.PersonalDataExportDTO;
 import com.example.psoft_22_23_project.usermanagement.model.User;
@@ -16,15 +18,22 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.Resource;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -57,27 +66,25 @@ public class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Create a real User object and then spy on it to mock getId()
+
         User actualUser = new User("testUser", "password123", "test@example.com", 123456789, 30);
         testUser = Mockito.spy(actualUser);
-        Mockito.when(testUser.getId()).thenReturn(1L); // Mock getId() to return 1L
 
-        // UserImage ID is set by JPA, not manually. No setId needed for testUserImage.
+        // Use lenient() to avoid UnnecessaryStubbingException
+        lenient().when(testUser.getId()).thenReturn(1L);
+
         testUserImage = new UserImage("prefix", "testImage.jpg", "http://localhost/image.jpg", "image/jpeg", 1024L);
-        // If testUserImage.getId() is needed, it should be mocked if UserImage is a mock/spy.
-        // For a real UserImage object, its ID would be null until persisted.
 
-        // Mock SecurityContextHolder
+
         Authentication authentication = Mockito.mock(Authentication.class);
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
-        // Use the mocked testUser.getId() for consistency
-        String authenticatedUserId = String.valueOf(testUser.getId()); // Resolve ID first
-        Mockito.when(authentication.getName()).thenReturn(authenticatedUserId);
+        lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
+        String authenticatedUserId = String.valueOf(testUser.getId());
+        lenient().when(authentication.getName()).thenReturn(authenticatedUserId);
         SecurityContextHolder.setContext(securityContext);
 
-        // Ensure userRepository.findById uses the consistent ID and returns the spied testUser
-        Mockito.when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+
+        lenient().when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
     }
 
     //region exportPersonalData Tests
@@ -338,5 +345,174 @@ public class UserServiceTest {
         verify(passwordEncoder, never()).matches(anyString(), anyString());
     }
 
-    //endregion
+   @Test
+    void createUser_shouldValidateAndSaveUser_whenDetailsValid() {
+        // Arrange
+        CreateUserRequest request = new CreateUserRequest();
+        request.setUsername("newuser");
+        request.setPassword("SecurePassword123!");
+        request.setEmail("new@example.com");
+        request.setPhoneNumber(123456789);
+        request.setAge(25);
+
+        when(userRepository.findByUsername(request.getUsername())).thenReturn(Optional.empty());
+        when(passwordEncoder.encode(anyString())).thenReturn("ENCRYPTED");
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        User result = userService.createUser(request);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(request.getUsername(), result.getUsername());
+        assertEquals("ENCRYPTED", result.getPassword());
+        assertEquals(request.getEmail(), result.getEmail());
+        verify(userRepository).findByUsername(request.getUsername());
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void createUser_shouldThrowException_whenUsernameExists() {
+        // Arrange
+        CreateUserRequest request = new CreateUserRequest();
+        request.setUsername("existingUser");
+        request.setPassword("SecurePassword123!");
+        request.setEmail("new@example.com");
+
+        // Use a public constructor instead of the protected one
+        User existingUser = new User("existingUser", "dummyPassword", "existing@example.com", 0, 0);
+        when(userRepository.findByUsername(request.getUsername())).thenReturn(Optional.of(existingUser));
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> userService.createUser(request));
+        assertTrue(exception.getMessage().contains("Username already exists"));
+        verify(userRepository).findByUsername(request.getUsername());
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+
+    @Test
+    void seeImage_shouldReturnResource_whenUserHasImage() {
+        // Arrange
+        testUser.setUserImage(testUserImage);
+        Resource mockResource = mock(Resource.class);
+        when(fileStorageService.loadFileAsResource(testUserImage.getFileName())).thenReturn(mockResource);
+
+        // Act
+        Resource result = userService.seeImage();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(mockResource, result);
+        verify(fileStorageService).loadFileAsResource(testUserImage.getFileName());
+    }
+
+    @Test
+    void seeImage_shouldThrowException_whenUserHasNoImage() {
+        // Arrange
+        testUser.setUserImage(null);
+
+        // Act & Assert
+        assertThrows(UsernameNotFoundException.class, () -> userService.seeImage());
+        verify(fileStorageService, never()).loadFileAsResource(anyString());
+    }
+
+    @Test
+    void createUser_shouldEncryptPasswordBeforeSaving() {
+        // Arrange
+        String plainPassword = "SecurePass123!";
+        CreateUserRequest request = new CreateUserRequest();
+        request.setUsername("newuser");
+        request.setPassword(plainPassword);
+        request.setEmail("new@example.com");
+        request.setPhoneNumber(123456789); // Fix: Set this value to avoid NPE
+        request.setAge(25); // Fix: Set this value to avoid NPE
+
+        when(passwordEncoder.encode(plainPassword)).thenReturn("ENCRYPTED_PASSWORD");
+        when(userRepository.findByUsername(request.getUsername())).thenReturn(Optional.empty());
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        User savedUser = userService.createUser(request);
+
+        // Assert
+        assertNotEquals(plainPassword, savedUser.getPassword());
+        assertEquals("ENCRYPTED_PASSWORD", savedUser.getPassword());
+        verify(passwordEncoder).encode(plainPassword);
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void changePassword_shouldUpdatePasswordWhenCurrentPasswordValid() {
+        // Arrange
+        String currentPassword = "password123";
+        String newPassword = "NewSecurePass456!";
+
+        PasswordChangeRequest request = new PasswordChangeRequest();
+        request.setCurrentPassword(currentPassword);
+        request.setNewPassword(newPassword);
+
+        // Fix: Use correct parameter matching
+        when(passwordEncoder.matches(eq(currentPassword), anyString())).thenReturn(true);
+        when(passwordEncoder.encode(newPassword)).thenReturn("NEW_ENCRYPTED_PASSWORD");
+        when(userRepository.save(testUser)).thenReturn(testUser);
+
+        // Act
+        User result = userService.changePassword(request);
+
+        // Assert
+        assertEquals("NEW_ENCRYPTED_PASSWORD", result.getPassword());
+        verify(passwordEncoder).matches(eq(currentPassword), anyString());
+        verify(passwordEncoder).encode(newPassword);
+        verify(userRepository).save(testUser);
+    }
+
+    @Test
+    void changePassword_shouldThrowAccessDeniedException_whenCurrentPasswordInvalid() {
+        // Arrange
+        String currentPassword = "wrongPassword";
+        String newPassword = "NewSecurePass456!";
+
+        PasswordChangeRequest request = new PasswordChangeRequest();
+        request.setCurrentPassword(currentPassword);
+        request.setNewPassword(newPassword);
+
+        when(passwordEncoder.matches(eq(currentPassword), anyString())).thenReturn(false);
+
+        // Act & Assert
+        assertThrows(AccessDeniedException.class, () -> userService.changePassword(request));
+        verify(passwordEncoder).matches(eq(currentPassword), anyString());
+        verify(passwordEncoder, never()).encode(anyString());
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void loadUserByUsername_shouldReturnUserDetails_whenUserExists() {
+        // Arrange
+        String username = "testUser";
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(testUser));
+
+        // Act
+        UserDetails result = userService.loadUserByUsername(username);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(testUser, result);
+        verify(userRepository).findByUsername(username);
+    }
+
+    @Test
+    void loadUserByUsername_shouldThrowUsernameNotFoundException_whenUserNotFound() {
+        // Arrange
+        String username = "nonexistent";
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(UsernameNotFoundException.class, () -> userService.loadUserByUsername(username));
+        verify(userRepository).findByUsername(username);
+    }
+
+//endregion
+//endregion
 }
