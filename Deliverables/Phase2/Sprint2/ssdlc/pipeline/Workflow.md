@@ -99,6 +99,7 @@ This workflow automates the process of building a Java application, creating a D
 - `scripts/setup-java-docker.sh`: Shell script to install Docker/Java on the remote VMs.
 - `keystore.p12`: SSL keystore (created during the workflow).
 - `.env`: Environment variable file generated from secrets.
+- `/var/log/myapp`: Directory for application logs (created during the workflow).
 
 # Beenefits
 - **Automated Deployment**: Simplifies the process of building, scanning, and deploying applications.
