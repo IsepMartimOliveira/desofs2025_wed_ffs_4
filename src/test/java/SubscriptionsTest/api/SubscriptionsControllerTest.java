@@ -1,6 +1,5 @@
 package SubscriptionsTest.api;
 
-
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
@@ -11,9 +10,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
@@ -22,6 +25,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.psoft_22_23_project.plansmanagement.model.Active;
@@ -47,6 +51,8 @@ import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptio
 import com.example.psoft_22_23_project.subscriptionsmanagement.services.SubscriptionsService;
 import com.example.psoft_22_23_project.usermanagement.model.User;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @ExtendWith(MockitoExtension.class)
 
 public class SubscriptionsControllerTest {
@@ -55,11 +61,11 @@ public class SubscriptionsControllerTest {
     private SubscriptionsService subscriptionsService;
 
     @Mock
-    private SubscriptionsViewMapper subscriptionsViewMapper;
-
-    @Mock
+    private SubscriptionsViewMapper subscriptionsViewMapper;    @Mock
     private PlansDetailsViewMapper plansDetailsViewMapper;
 
+    @Mock
+    private WebRequest webRequest;
 
     @InjectMocks
     private SubscriptionsController subscriptionsController;
@@ -196,14 +202,11 @@ public class SubscriptionsControllerTest {
         assertEquals(testSubscriptionsView, result.getBody());
         assertEquals("\"1\"", result.getHeaders().getETag());
         assertNotNull(result.getHeaders().getLocation());
-    }
-
-    @Test
+    }    @Test
     void testCancelSubscription_ValidIfMatch_ShouldReturnCancelledSubscription() {
-
         MockHttpServletRequest mockRequest = new MockHttpServletRequest();
         mockRequest.addHeader("If-Match", "\"1\"");
-        ServletWebRequest webRequest = new ServletWebRequest(mockRequest);
+        ServletWebRequest servletWebRequest = new ServletWebRequest(mockRequest);
 
         Subscriptions cancelledSubscription = mock(Subscriptions.class);
         when(cancelledSubscription.getVersion()).thenReturn(2L);
@@ -211,7 +214,7 @@ public class SubscriptionsControllerTest {
         when(subscriptionsService.cancelSubscription(1L)).thenReturn(cancelledSubscription);
         when(subscriptionsViewMapper.toSubscriptionView(cancelledSubscription)).thenReturn(testSubscriptionsView);
 
-        ResponseEntity<SubscriptionsView> result = subscriptionsController.cancelSubscription(webRequest);
+        ResponseEntity<SubscriptionsView> result = subscriptionsController.cancelSubscription(servletWebRequest);
 
         assertNotNull(result);
         assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -465,77 +468,14 @@ public class SubscriptionsControllerTest {
         assertNotNull(result);
         assertEquals(HttpStatus.OK, result.getStatusCode());
     }
-}
-
-    @Mock
-    private WebRequest webRequest;
-
-    @Mock
-    private Authentication authentication;
-
-    private SubscriptionsController subscriptionsController;
-    private User testUser;
-    private Plans testPlan;
-    private Subscriptions testSubscription;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.openMocks(this);
-        subscriptionsController = new SubscriptionsController(subscriptionsService, subscriptionsViewMapper, plansDetailsViewMapper);
-        testUser = new User("alex@mail.com", "alexpass");
-
-        
-        testPlan = createPlan("Premium");
-        testSubscription = new Subscriptions(testPlan, new PaymentType("monthly"), testUser);
-
-        when(authentication.getName()).thenReturn(testUser.getEmail());
-    }
-
-    
-    private Plans createPlan(String name) {
-        com.example.psoft_22_23_project.plansmanagement.model.Name planName = new com.example.psoft_22_23_project.plansmanagement.model.Name();
-        planName.setName(name);
-
-        com.example.psoft_22_23_project.plansmanagement.model.Description description = new com.example.psoft_22_23_project.plansmanagement.model.Description();
-        description.setDescription("Plan Description");
-
-        com.example.psoft_22_23_project.plansmanagement.model.NumberOfMinutes numberOfMinutes = new com.example.psoft_22_23_project.plansmanagement.model.NumberOfMinutes();
-        numberOfMinutes.setNumberOfMinutes("100");
-
-        com.example.psoft_22_23_project.plansmanagement.model.MaximumNumberOfUsers maximumNumberOfUsers = new com.example.psoft_22_23_project.plansmanagement.model.MaximumNumberOfUsers();
-        maximumNumberOfUsers.setMaximumNumberOfUsers(5);
-
-        com.example.psoft_22_23_project.plansmanagement.model.MusicCollection musicCollection = new com.example.psoft_22_23_project.plansmanagement.model.MusicCollection();
-        musicCollection.setMusicCollection(10);
-
-        com.example.psoft_22_23_project.plansmanagement.model.MusicSuggestion musicSuggestion = new com.example.psoft_22_23_project.plansmanagement.model.MusicSuggestion();
-        musicSuggestion.setMusicSuggestion("personalized");
-
-        com.example.psoft_22_23_project.plansmanagement.model.AnnualFee annualFee = new com.example.psoft_22_23_project.plansmanagement.model.AnnualFee();
-        annualFee.setAnnualFee(100.00);
-
-        com.example.psoft_22_23_project.plansmanagement.model.MonthlyFee monthlyFee = new com.example.psoft_22_23_project.plansmanagement.model.MonthlyFee();
-        monthlyFee.setMonthlyFee(10.00);
-
-        com.example.psoft_22_23_project.plansmanagement.model.Active activeStatus = new com.example.psoft_22_23_project.plansmanagement.model.Active();
-        activeStatus.setActive(true);
-
-        com.example.psoft_22_23_project.plansmanagement.model.Promoted promotedStatus = new com.example.psoft_22_23_project.plansmanagement.model.Promoted();
-        promotedStatus.setPromoted(false);
-
-        return new Plans(planName, description, numberOfMinutes, maximumNumberOfUsers,
-                musicCollection, musicSuggestion, annualFee, monthlyFee, activeStatus, promotedStatus);
-    }
 
 
     @Test
     public void cancelSubscription_Success() {
-        
         String version = "1";
         when(webRequest.getHeader("If-Match")).thenReturn(version);
         when(subscriptionsService.cancelSubscription(eq(1L))).thenReturn(testSubscription);
 
-       
         ResponseEntity<?> response = subscriptionsController.cancelSubscription(webRequest);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -544,25 +484,21 @@ public class SubscriptionsControllerTest {
 
     @Test
     public void cancelSubscription_MissingIfMatchHeader() {
-      
         when(webRequest.getHeader("If-Match")).thenReturn(null);
 
-    
-        assertThrows(org.springframework.web.server.ResponseStatusException.class, () ->
+        assertThrows(ResponseStatusException.class, () ->
                 subscriptionsController.cancelSubscription(webRequest)
         );
     }
 
     @Test
     public void cancelSubscription_EntityNotFound() {
-      
         String version = "1";
         when(webRequest.getHeader("If-Match")).thenReturn(version);
         when(subscriptionsService.cancelSubscription(anyLong())).thenThrow(
                 new EntityNotFoundException("No subscriptions found")
         );
 
-        
         assertThrows(EntityNotFoundException.class, () ->
                 subscriptionsController.cancelSubscription(webRequest)
         );
@@ -570,35 +506,29 @@ public class SubscriptionsControllerTest {
 
     @Test
     public void changePlan_Success() {
-  
         String planName = "Premium Plus";
         String version = "1";
         when(webRequest.getHeader("If-Match")).thenReturn(version);
         when(subscriptionsService.changePlan(anyLong(), eq(planName))).thenReturn(testSubscription);
 
-    
         ResponseEntity<?> response = subscriptionsController.changePlan(webRequest, planName);
 
-      
         assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(subscriptionsService).changePlan(anyLong(), eq(planName));
     }
 
     @Test
     public void changePlan_MissingIfMatchHeader() {
-        
         String planName = "Premium Plus";
         when(webRequest.getHeader("If-Match")).thenReturn(null);
 
-     
-        assertThrows(org.springframework.web.server.ResponseStatusException.class, () ->
+        assertThrows(ResponseStatusException.class, () ->
                 subscriptionsController.changePlan(webRequest, planName)
         );
     }
 
     @Test
     public void changePlan_IllegalArgumentException() {
-       
         String planName = "Current Plan";
         String version = "1";
         when(webRequest.getHeader("If-Match")).thenReturn(version);
@@ -611,54 +541,42 @@ public class SubscriptionsControllerTest {
         );
     }
 
-    
     @Test
     public void renewSubscription_Success() {
-        
         String version = "1";
         when(webRequest.getHeader("If-Match")).thenReturn(version);
         when(subscriptionsService.renewAnualSubscription(anyLong())).thenReturn(testSubscription);
 
-       
         ResponseEntity<?> response = subscriptionsController.renewAnualSubscription(webRequest);
 
-       
         assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(subscriptionsService).renewAnualSubscription(anyLong());
     }
 
     @Test
     public void renewSubscription_MissingIfMatchHeader() {
-        
         when(webRequest.getHeader("If-Match")).thenReturn(null);
 
-        
-        assertThrows(org.springframework.web.server.ResponseStatusException.class, () ->
+        assertThrows(ResponseStatusException.class, () ->
                 subscriptionsController.renewAnualSubscription(webRequest)
         );
     }
 
     @Test
     public void renewSubscription_MonthlySubscription() {
-       
         String version = "1";
         when(webRequest.getHeader("If-Match")).thenReturn(version);
         when(subscriptionsService.renewAnualSubscription(anyLong())).thenThrow(
                 new IllegalArgumentException("You can not renew a monthly subscription")
         );
 
-      
         assertThrows(IllegalArgumentException.class, () ->
                 subscriptionsController.renewAnualSubscription(webRequest)
         );
     }
 
-
-
-
     @Test
     public void createSubscription_UserAlreadyHasActiveSubscription() {
-        
         CreateSubscriptionsRequest request = new CreateSubscriptionsRequest();
         request.setName("Premium");
         request.setPaymentType("monthly");
@@ -667,7 +585,6 @@ public class SubscriptionsControllerTest {
                 new IllegalArgumentException("You need to let your active subscription end in order to subscribe")
         );
 
-    
         assertThrows(IllegalArgumentException.class, () ->
                 subscriptionsController.create(request)
         );
