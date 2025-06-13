@@ -2,8 +2,6 @@ package com.example.psoft_22_23_project.utils;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.Arrays;
-
 public class Utils {
 
     // Gets the id of current authenticated user
@@ -19,9 +17,34 @@ public class Utils {
     }
 
     public static String sanitize(String input) {
-            if (input == null) return null;
-            return input.replaceAll("[\n\r\t]", "_");
+        if (input == null) return null;
+        
+        // First decode any URL encoding consistently
+        try {
+            String decoded = java.net.URLDecoder.decode(input, java.nio.charset.StandardCharsets.UTF_8);
+            
+            // Check for path traversal and injection patterns
+            String[] dangerousPatterns = {
+                "..", "/", "\\", ":", "<", ">", "\"", "'", "&", "|", ";", "$", "`",
+                "javascript:", "data:", "http:", "https:", "ftp:", "file:"
+            };
+            
+            for (String pattern : dangerousPatterns) {
+                if (decoded.toLowerCase().contains(pattern)) {
+                    // Return sanitized version by removing dangerous characters
+                    decoded = decoded.replaceAll("[<>\"'&|;$`:/\\\\]", "_");
+                    break;
+                }
+            }
+            
+            // Replace control characters
+            return decoded.replaceAll("[\n\r\t\0]", "_");
+            
+        } catch (Exception e) {
+            // If decoding fails, sanitize the original input
+            return input.replaceAll("[\n\r\t\0<>\"'&|;$`:/\\\\]", "_");
         }
+    }
 
 
 }

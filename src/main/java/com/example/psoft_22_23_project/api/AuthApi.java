@@ -1,21 +1,17 @@
 package com.example.psoft_22_23_project.api;
 
-import com.example.psoft_22_23_project.configuration.ClientIPUtil;
-import com.example.psoft_22_23_project.configuration.JwtService;
-import com.example.psoft_22_23_project.usermanagement.api.UserViewMapper;
-import com.example.psoft_22_23_project.usermanagement.model.User;
-import com.example.psoft_22_23_project.usermanagement.services.LoginAttemptService;
-import com.example.psoft_22_23_project.utils.Utils;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -27,13 +23,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.psoft_22_23_project.configuration.ClientIPUtil;
+import com.example.psoft_22_23_project.configuration.JwtService;
+import com.example.psoft_22_23_project.usermanagement.api.UserViewMapper;
+import com.example.psoft_22_23_project.usermanagement.model.User;
+import com.example.psoft_22_23_project.usermanagement.services.LoginAttemptService;
+import com.example.psoft_22_23_project.utils.Utils;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 
 @Tag(name = "Authentication")
@@ -56,10 +59,11 @@ public class AuthApi {
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "User authenticated successfully"),
 			@ApiResponse(responseCode = "401", description = "Invalid credentials"),
+			@ApiResponse(responseCode = "415", description = "Unsupported Media Type"),
 			@ApiResponse(responseCode = "423", description = "Account is locked"),
 			@ApiResponse(responseCode = "429", description = "Too many failed login attempts")
 	})
-	@PostMapping("login")
+	@PostMapping(value = "login", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> login(@RequestBody @Valid final AuthRequest request) {
 		String clientIp = clientIPUtil.getClientIP();
 		String username = request.getUsername();
