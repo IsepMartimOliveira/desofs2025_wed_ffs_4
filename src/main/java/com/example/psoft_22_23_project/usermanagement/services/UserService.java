@@ -106,7 +106,7 @@ public class UserService implements UserDetailsService {
 	public Resource seeImage() {
 		User user = getCurrentAuthenticatedUser();
 		if (user.getUserImage() == null || user.getUserImage().getFileName() == null) {
-			throw new RuntimeException("Unable to retrieve user image.");
+			throw new UsernameNotFoundException("Unable to retrieve user image.");
 		}
 		return fileStorageService.loadFileAsResource(user.getUserImage().getFileName());
 	}
