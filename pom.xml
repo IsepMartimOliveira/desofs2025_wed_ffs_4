@@ -17,6 +17,8 @@
 
 	<properties>
 		<java.version>17</java.version>
+		<spring-framework.version>6.2.8</spring-framework.version>
+
 		<!-- automatically run annotation processors within the incremental compilation -->
 		<m2e.apt.activation>jdt_apt</m2e.apt.activation>
 		<sonar.organization>isepmartimoliveira</sonar.organization>
