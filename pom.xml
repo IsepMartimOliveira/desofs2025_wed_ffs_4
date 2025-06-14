@@ -22,7 +22,7 @@
 		<sonar.organization>isepmartimoliveira</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<!-- Explicitly control embedded Tomcat version -->
-		<tomcat.version>10.1.40</tomcat.version>
+		<tomcat.version>10.1.41</tomcat.version>
 	</properties>
 
 	<dependencies>
