@@ -7,9 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.example.psoft_22_23_project.devicemanagement.api.CreateDeviceRequest;
 import com.example.psoft_22_23_project.devicemanagement.model.Device;
+import com.example.psoft_22_23_project.devicemanagement.model.DeviceImage;
 import com.example.psoft_22_23_project.devicemanagement.model.MacAddress;
 import com.example.psoft_22_23_project.devicemanagement.repositories.DeviceRepository;
+import com.example.psoft_22_23_project.devicemanagement.services.CreateDeviceMapper;
 import com.example.psoft_22_23_project.devicemanagement.services.DeviceServiceImpl;
 import com.example.psoft_22_23_project.plansmanagement.model.*;
 import com.example.psoft_22_23_project.subscriptionsmanagement.model.PaymentType;
@@ -17,10 +20,12 @@ import com.example.psoft_22_23_project.subscriptionsmanagement.model.Subscriptio
 import com.example.psoft_22_23_project.subscriptionsmanagement.repositories.SubscriptionsRepository;
 import com.example.psoft_22_23_project.usermanagement.model.User;
 import com.example.psoft_22_23_project.usermanagement.repositories.UserRepository;
+import com.example.psoft_22_23_project.utils.Utils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -40,8 +45,12 @@ public class FindAllDevicesByUserTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private CreateDeviceMapper createDeviceMapper;
+
     @InjectMocks
     private DeviceServiceImpl deviceService;
+
 
     @BeforeEach
     public void setup() {
@@ -112,6 +121,127 @@ public class FindAllDevicesByUserTest {
 
         return new Device(macAddress, name, description, subscription);
     }
+
+    @Test
+    public void testCreateDevice_Success() {
+        // Arrange
+        String userIdString = "1";
+        User user = createUser();
+        Subscriptions subscription = createSubscription("Premium Plan");
+        Device newDevice = createDevice("AA:BB:CC:DD:EE:FF", "Premium Plan");
+
+        Authentication authentication = new TestingAuthenticationToken(userIdString, "password");
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        when(userRepository.findById(Long.valueOf(userIdString))).thenReturn(Optional.of(user));
+        when(subscriptionsRepository.findByUser(user)).thenReturn(Optional.of(subscription));
+        when(deviceRepository.save(any(Device.class))).thenReturn(newDevice);
+        when(createDeviceMapper.create(any(Subscriptions.class), any(CreateDeviceRequest.class)))
+                .thenReturn(newDevice);
+        CreateDeviceRequest DeviceRequest = new CreateDeviceRequest(
+                newDevice.getMacAddress().getMacAddress(),
+                newDevice.getName().getName(),
+                newDevice.getDescription().getDescription()
+        );
+        // Act
+        Device createdDevice = deviceService.create(DeviceRequest,null);
+
+        // Assert
+        assertNotNull(createdDevice);
+        assertEquals("AA:BB:CC:DD:EE:FF", createdDevice.getMacAddress().getMacAddress());
+        assertEquals("Device Name", createdDevice.getName().getName());
+        assertEquals("Device Description", createdDevice.getDescription().getDescription());
+        assertNotNull(createdDevice.getSubscription());
+
+        verify(userRepository).findById(Long.valueOf(userIdString));
+        verify(subscriptionsRepository).findByUser(user);
+        verify(deviceRepository).save(any(Device.class));
+    }
+
+    @Test
+    public void testCreateDevice_UserNotFound() {
+        String userIdString = "1";
+        User user = createUser();
+        Subscriptions subscription = createSubscription("Premium Plan");
+        Device newDevice = createDevice("AA:BB:CC:DD:EE:FF", "Premium Plan");
+        CreateDeviceRequest createDeviceRequest = new CreateDeviceRequest(
+                newDevice.getMacAddress().getMacAddress(),
+                newDevice.getName().getName(),
+                newDevice.getDescription().getDescription()
+        );
+        try (MockedStatic<Utils> mockedUtils = mockStatic(Utils.class)) {
+            mockedUtils.when(Utils::getAuthId).thenReturn(userIdString);
+
+            when(userRepository.findById(Long.valueOf(userIdString))).thenReturn(Optional.empty());
+
+            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                    () -> deviceService.create(createDeviceRequest, null));
+
+            assertEquals("User not found with id " + userIdString, exception.getMessage());
+            verify(userRepository).findById(Long.valueOf(userIdString));
+            verifyNoInteractions(subscriptionsRepository, deviceRepository, createDeviceMapper);
+        }
+    }
+
+   @Test
+    public void testCreateDevice_SubscriptionNotFound() {
+       String userIdString = "1";
+       User user = createUser();
+       Subscriptions subscription = createSubscription("Premium Plan");
+       Device newDevice = createDevice("AA:BB:CC:DD:EE:FF", "Premium Plan");
+       CreateDeviceRequest createDeviceRequest = new CreateDeviceRequest(
+               newDevice.getMacAddress().getMacAddress(),
+               newDevice.getName().getName(),
+               newDevice.getDescription().getDescription()
+       );
+        try (MockedStatic<Utils> mockedUtils = mockStatic(Utils.class)) {
+            mockedUtils.when(Utils::getAuthId).thenReturn(userIdString);
+
+            when(userRepository.findById(Long.valueOf(userIdString))).thenReturn(Optional.of(user));
+            when(subscriptionsRepository.findByUser(user)).thenReturn(Optional.empty());
+
+            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                    () -> deviceService.create(createDeviceRequest, null));
+
+            assertEquals("Subscription not found for user with id " + userIdString, exception.getMessage());
+            verify(userRepository).findById(Long.valueOf(userIdString));
+            verify(subscriptionsRepository).findByUser(user);
+            verifyNoInteractions(deviceRepository, createDeviceMapper);
+        }
+    }
+
+
+    @Test
+    public void testCreateDevice_MacAddressAlreadyExists() {
+        String userIdString = "1";
+        User user = createUser();
+        Subscriptions subscription = createSubscription("Premium Plan");
+        Device newDevice = createDevice("AA:BB:CC:DD:EE:FF", "Premium Plan");
+        CreateDeviceRequest createDeviceRequest = new CreateDeviceRequest(
+                newDevice.getMacAddress().getMacAddress(),
+                newDevice.getName().getName(),
+                newDevice.getDescription().getDescription()
+        );
+        try (MockedStatic<Utils> mockedUtils = mockStatic(Utils.class)) {
+            mockedUtils.when(Utils::getAuthId).thenReturn(userIdString);
+
+            when(userRepository.findById(Long.valueOf(userIdString))).thenReturn(Optional.of(user));
+            when(subscriptionsRepository.findByUser(user)).thenReturn(Optional.of(subscription));
+            when(deviceRepository.countBySubscription(subscription)).thenReturn(0); // Not at limit yet
+            when(deviceRepository.findByMacAddress_MacAddress(createDeviceRequest.getMacAddress())).thenReturn(Optional.of(newDevice));
+
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                    () -> deviceService.create(createDeviceRequest, null));
+
+            assertEquals("Cannot create an object that already exists", exception.getMessage());
+            verify(userRepository).findById(Long.valueOf(userIdString));
+            verify(subscriptionsRepository).findByUser(user);
+            verify(deviceRepository).countBySubscription(subscription);
+            verify(deviceRepository).findByMacAddress_MacAddress(createDeviceRequest.getMacAddress());
+            verifyNoInteractions(createDeviceMapper);
+        }
+    }
+
 
     @Test
     public void testFindAllDevicesByUser_Success() {
