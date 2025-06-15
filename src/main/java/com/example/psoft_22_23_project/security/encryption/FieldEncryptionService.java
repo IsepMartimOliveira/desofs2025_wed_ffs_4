@@ -58,7 +58,6 @@ public class FieldEncryptionService {
     private final String transformation;
     private final int ivLength;
     private final int tagLength;
-    private final int keyLength;
     private final SecretKey encryptionKey;
     private final SecureRandom secureRandom;
 
@@ -74,24 +73,16 @@ public class FieldEncryptionService {
             @Value("${app.encryption.algorithm:AES}") String algorithm,
             @Value("${app.encryption.transformation:AES/GCM/NoPadding}") String transformation,
             @Value("${app.encryption.iv-length:12}") int ivLength,
-            @Value("${app.encryption.tag-length:128}") int tagLength,
-            @Value("${app.encryption.key-length:256}") int keyLength) {
+            @Value("${app.encryption.tag-length:128}") int tagLength) {
         this.secureRandom = new SecureRandom();
         this.algorithm = algorithm;
         this.transformation = transformation;
         this.ivLength = ivLength;
         this.tagLength = tagLength;
-        this.keyLength = keyLength;
 
-        if (encryptionKeyString == null || encryptionKeyString.trim().isEmpty()) {
-            logger.warn("No encryption key provided. Generating a new one. " +
-                    "This should only happen in development environments!");
-            this.encryptionKey = generateNewKey();
-        } else {
-            this.encryptionKey = new SecretKeySpec(
-                    Base64.getDecoder().decode(encryptionKeyString),
-                    this.algorithm);
-        }
+        this.encryptionKey = new SecretKeySpec(
+                Base64.getDecoder().decode(encryptionKeyString),
+                this.algorithm);
 
         logger.info("FieldEncryptionService initialized with {} encryption and {} transformation", this.algorithm,
                 this.transformation);
@@ -167,26 +158,6 @@ public class FieldEncryptionService {
         } catch (Exception e) {
             logger.error("Decryption failed", e);
             throw new RuntimeException("Failed to decrypt data", e);
-        }
-    }
-
-    /**
-     * Generates a new AES-256 encryption key.
-     * This method should only be used in development or for key rotation.
-     * 
-     * @return A new SecretKey for AES encryption
-     */
-    private SecretKey generateNewKey() {
-        try {
-            KeyGenerator keyGenerator = KeyGenerator.getInstance(algorithm);
-            keyGenerator.init(keyLength, secureRandom);
-            SecretKey key = keyGenerator.generateKey();
-            String encodedKey = Base64.getEncoder().encodeToString(key.getEncoded());
-            logger.warn("Generated new encryption key (Base64): {}", encodedKey);
-            logger.warn("Add this to your application configuration: app.encryption.key={}", encodedKey);
-            return key;
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Failed to generate encryption key", e);
         }
     }
 }

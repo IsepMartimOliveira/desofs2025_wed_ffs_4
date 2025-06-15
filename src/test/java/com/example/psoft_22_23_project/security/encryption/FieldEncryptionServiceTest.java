@@ -36,7 +36,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
- * Tests for the FieldEncryptionService to ensure proper PII encryption functionality.
+ * Tests for the FieldEncryptionService to ensure proper PII encryption
+ * functionality.
  * 
  * These tests verify ASVS compliance for stored cryptography requirements:
  * - Encryption uses industry-standard algorithms (AES-256-GCM)
@@ -50,12 +51,12 @@ class FieldEncryptionServiceTest {
     private FieldEncryptionService encryptionService;
 
     // Using a fixed, Base64-encoded 256-bit AES key for consistent testing
-    private static final String TEST_ENCRYPTION_KEY = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="; // Example key (bytes 0-31)
+    private static final String TEST_ENCRYPTION_KEY = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="; // Example key
+                                                                                                      // (bytes 0-31)
     private static final String TEST_ALGORITHM = "AES";
     private static final String TEST_TRANSFORMATION = "AES/GCM/NoPadding";
     private static final int TEST_IV_LENGTH = 12; // Default GCM IV length (96 bits)
     private static final int TEST_TAG_LENGTH = 128; // Default GCM tag length (128 bits)
-    private static final int TEST_KEY_LENGTH = 256; // AES-256 key length
 
     @BeforeEach
     void setUp() {
@@ -65,9 +66,7 @@ class FieldEncryptionServiceTest {
                 TEST_ALGORITHM,
                 TEST_TRANSFORMATION,
                 TEST_IV_LENGTH,
-                TEST_TAG_LENGTH,
-                TEST_KEY_LENGTH
-        );
+                TEST_TAG_LENGTH);
     }
 
     @Test
@@ -85,10 +84,10 @@ class FieldEncryptionServiceTest {
     @Test
     void encrypt_shouldReturnDifferentResults_forSameInput() {
         String plaintext = "test@example.com";
-        
+
         String encrypted1 = encryptionService.encrypt(plaintext);
         String encrypted2 = encryptionService.encrypt(plaintext);
-        
+
         assertNotNull(encrypted1);
         assertNotNull(encrypted2);
         assertNotEquals(encrypted1, encrypted2, "Each encryption should use a unique IV");
@@ -125,7 +124,7 @@ class FieldEncryptionServiceTest {
     @Test
     void decrypt_shouldThrowException_forInvalidData() {
         String invalidEncrypted = "invalid-base64-data";
-        
+
         assertThrows(RuntimeException.class, () -> {
             encryptionService.decrypt(invalidEncrypted);
         });
@@ -135,10 +134,10 @@ class FieldEncryptionServiceTest {
     void decrypt_shouldThrowException_forTamperedData() {
         String plaintext = "test@example.com";
         String encrypted = encryptionService.encrypt(plaintext);
-        
+
         // Tamper with the encrypted data
         String tamperedEncrypted = encrypted.substring(0, encrypted.length() - 5) + "XXXXX";
-        
+
         assertThrows(RuntimeException.class, () -> {
             encryptionService.decrypt(tamperedEncrypted);
         }, "GCM mode should detect tampering and throw an exception");
@@ -148,16 +147,16 @@ class FieldEncryptionServiceTest {
     void encryptedData_shouldBeLongerThanPlaintext() {
         String plaintext = "short";
         String encrypted = encryptionService.encrypt(plaintext);
-        
-        assertTrue(encrypted.length() > plaintext.length(), 
-                  "Encrypted data should be longer due to IV and authentication tag");
+
+        assertTrue(encrypted.length() > plaintext.length(),
+                "Encrypted data should be longer due to IV and authentication tag");
     }
 
     @Test
     void encryptedData_shouldBeBase64Encoded() {
         String plaintext = "test@example.com";
         String encrypted = encryptionService.encrypt(plaintext);
-        
+
         // Should be valid base64
         assertDoesNotThrow(() -> {
             Base64.getDecoder().decode(encrypted);
