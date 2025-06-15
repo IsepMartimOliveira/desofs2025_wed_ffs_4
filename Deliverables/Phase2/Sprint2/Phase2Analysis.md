@@ -111,3 +111,9 @@ Some rules were implemented in the repository to ensure that the code is always 
 
 Currently it is being doing backup of the database, which is stored in a secure location. The backup process is automated to ensure regular backups are taken at 00:00 every day. The backup files are encrypted to protect sensitive data and are stored in a secure location to prevent unauthorized access.
 ![Data Flow Diagram](ssdlc/img/backups.png)
+
+## User Data Encryption
+
+To further strengthen data protection and privacy, the system now implements encryption for regulated user data (Personally Identifiable Information - PII) at rest. Sensitive fields such as names, email addresses, and other private user attributes are encrypted using robust cryptographic algorithms before being stored in the database. This ensures that, even in the event of unauthorized database access, confidential user information remains protected and unreadable without the appropriate decryption keys.
+
+Encryption keys are securely managed and stored outside the application codebase, following best practices for key management. All encryption and decryption operations are handled transparently by the backend, requiring no additional action from end users. This approach aligns with compliance requirements for data privacy and demonstrates a commitment to safeguarding user information throughout the system lifecycle.
