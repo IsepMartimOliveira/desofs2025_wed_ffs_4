@@ -70,7 +70,7 @@
 5. As an authenticated user, I want to ensure that the information I submit is stored and displayed accurately.
 6. As an authenticated user, I want to be notified if any of my critical data is changed (e.g., email, subscription plan)
 7. As an authenticated user, I want a log of my important actions (e.g., plan changes, cancellations) to verify what I’ve done.
-8. As an authenticated user, I want to be able to recover my account if I forget my password.
+8. As an authenticated user, I want to be able to change my password and should not be able to change it.
 9. As a marketing director, I want a log of my important actions to verify what I've done.
 10. As a marketing director, I want to ensure my information is stored and sent safely.
 
