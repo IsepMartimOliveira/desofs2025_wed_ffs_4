@@ -20,10 +20,12 @@
  */
 package com.example.psoft_22_23_project.exceptions;
 
-import com.example.psoft_22_23_project.utils.Utils;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.exception.ConstraintViolationException;
@@ -36,11 +38,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.example.psoft_22_23_project.utils.Utils;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ValidationException;
-
-import java.util.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 /**
@@ -144,6 +148,32 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 				.body(new ApiCallError<>("Internal server error", List.of(ex.getMessage())));
 	}
+
+	/**
+	 * Override Spring's default handling of HTTP 415 Unsupported Media Type errors
+	 */
+	@Override
+	protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(
+			org.springframework.web.HttpMediaTypeNotSupportedException ex,
+			org.springframework.http.HttpHeaders headers,
+			org.springframework.http.HttpStatusCode status,
+			org.springframework.web.context.request.WebRequest request) {
+		
+		logger.warn("UnsupportedMediaType for URI {} - Content-Type: {}, Supported types: {}", 
+				request.getDescription(false), 
+				ex.getContentType(),
+				ex.getSupportedMediaTypes());
+
+		final Map<String, Object> details = new HashMap<>();
+		details.put("message", "Content-Type is not supported for this endpoint");
+		details.put("providedContentType", ex.getContentType() != null ? ex.getContentType().toString() : "null");
+		details.put("supportedMediaTypes", ex.getSupportedMediaTypes());
+		details.put("timestamp", System.currentTimeMillis());
+
+		return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+				.body(new ApiCallError<>("Unsupported Media Type", details.entrySet()));
+	}
+
 	@Data
 	@NoArgsConstructor
 	@AllArgsConstructor

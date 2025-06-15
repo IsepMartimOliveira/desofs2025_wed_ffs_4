@@ -20,27 +20,20 @@
  */
 package com.example.psoft_22_23_project.configuration;
 
-import com.example.psoft_22_23_project.usermanagement.model.Role;
-import com.example.psoft_22_23_project.usermanagement.repositories.UserRepository;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.proc.SecurityContext;
-import lombok.RequiredArgsConstructor;
+import static java.lang.String.format;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -52,14 +45,21 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
+import com.example.psoft_22_23_project.security.EncodingSecurityFilter;
+import com.example.psoft_22_23_project.usermanagement.model.Role;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
 
-import static java.lang.String.format;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Check https://www.baeldung.com/security-spring and
@@ -77,7 +77,6 @@ import static java.lang.String.format;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-	private final UserRepository userRepo;
 	private final AuthenticationConfiguration authenticationConfiguration;
 
 	@Value("${jwt.public.key}")
@@ -180,11 +179,18 @@ public class SecurityConfig {
 		http.oauth2ResourceServer(oauth2 -> oauth2
 				.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
 
+		// Add encoding security filter for consistent URL decoding and SSRF/RFI protection
+		http.addFilterBefore(new EncodingSecurityFilter(), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+
 		// Configure frame options for H2
 		http.headers(headers -> headers
 				.frameOptions(frameOptions -> frameOptions.sameOrigin())
 				.contentSecurityPolicy(csp -> csp
 						.policyDirectives("default-src 'self'; script-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'"))
+				.referrerPolicy(referrer -> referrer
+						.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN) // Or another suitable policy
+				)
+
 		);
 
 
@@ -192,13 +198,8 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-		return http.getSharedObject(AuthenticationManagerBuilder.class)
-				.userDetailsService(username -> userRepo.findByUsername(username)
-						.orElseThrow(() -> new UsernameNotFoundException(format("User: %s, not found", username))))
-				.passwordEncoder(passwordEncoder())
-				.and()
-				.build();
+	public AuthenticationManager authenticationManager() throws Exception {
+		return authenticationConfiguration.getAuthenticationManager();
 	}
 
 	// Used by JwtAuthenticationProvider to generate JWT tokens

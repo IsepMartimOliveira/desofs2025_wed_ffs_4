@@ -39,7 +39,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -72,7 +71,14 @@ public class FileStorageService {
 			throw new IllegalArgumentException("File is null");
 		}
 
-		// Valida o ficheiro, MIME type, extensoes
+		if (file.isEmpty()) {
+			throw new IllegalArgumentException("File is empty");
+		}
+
+		if (file.getOriginalFilename() == null || file.getOriginalFilename().trim().isEmpty()) {
+			throw new IllegalArgumentException("File name is missing");
+		}
+
 		try (InputStream inputStream = file.getInputStream()) {
 			if (!SanitizeImage.isValidImage(file.getOriginalFilename(), inputStream)) {
 				throw new FileStorageException("Invalid image file!");
@@ -83,11 +89,28 @@ public class FileStorageService {
 
 		final String fileName = Utils.transformSpaces(prefix) + "_" + determineFileName(file);
 
-		// Copy file to the target location (Replacing existing file with the same name)
 		try {
 			final Path targetLocation = fileStorageLocation.resolve(fileName);
-			Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
+			if (!targetLocation.normalize().startsWith(fileStorageLocation)) {
+				throw new FileStorageException("Invalid file path detected");
+			}
+
+			Path tempFile = Files.createTempFile(fileStorageLocation, "upload_", ".tmp");
+			try {
+				Files.copy(file.getInputStream(), tempFile, StandardCopyOption.REPLACE_EXISTING);
+				Files.move(tempFile, targetLocation, StandardCopyOption.REPLACE_EXISTING);
+			} catch (Exception e) {
+				// Clean up temp file if something goes wrong
+				try {
+					Files.deleteIfExists(tempFile);
+				} catch (IOException cleanupEx) {
+					logger.warn("Failed to clean up temp file: {}", tempFile, cleanupEx);
+				}
+				throw e;
+			}
+
+			logger.info("Successfully stored file: {}", fileName);
 			return fileName;
 		} catch (final IOException ex) {
 			throw new FileStorageException("Could not store file " + fileName + ". Please try again!", ex);
@@ -95,26 +118,25 @@ public class FileStorageService {
 	}
 
 	private String determineFileName(final MultipartFile file) {
-		// // Normalize file name
-		// final String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-		// // Check if the file's name contains invalid characters
-		// if (fileName.contains("..")) {
-		// throw new FileStorageException("Sorry! Filename contains invalid path
-		// sequence " + fileName);
-		// }
-		// return fileName;
+		// Use the secure extension method from SanitizeImage
+		String extension = SanitizeImage.getExtension(file.getOriginalFilename()).orElse("");
 
-		return UUID.randomUUID().toString() + "." + getExtension(file.getOriginalFilename()).orElse("");
-	}
+		if (extension.isEmpty()) {
+			throw new FileStorageException("Could not determine file extension");
+		}
 
-	public Optional<String> getExtension(final String filename) {
-		return Optional.ofNullable(filename).filter(f -> f.contains("."))
-				.map(f -> f.substring(filename.lastIndexOf(".") + 1));
+		return UUID.randomUUID().toString() + "." + extension;
 	}
 
 	public Resource loadFileAsResource(final String fileName) {
 		try {
 			final Path filePath = fileStorageLocation.resolve(fileName).normalize();
+
+			// Security check: ensure the resolved path is within our storage directory
+			if (!filePath.startsWith(fileStorageLocation)) {
+				throw new NotFoundException("Access denied for file: " + fileName);
+			}
+
 			final Resource resource = new UrlResource(filePath.toUri());
 			if (resource.exists()) {
 				return resource;
@@ -128,7 +150,19 @@ public class FileStorageService {
 	public boolean deleteFile(final String fileName) {
 		try {
 			Path filePath = fileStorageLocation.resolve(fileName).normalize();
-			return Files.deleteIfExists(filePath);
+
+			if (!filePath.startsWith(fileStorageLocation)) {
+				logger.warn("Attempted to delete file outside storage directory: {}", fileName);
+				return false;
+			}
+
+			boolean deleted = Files.deleteIfExists(filePath);
+			if (deleted) {
+				logger.info("Successfully deleted file: {}", fileName);
+			} else {
+				logger.warn("File not found for deletion: {}", fileName);
+			}
+			return deleted;
 		} catch (IOException ex) {
 			logger.error("Could not delete file {}: {}", fileName, ex.getMessage());
 			return false;

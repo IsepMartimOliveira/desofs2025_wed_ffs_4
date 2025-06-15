@@ -33,9 +33,14 @@ services:
       - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}
       - SSL_KEYSTORE_PASSWORD=${SSL_KEYSTORE_PASSWORD}
       - SSL_KEYSTORE=/app/keystore.p12
+      - LOGGING_FILE_NAME=/app/logs/application.log
+      - EMAIL_USERNAME=${EMAIL_USERNAME}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+
 
     volumes:
       - app-uploads:/app/uploads
+      - /var/log/myapp:/app/logs
       - ./keystore.p12:/app/keystore.p12:ro
     #depends_on:
     #  db:
@@ -45,3 +50,5 @@ services:
 
 volumes:
   app-uploads:
+  app-logs:
+

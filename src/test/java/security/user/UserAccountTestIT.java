@@ -60,6 +60,7 @@ public class UserAccountTestIT {
 
         // Perform POST request and assert
         mockMvc.perform(post("/api/user/account")
+                        .secure(true)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -67,8 +68,8 @@ public class UserAccountTestIT {
                 .andExpect(jsonPath("$.id").value("1"))
                 .andExpect(jsonPath("$.username").value(request.getUsername()))
                 .andExpect(jsonPath("$.fileName").doesNotExist());
-    }
-*/
+    }*/
+
     @Test
     void createUser_whenInvalidEmail_thenReturnsBadRequest() throws Exception {
         CreateUserRequest request = new CreateUserRequest();
@@ -79,6 +80,7 @@ public class UserAccountTestIT {
         request.setAge(30);
 
         mockMvc.perform(post("/api/user/account")
+                        .secure(true)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -94,6 +96,7 @@ public class UserAccountTestIT {
         request.setAge(30);
 
         mockMvc.perform(post("/api/user/account")
+                        .secure(true)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());

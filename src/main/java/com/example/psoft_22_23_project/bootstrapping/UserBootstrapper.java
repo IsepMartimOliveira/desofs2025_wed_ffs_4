@@ -63,8 +63,8 @@ public class UserBootstrapper implements CommandLineRunner {
 	@Transactional
 	public void run(final String... args) throws Exception {
 		// admin
-		if (userRepo.findByUsername("admin@mail.com").isEmpty()) {
-			final User u1 = new User("admin@mail.com", encoder.encode(adminPassword), "admin@mail.com", 123456789, 35);
+		if (userRepo.findByUsername("filipe@mail.com").isEmpty()) {
+			final User u1 = new User("filipe@mail.com", encoder.encode(adminPassword), "filipe@mail.com", 123456789, 35);
 			u1.addAuthority(new Role(Role.User_Admin));
 			userRepo.save(u1);
 		}

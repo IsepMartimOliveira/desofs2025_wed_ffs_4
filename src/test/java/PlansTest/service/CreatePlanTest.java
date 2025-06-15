@@ -138,8 +138,8 @@ public class CreatePlanTest {
         assertEquals(plans.getMusicSuggestion().getMusicSuggestion(), request.getMusicSuggestion());
         assertEquals(plans.getAnnualFee().getAnnualFee(), request.getAnnualFee());
         assertEquals(plans.getMonthlyFee().getMonthlyFee(), request.getMonthlyFee());
-        assertEquals(plans.getActive().getActive(), request.isActive());
-        assertEquals(plans.getPromoted().getPromoted(), request.isPromoted());
+        assertEquals(plans.getActive().getActive(), request.getActive());
+        assertEquals(plans.getPromoted().getPromoted(), request.getPromoted());
 
         when(plansRepository.findByName_Name("New Plan")).thenReturn(Optional.of(plan));
 
