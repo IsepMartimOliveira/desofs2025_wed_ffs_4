@@ -55,6 +55,9 @@ jobs:
           echo 'JWT_PUBLIC_KEY="${{ secrets.JWT_PUBLIC_KEY }}"' >> .env
           echo 'SSL_KEYSTORE=keystore.p12' >> .env
           echo 'SSL_KEYSTORE_PASSWORD=${{ secrets.SSL_KEYSTORE_PASSWORD }}' >> .env
+          echo 'EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }}' >> .env
+          echo 'EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}' >> .env
+          echo 'EMAIL_HOST=${{ secrets.EMAIL_HOST }}' >> .env
 
       - name: Start DB service
         run: docker compose -f docker-compose-db-test.yml --env-file .env up -d
