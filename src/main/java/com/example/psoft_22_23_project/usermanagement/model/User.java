@@ -20,6 +20,8 @@
  */
 package com.example.psoft_22_23_project.usermanagement.model;
 
+import com.example.psoft_22_23_project.security.encryption.EncryptedIntegerConverter;
+import com.example.psoft_22_23_project.security.encryption.EncryptedStringConverter;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -71,25 +73,30 @@ public class User implements UserDetails {
 	@NotNull
 	@NotBlank
 	private String password;
-
+	
 	@Getter
 	@Setter
+	@Convert(converter = EncryptedStringConverter.class)
+	@Column(columnDefinition = "TEXT")
 	private String location;
 
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "TEXT")
 	@Email
 	@Getter
 	@Setter
+	@Convert(converter = EncryptedStringConverter.class)
 	private String email;
 
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "TEXT")
 	@Getter
 	@Setter
+	@Convert(converter = EncryptedIntegerConverter.class)
 	private int phoneNumber;
 
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "TEXT")
 	@Getter
 	@Setter
+	@Convert(converter = EncryptedIntegerConverter.class)
 	private int age;
 
 	@Setter

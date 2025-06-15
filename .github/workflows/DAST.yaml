@@ -58,6 +58,7 @@ jobs:
           echo 'EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }}' >> .env
           echo 'EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}' >> .env
           echo 'EMAIL_HOST=${{ secrets.EMAIL_HOST }}' >> .env
+          echo 'PII_ENCRYPTION_KEY=${{ secrets.PII_ENCRYPTION_KEY }}' >> .env
 
       - name: Start DB service
         run: docker compose -f docker-compose-db-test.yml --env-file .env up -d

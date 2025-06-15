@@ -158,6 +158,8 @@ jobs:
             echo 'EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}' >> .env
             echo 'EMAIL_HOST=${{ secrets.EMAIL_HOST }}' >> .env
 
+            echo 'PII_ENCRYPTION_KEY=${{ secrets.PII_ENCRYPTION_KEY }}' >> .env
+
       - name: Add private key to SSH agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
