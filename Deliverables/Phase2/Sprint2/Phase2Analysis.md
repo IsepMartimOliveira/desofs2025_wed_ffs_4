@@ -97,7 +97,9 @@ The platform utilizes **JWT-based authentication** with secure token management,
 **Input validation** is rigorously applied to all user inputs including payment type validation against regex patterns (annually|monthly), parameter sanitization to prevent injection attacks, and version number validation for concurrent access control. 
 
 The error handling strategy prioritizes **information disclosure prevention** with generic error messages that prevent system architecture exposure, database schema protection through masked SQL exceptions, and consistent error response formats across all endpoints, ensuring secure communication while maintaining system reliability and user experience.
-
+## Email Notifications
+The system implements a secure email notification service that ensures users are promptly informed of critical account changes, such as password resets.
+![Email Notification Flow](./img/notifications_email.png)
 ## Data Protection
 
 The system provides users with control over their personal data by implementing features for data export and deletion. Users can request an export of their data, which will be provided in a common, JSON format. Additionally, users have the right to request the deletion of their personal data from the system, ensuring compliance with data privacy regulations.
