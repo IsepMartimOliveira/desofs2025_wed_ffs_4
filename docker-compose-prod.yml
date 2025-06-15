@@ -34,6 +34,8 @@ services:
       - SSL_KEYSTORE_PASSWORD=${SSL_KEYSTORE_PASSWORD}
       - SSL_KEYSTORE=/app/keystore.p12
       - LOGGING_FILE_NAME=/app/logs/application.log
+      - EMAIL_USERNAME=${EMAIL_USERNAME}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
 
 
     volumes:
