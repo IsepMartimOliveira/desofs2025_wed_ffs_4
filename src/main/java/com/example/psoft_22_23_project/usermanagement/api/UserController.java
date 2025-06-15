@@ -23,6 +23,7 @@ package com.example.psoft_22_23_project.usermanagement.api;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+import com.example.psoft_22_23_project.usermanagement.services.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -62,6 +63,8 @@ public class UserController {
 	private final UserService userService;
 
 	private final UserViewMapper userViewMapper;
+
+	private final NotificationService notificationService;
 
 	@Operation(summary = "Upload Image")
 	@PatchMapping("photo")
@@ -131,6 +134,7 @@ public class UserController {
 	@PatchMapping(value = "password", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<UserView> changePassword(@RequestBody PasswordChangeRequest request) {
 		User updatedUser = userService.changePassword(request);
+		notificationService.sendNotification(updatedUser);
 		return ResponseEntity.ok().body(userViewMapper.toUserView(updatedUser));
 	}
 
