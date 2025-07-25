@@ -24,7 +24,7 @@
 		<sonar.organization>isepmartimoliveira</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<!-- Explicitly control embedded Tomcat version -->
-		<tomcat.version>11.0.8</tomcat.version>
+		<tomcat.version>11.0.9</tomcat.version>
 	</properties>
 
 	<dependencies>
@@ -102,7 +102,7 @@
 		<dependency>
 			<groupId>com.nimbusds</groupId>
 			<artifactId>nimbus-jose-jwt</artifactId>
-			<version>9.37.3</version>
+			<version>10.0.2</version>
 		</dependency>
 
 		<!-- Database -->
